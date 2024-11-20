@@ -62,6 +62,7 @@ function Learning() {
           alt={`Number ${numbers[currentNumber].num}`}
         />
         <p>Number {numbers[currentNumber].num}</p>
+        
         <button onClick={nextNumber}>Next</button>
       </div>
     </div>
