@@ -58,11 +58,11 @@ function Learning() {
       <h2>Learn Numbers</h2>
       <div>
         <img
-          src={numbers[currentNumber].image}
-          alt={`Number ${numbers[currentNumber].num}`}
+          src={numbers[currentNumber]?.image}
+          alt={`Number ${numbers[currentNumber]?.num}`}
         />
-        <p>Number {numbers[currentNumber].num}</p>
-        
+        <p>Number {numbers[currentNumber]?.num}</p>
+
         <button onClick={nextNumber}>Next</button>
       </div>
     </div>
