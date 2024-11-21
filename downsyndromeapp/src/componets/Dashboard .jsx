@@ -41,7 +41,7 @@ function Dashboard() {
   const navigate = useNavigate();
 
   const move = () => {
-    navigate("kkk"); // Navigate to the nested 'kkk' route
+    navigate("/kkk"); // Navigate to the nested 'kkk' route
   };
 
   return (
