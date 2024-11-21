@@ -122,7 +122,7 @@ function HomeBody() {
           </div>
         </div>
       </div>
-      <Footer />
+     
     </div>
   );
 }
