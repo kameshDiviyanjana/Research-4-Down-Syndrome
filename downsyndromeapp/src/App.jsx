@@ -53,12 +53,20 @@ function App() {
               }
             >
               {/* Nested Route under Dashboard */}
-              <Route path="kkk" element={<Move />} />
+              {/* <Route path="kkk" element={<Move />} /> */}
             </Route>
+            <Route
+              path="/kkk"
+              element={
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  element={<Move />}
+                />
+              }
+            />
           </Routes>
         </Layout>
       </Router>
-      
     </>
   );
 }
