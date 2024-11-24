@@ -2,8 +2,12 @@ import React from "react";
 import homeimage from "../assets/homeimage2.jpg";
 import bodyimage from "../assets/value-image.jpg";
 import Footer from "./Footer";
-
+import { useNavigate } from "react-router-dom";
 function HomeBody() {
+ const navigate = useNavigate()
+  const login = ()=>{
+navigate('/login')
+  }
   return (
     <div>
       {/* <div className=" w-full h-full bg-red-400 relative">
@@ -30,7 +34,7 @@ function HomeBody() {
           <h1 className="text-5xl   text-[#e27e02] font-bold mb-6">
             The Bank of Knowledge <br /> for Your Kids
           </h1>
-          <button className="py-3 px-6 text-white bg-[#1C4596] rounded-md hover:bg-[#e27e02] transition duration-300">
+          <button className="py-3 px-6 text-white bg-[#1C4596] rounded-md hover:bg-[#e27e02] transition duration-300" onClick={login}>
             Start Now
           </button>
         </div>
