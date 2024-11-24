@@ -37,7 +37,7 @@ function HomeBody() {
       </div>
 
       <div className=" mb-8 ">
-        <div className="mb-8   ml-60 mr-60 mt-8 grid grid-cols-2 rounded-2xl border border-indigo-600">
+        <div className="mb-8 sm:ml-2 sm:mr-2  md:ml-5 md:mr-5  lg:ml-60 lg:mr-60 mt-8 grid lg:grid-cols-2 rounded-2xl border border-indigo-600">
           <div className=" rounded-l-lg bg-[#F18F02]">
             <div className=" py-5 px-5">
               <h1 className=" text-7xl text-white">Discover Our Training</h1>
@@ -104,7 +104,7 @@ function HomeBody() {
         </div>
       </div>
       <div className=" bg-[#D6EDFF]  mt-5 py-14 px-14">
-        <div className=" ml-60 mr-60   grid md:grid-cols-1 xl:grid-cols-2 gap-10">
+        <div className=" lg:ml-60 lg:mr-60   grid md:grid-cols-1 xl:grid-cols-2 gap-10">
           <div>
             <h1 className=" text-3xl text-[#1C4596]  font-bold mb-3">
               The Value It Brings You
