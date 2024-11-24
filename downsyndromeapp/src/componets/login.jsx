@@ -1,4 +1,3 @@
-
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/apiClient";
@@ -11,8 +10,8 @@ function Login() {
   const { setAuthState } = useContext(AuthContext);
   const navigate = useNavigate();
   const [error, setError] = useState("");
-  const [register,setregister] = useState(true)
- 
+  const [register, setregister] = useState(true);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -35,16 +34,14 @@ function Login() {
     }
   };
 
-  const singinandup = ()=>{
-setregister(!register)
-  }
+  const singinandup = () => {
+    setregister(!register);
+  };
 
-  
-  
   return (
     <div>
-      <div className="grid grid-cols-2">
-        <div className="">
+      <div className="grid lg:grid-cols-2">
+        <div className="  max-lg:hidden">
           <img
             src="https://blog.miacademy.co/wp-content/uploads/2024/03/shutterstock_1934814437-scaled.jpg"
             alt="image-home"
@@ -52,7 +49,7 @@ setregister(!register)
           />
         </div>
         <div>
-          <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+          <div className="flex flex-col items-center justify-center max-lg:p-5 lg:min-h-screen bg-gray-100">
             <div>
               <button
                 className=" bg-blue-100 font-bold py-2 rounded-l-2xl  px-7 hover:bg-blue-900 hover:text-white transition duration-300 mb-5"
@@ -101,7 +98,7 @@ setregister(!register)
               </div>
             ) : (
               <>
-              <Signup/>
+                <Signup />
               </>
             )}
           </div>
@@ -112,4 +109,3 @@ setregister(!register)
 }
 
 export default Login;
-
