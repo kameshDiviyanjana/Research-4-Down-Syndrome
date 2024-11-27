@@ -49,7 +49,9 @@ function Dashboard() {
   const move = () => {
     navigate("/kkk"); // Navigate to the nested 'kkk' route
   };
-   
+   const voiceNavigate = ()=>{
+    navigate("/voice");
+   }
 
   return (
     <div>
@@ -58,7 +60,12 @@ function Dashboard() {
           <div className=" py-16 px-12">
             <div className="  grid grid-cols-2 ">
               <div className=" border-r-2 border-b-2 border-[#F18F02] flex justify-center py-6 px-7">
-                <img src={mic} alt="image" className=" h-48" onClick={move} />
+                <img
+                  src={mic}
+                  alt="image"
+                  className=" h-48"
+                  onClick={voiceNavigate}
+                />
               </div>
               <div className="border-b-2 border-[#F18F02] flex justify-center py-6 px-7">
                 <img src={write} alt="image" className=" h-48" onClick={move} />

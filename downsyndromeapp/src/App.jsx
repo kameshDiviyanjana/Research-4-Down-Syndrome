@@ -75,6 +75,9 @@ import { AuthProvider } from "./componets/AuthProvider";
 import ProtectedRoute from "./componets/ProtectedRoute";
 import Layout from "./componets/Layout";
 import DashobordeLayout from "./layout/DashobordeLayout";
+import PronunciationChecker from "./componets/Vioce";
+import SideBarVoice from "./componets/voices/sideBarVoice";
+import VoicesWord from "./componets/voices/VoicesWord";
 
 function App() {
   return (
@@ -107,6 +110,19 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/voice"
+            element={
+              <ProtectedRoute>
+                <DashobordeLayout>
+                  <SideBarVoice />
+                </DashobordeLayout>
+              </ProtectedRoute>
+            }
+          >
+            <Route path="" element={<PronunciationChecker />} />
+            <Route path="word" element={<VoicesWord />} />
+          </Route>
           <Route
             path="/kkk"
             element={
