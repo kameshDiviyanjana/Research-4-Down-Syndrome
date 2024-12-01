@@ -1,142 +1,107 @@
-import React from "react";
-import axios from "axios";
+import React, { useState } from "react";
+import AddWord from "../../api/wordApi"; // The hook for mutation (AddWord)
+import { useMutation } from "react-query";
 
+const WordAdd = () => {
+  const [imagePreview, setImagePreview] = useState(null);
+  const [fileName, setFileName] = useState(""); // To display the file name
+  const [selectedFile, setSelectedFile] = useState(null); // Store the file
+  const [wordAdd, setWordAdd] = useState("");
+  const addWordMutation = AddWord(); // This is the hook that triggers the mutation
+  const userid = localStorage.getItem("userid"); // Get user ID from localStorage
 
-const WordAdd = ({ onSubmit }) => {
- 
+  // Handle file upload
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setFileName(file.name); // Update the file name
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result); // Set the preview URL
+      };
+      reader.readAsDataURL(file); // Convert file to Base64 URL
+      setSelectedFile(file); // Save the selected file
+    }
+  };
+
+  // Handle form submission
+  const handleAddWord = async (event) => {
+    event.preventDefault(); // Prevent page reload on form submit
+
+    if (!selectedFile) {
+      console.error("Please upload an image");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("wordAdd", wordAdd); // Append the word
+    formData.append("userid", userid); // Append the user ID
+    formData.append("image", selectedFile); // Append the image file
+
+    try {
+      // Trigger the mutation by passing FormData to mutate function
+      await addWordMutation.mutateAsync(formData);
+      console.log("Word added successfully");
+    } catch (error) {
+      console.error("Failed to add word:", error);
+    }
+  };
+
   return (
-    <form>
+    <form onSubmit={handleAddWord}>
       <div className="max-w-4xl mx-auto py-8 px-4">
         <h2 className="text-2xl text-white font-bold mb-6 text-center">
-          Add New  Word
+          Add New Word
         </h2>
         <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-          <div className="grid grid-cols-2 gap-6">
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Created On
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Word
+            </label>
+            <input
+              type="text"
+              placeholder="Enter Word"
+              required
+              className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              value={wordAdd}
+              onChange={(e) => setWordAdd(e.target.value)}
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Word Image
+            </label>
+            <div className="flex items-center gap-4">
+              <label
+                htmlFor="requestedBy"
+                className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold shadow focus:outline-none focus:shadow-outline"
+              >
+                Choose File
               </label>
               <input
-                type="date"
-                id="createdOn"
-                name="createdOn"
+                type="file"
+                id="requestedBy"
+                name="requestedBy"
+                accept="image/*"
+                onChange={handleImageUpload}
                 required
-                className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                className="hidden"
               />
+              <span className="text-gray-600 text-sm">
+                {fileName || "No file selected"}
+              </span>
             </div>
 
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Location
-              </label>
-              <select
-                id="location"
-                name="location"
-                required
-                className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              >
-                <option value="">Select Location</option>
-                <option value="1th floor">1th floor</option>
-                <option value="2th floor">2th floor</option>
-                <option value="3th floor">3th floor</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Service
-            </label>
-            <input
-              type="text"
-              id="service"
-              name="service"
-              placeholder="Enter Service"
-              required
-              className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Status
-            </label>
-            <select
-              id="status"
-              name="status"
-              required
-              className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            >
-              <option value="">Select Status</option>
-              <option value="New">New</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Escalated">Escalated</option>
-              <option value="On Hold">On Hold</option>
-            </select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Priority
-              </label>
-              <select
-                id="priority"
-                name="priority"
-                required
-                className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              >
-                <option value="">Select Priority</option>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-              </select>
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Department
-              </label>
-              <select
-                id="department"
-                name="department"
-                required
-                className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              >
-                <option value="">Select Department</option>
-                <option value="it">IT</option>
-                <option value="Facilities">Facilities</option>
-                <option value="Marketing">Marketing </option>
-                <option value="Production">Production </option>
-              </select>
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Requested By
-            </label>
-            <input
-              type="text"
-              id="requestedBy"
-              name="requestedBy"
-              placeholder="Enter Requested By"
-              required
-              className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            />
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Assigned To
-            </label>
-            <input
-              type="text"
-              id="assignedTo"
-              name="assignedTo"
-              placeholder="Enter Assigned To"
-              className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            />
+            {imagePreview && (
+              <div className="mt-4">
+                <img
+                  src={imagePreview}
+                  alt="Uploaded Preview"
+                  className="h-[300px] w-[500px] object-cover border rounded-lg"
+                />
+              </div>
+            )}
           </div>
 
           <div className="flex items-center justify-end">
@@ -154,3 +119,4 @@ const WordAdd = ({ onSubmit }) => {
 };
 
 export default WordAdd;
+

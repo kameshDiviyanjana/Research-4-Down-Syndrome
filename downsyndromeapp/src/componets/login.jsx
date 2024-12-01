@@ -22,6 +22,7 @@ function Login() {
       console.log(safeUser);
       localStorage.setItem("token", token);
       localStorage.setItem("user", safeUser.username);
+      localStorage.setItem("userid", safeUser._id);
       setAuthState({ token, safeUser });
       navigate("/dashboard");
     } catch (error) {
