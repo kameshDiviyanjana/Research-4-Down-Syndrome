@@ -64,7 +64,7 @@ function MathPractice() {
       >
         {loading ? "Checking..." : "Submit"}
       </button>
-      {feedback && (
+      {feedback && ( 
         <div className={`feedback-message ${feedback.includes("Correct") ? "success" : "error"}`}>
           {feedback}
         </div>
