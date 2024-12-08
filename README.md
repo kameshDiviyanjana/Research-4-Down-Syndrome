@@ -1,5 +1,5 @@
 
-                                  ✨ Downsyndrome Learning App ✨
+  #                                ✨ Downsyndrome Learning App ✨
 A user-friendly web application designed to help children with Down syndrome improve their vocabulary, speech, and pronunciation through engaging and interactive learning tools. Our mission is to provide accessible and effective therapy solutions for children aged 5-12. 💖
 
 🚀 Features
