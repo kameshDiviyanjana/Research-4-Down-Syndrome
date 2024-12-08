@@ -50,6 +50,16 @@ This platform is designed to provide a supportive environment for children with 
 1. Navigate to the word Practice Page in NavBar
 
 2.  Click on the word set listing word start Practice
+
+
+**********************************************
+
+
+Developing Gross Motor Skill
+
+Wijesinghe S.A.A.K
+
+Down Syndrome children are mostly delayed in experience in doing gross motor skills which are more important to their day-to-day life activities like jumping, walking, and standing... In this component, the child can learn how to do gross motor skills correctly and do their daily work. First, they have to understand their level to continue the process.  After that the system provides gross motor skills according to their level. Then system will analyze each skill with the trained model and give feedback to the child and parent. If the child didn't do the task correctly he can attend the same task again till he satisfied.
   
 
  
