@@ -20,10 +20,8 @@ AI Moble :  Web Speech API / TensorFlow (for speech recognition and evaluation)
 Deployment: Docker, AWS/GCP
  ![Macbook-Air-localhost](https://github.com/user-attachments/assets/6f4d43c7-82a3-4b6f-944a-f4a274efae84)
  
- # Multisensory Multisensory Learning Tools Platform for Children with Down Syndrome
-
-
-Student ID: IT21287022  
+ # 🧮 Multisensory Multisensory Learning 
+ 
 Name: Kumara W.R.A.H.K
 
 This platform is designed to provide a supportive environment for children with Down Syndrome to practice foundational mathematics using multisensory learning techniques.
@@ -40,7 +38,7 @@ This platform is designed to provide a supportive environment for children with 
 
 **********************************************
 
-# word pronunciation Learning 
+# 🎤 word pronunciation Learning 
 
  Diviyanjana H K
 
@@ -56,7 +54,7 @@ This platform is designed to provide a supportive environment for children with 
 **********************************************
 
 
-# Developing Gross Motor Skill
+# 🔭 Developing Gross Motor Skill
 
 Wijesinghe S.A.A.K
 
