@@ -40,7 +40,7 @@ This platform is designed to provide a supportive environment for children with 
 
 **********************************************
 
- word pronunciation Learning Tools Platform for Children with Down Syndrome
+# word pronunciation Learning 
 
  Diviyanjana H K
 
