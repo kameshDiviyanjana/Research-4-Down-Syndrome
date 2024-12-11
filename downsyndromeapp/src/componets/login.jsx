@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import apiClient from "../api/apiClient";
 import { AuthContext } from "./AuthProvider";
 import Signup from "./Singup";
+import Button from "./molecule/Button";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -88,12 +89,20 @@ function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
-                  <button
+                  {/* <button
                     className="bg-[#F18F02] font-bold py-2 rounded-md hover:bg-blue-900 hover:text-white transition duration-300"
                     type="submit"
                   >
                     Login
-                  </button>
+                  </button> */}
+                  <Button
+                    styles={
+                      "bg-[#F18F02] font-bold py-2 rounded-md hover:bg-blue-900 hover:text-white transition duration-300 w-full"
+                    }
+                    buttonname="Login"
+                    Onclick={handleLogin}
+                    enterallow = {true}
+                  ></Button>
                   {error && <p style={{ color: "red" }}>{error}</p>}
                 </form>
               </div>
