@@ -3,6 +3,7 @@ import homeimage from "../assets/homeimage2.jpg";
 import bodyimage from "../assets/value-image.jpg";
 import Footer from "./Footer";
 import { useNavigate } from "react-router-dom";
+
 function HomeBody() {
  const navigate = useNavigate()
   const login = ()=>{
@@ -21,6 +22,7 @@ navigate('/login')
           </button>
         </div>
       </div> */}
+   
       <div className="w-full h-[500px] bg-red-400 relative ">
         {/* Background Image */}
         <img
