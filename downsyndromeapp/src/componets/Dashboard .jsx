@@ -11,6 +11,7 @@ import studing from "../assets/second-language-social.jpg";
 import mathlearn from "../assets/maths.avif";
 import happy from "../assets/happy.webp";
 import readbook from "../assets/read-books.jpeg";
+import CustomCarousel from "./writingComponent/CustomCarousel ";
 function Dashboard() {
   const navigate = useNavigate();
   const { setAuthState } = useContext(AuthContext);
@@ -31,6 +32,11 @@ function Dashboard() {
 
   return (
     <div>
+      <div>
+        <div>
+         <CustomCarousel/>
+        </div>
+      </div>
       <div className=" py-4 px-6">
         {/* <div className="  lg:ml-60 lg:mr-60">
           <div className=" py-16 px-12">
@@ -115,7 +121,7 @@ function Dashboard() {
                   "bg-[#F18F02] font-bold py-2 rounded-md hover:bg-blue-900 hover:text-white transition duration-300 text-white px-8 mt-5"
                 }
                 Onclick={() => {
-                mathpage()
+                  mathpage();
                 }}
                 buttonname="click"
               ></Button>
@@ -158,7 +164,7 @@ function Dashboard() {
                   "bg-[#F18F02] font-bold py-2 rounded-md hover:bg-blue-900 hover:text-white transition duration-300 text-white px-8 mt-5"
                 }
                 Onclick={() => {
-                 drawpage()
+                  drawpage();
                 }}
                 buttonname="click"
               ></Button>
@@ -189,7 +195,7 @@ function Dashboard() {
                   "bg-[#F18F02] font-bold py-2 rounded-md hover:bg-blue-900 hover:text-white transition duration-300 text-white px-8 mt-5"
                 }
                 Onclick={() => {
-                 grossmotoSkill()
+                  grossmotoSkill();
                 }}
                 buttonname="click"
               ></Button>
