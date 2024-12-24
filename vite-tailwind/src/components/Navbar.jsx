@@ -79,7 +79,7 @@ const Navbar = () => {
               to="/"
               className="flex items-center font-bold text-lg hover:text-yellow-300 transition-colors"
             >
-              D Learner
+              පොඩ්ඩො හැමෝටම
             </Link>
           </div>
 
