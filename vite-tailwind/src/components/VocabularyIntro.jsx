@@ -1,5 +1,10 @@
 import vocabulary from "../assets/vocab.png";
+import { useNavigate } from "react-router-dom";
 const VocabularyIntro = () => {
+  const navigate = useNavigate();
+  const handleNavigate = () => {
+    navigate("/vocablary/");
+  };
   return (
     <div className="flex flex-col md:flex-row items-center justify-between bg-white p-6 md:py-16 md:px-32">
       {/* Left Section: Text Content */}
@@ -13,7 +18,10 @@ const VocabularyIntro = () => {
           discover and remember new words easily. Tap below to open a world of
           words and start the fun-filled journey to boost vocabulary!
         </p>
-        <button className="bg-blue-100 text-blue-600 font-semibold px-6 py-2 rounded-md hover:bg-blue-200 transition">
+        <button
+          className="bg-blue-100 text-blue-600 font-semibold px-6 py-2 rounded-md hover:bg-blue-200 transition"
+          onClick={handleNavigate}
+        >
           Lets Practice and Learn how to do it
         </button>
       </div>
