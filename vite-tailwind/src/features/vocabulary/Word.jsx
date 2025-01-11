@@ -3,6 +3,8 @@ import { FaRegStar } from "react-icons/fa";
 import Modal from "../../atomes/Modal";
 import WordAdd from "../../atomes/Form";
 import WordList from "./WordList";
+import backgroundMusic from "../../assets/ZestSound.mp3";
+
 function Word() {
   const [rating, setRating] = useState(null);
   const [hover, setHover] = useState(null);
@@ -58,16 +60,6 @@ function Word() {
               +
             </button>
           </div>
-
-          <div className=" bg-white w-[200px] h-[200px]"></div>
-
-          <div className=" bg-white w-[200px] h-[200px]"></div>
-          <div className=" bg-white w-[200px] h-[200px]"></div>
-          <div className=" bg-white w-[200px] h-[200px]"></div>
-          <div className=" bg-white w-[200px] h-[200px]"></div>
-          <div className=" bg-white w-[200px] h-[200px]"></div>
-          <div className=" bg-white w-[200px] h-[200px]"></div>
-          <div className=" bg-white w-[200px] h-[200px]"></div>
         </div>
         <Modal open={isModalOpen} onClose={closeModal}>
           <WordAdd />
@@ -78,6 +70,10 @@ function Word() {
             <WordList />
           </div>
         </Modal>
+
+        <audio autoPlay loop hidden>
+          <source src={backgroundMusic}></source>
+        </audio>
       </div>
     </div>
   );
