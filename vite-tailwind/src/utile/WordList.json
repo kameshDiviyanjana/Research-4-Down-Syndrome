@@ -1,0 +1,44 @@
+{
+  "word": [
+    {
+      "id": 1,
+      "Image": "Apple.jpeg",
+      "word": "Apple"
+    },
+    {
+      "id": 2,
+      "Image": "Banan.jpeg",
+      "word": "Banana"
+    },
+    {
+      "id": 3,
+      "Image": "mango.jpeg",
+      "word": "Mango"
+    },
+    {
+      "id": 4,
+      "Image": "pineapple.jpeg",
+      "word": "Pineapple"
+    },
+    {
+      "id": 5,
+      "Image": "orange.jpeg",
+      "word": "Orange"
+    },
+    {
+      "id": 6,
+      "Image": "grapse.jpeg",
+      "word": "Grape"
+    },
+    {
+      "id": 7,
+      "Image": "chery.jpeg",
+      "word": "Cherry"
+    },
+    {
+      "id": 8,
+      "Image": "images.jpeg",
+      "word": "Passion "
+    }
+  ]
+}

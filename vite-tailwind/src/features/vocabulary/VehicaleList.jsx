@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React from "react";
 import Button from "../../atomes/Button";
 import WordLists from "../../utile/WordList.json";
 import appleImage from "../../assets/ImageList/Apple.jpeg"; // Correct path
@@ -9,8 +9,6 @@ import orangeImage from "../../assets/ImageList/orange.jpeg";
 import grapeImage from "../../assets/ImageList/grapse.jpeg";
 import cherryImage from "../../assets/ImageList/chery.jpeg";
 import passionImage from "../../assets/ImageList/Passion.jpeg";
-import { useNavigate } from "react-router-dom";
-
 
 const imageMapping = {
   Apple: appleImage,
@@ -23,12 +21,7 @@ const imageMapping = {
   Passion: passionImage,
 };
 
-const WordList = () => {
- const navigate = useNavigate();
-  const PacticesWord =()=>{
-    console.log("click");
-  navigate("/vocablary/list-word");
-  }
+const VehicalList = () => {
   return (
     <div className="h-[600px] w-[900px] bg-white">
       <div>
@@ -63,14 +56,10 @@ const WordList = () => {
         <Button
           styles="bg-[#F18F02] font-bold py-2 rounded-md hover:bg-blue-900 hover:text-white transition duration-300 text-white px-5 mt-14"
           buttonname="Let's Start"
-          Onclicks={PacticesWord}
         />
       </div>
     </div>
   );
 };
 
-export default WordList;
-
-
-
+export default VehicalList;
