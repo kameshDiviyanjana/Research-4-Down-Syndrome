@@ -33,7 +33,7 @@ function Grossmotorskills() {
     }, [typedText, index, strings, typeSpeed]);
 
     const hadleclickwordpage = ()=>{
-      navigae("word");
+      navigae("video-grossmotor");
     }
   return (
     <>
