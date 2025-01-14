@@ -6,6 +6,7 @@ import Login from "../pages/Login";
 import VocabularyRoute from "./VocabularyRoute";
 import { AuthProvider } from "../auth/AuthProvider";
 import ProtectedRoute from "../auth/ProtectedRoute";
+import GrossmotorskillRoute from "./GrossmotorskillRoute";
 
 const Router = () => {
   return (
@@ -19,6 +20,7 @@ const Router = () => {
         <Route element={<ProtectedRoute />}>
           <Route path="/skills" element={<SkillDevHome />} />
           <Route path="/vocabulary/*" element={<VocabularyRoute />} />
+          <Route path="/grossmotor/*" element={<GrossmotorskillRoute />} />
         </Route>
 
         {/* Fallback Route */}
