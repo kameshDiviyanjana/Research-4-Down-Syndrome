@@ -20,7 +20,10 @@
     "react-query": "^3.39.3",
     "react-router-dom": "^7.0.2",
     "sweetalert2": "^11.15.2",
-    "tailwind-merge": "^2.5.5"
+    "tailwind-merge": "^2.5.5",
+     "dotenv": "^16.4.5",
+    "formik": "^2.4.6",
+    "jwt-decode": "^4.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

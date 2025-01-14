@@ -4,18 +4,27 @@ import NotFound from "../pages/NotFound";
 import SkillDevHome from "../pages/SkillDevHome";
 import Login from "../pages/Login";
 import VocabularyRoute from "./VocabularyRoute";
+import { AuthProvider } from "../auth/AuthProvider";
+import ProtectedRoute from "../auth/ProtectedRoute";
 
 const Router = () => {
   return (
-    <Routes>
-      
+    <AuthProvider>
+      <Routes>
+        {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Homepage />} />
+
+        {/* Protected Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/skills" element={<SkillDevHome />} />
+          <Route path="/vocabulary/*" element={<VocabularyRoute />} />
+        </Route>
+
+        {/* Fallback Route */}
         <Route path="*" element={<NotFound />} />
-        <Route path="/skills" element={<SkillDevHome />} />
-     
-      <Route path="/vocablary/*" element={<VocabularyRoute />} />
-    </Routes>
+      </Routes>
+    </AuthProvider>
   );
 };
 

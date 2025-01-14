@@ -27,7 +27,7 @@ const WordList = () => {
  const navigate = useNavigate();
   const PacticesWord =()=>{
     console.log("click");
-  navigate("/vocablary/list-word");
+  navigate("/vocabulary/list-word");
   }
   return (
     <div className="h-[600px] w-[900px] bg-white">
