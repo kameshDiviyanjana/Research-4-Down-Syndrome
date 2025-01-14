@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient, useQuery } from "react-query";
-// import apiClient from "./apiClient"; // Axios instance
+ import apiClient from "./apiClient"; // Axios instance
 import axios from "axios";
 export const AddWord = () => {
   const queryClient = useQueryClient();
@@ -7,8 +7,8 @@ export const AddWord = () => {
     mutationKey: "add_word", // Unique key for this mutation
     mutationFn: async (data) => {
       try {
-        const response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/bs/word`,
+        const response = await apiClient.post(
+          `/word`,
           data,
           {
             headers: {
@@ -38,8 +38,8 @@ export const AllAddWord = (page, limit = 20, userme, pacticesword) => {
     async () => {
       try {
         // Pass page and limit to your API for pagination
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/bs/word/words`,
+        const response = await apiClient.get(
+          `/word/words`,
           {
             params: { page, limit, userme, pacticesword },
           }

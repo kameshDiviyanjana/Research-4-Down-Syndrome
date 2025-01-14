@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Home,
@@ -10,11 +10,18 @@ import {
   Moon,
   Rocket,
   LogIn,
+  LogOut,
 } from "lucide-react";
 
 const Navbar = () => {
+ const token = localStorage.getItem("token");
+
   const [isDarkMode, setIsDarkMood] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const logout = ()=>{
+    localStorage.removeItem("token");
+    window.location.href = "/login";
+  }
   const location = useLocation();
   const navLinks = [
     {
@@ -37,11 +44,18 @@ const Navbar = () => {
       path: "/contact",
       icon: <Mail className="w-5 h-5 mr-2" />,
     },
-    {
-      name: "Sign in",
-      path: "/login",
-      icon: <LogIn className="w-5 h-5 mr-2" />,
-    },
+    token
+      ? {
+          name: "Sign out",
+          path: "#", // Prevent navigation on logout
+          icon: <LogOut className="w-5 h-5 mr-2" />,
+          action: logout,
+        }
+      : {
+          name: "Sign in",
+          path: "/login",
+          icon: <LogIn className="w-5 h-5 mr-2" />,
+        },
   ];
 
   const toggleTheme = () => {

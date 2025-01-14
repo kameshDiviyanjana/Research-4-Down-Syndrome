@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 const VocabularyIntro = () => {
   const navigate = useNavigate();
   const handleNavigate = () => {
-    navigate("/vocablary/");
+    navigate("/vocabulary");
   };
   return (
     <div className="flex flex-col md:flex-row items-center justify-between bg-white p-6 md:py-16 md:px-32">
