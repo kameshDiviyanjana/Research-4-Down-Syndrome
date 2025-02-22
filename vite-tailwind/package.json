@@ -10,8 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.12.15",
     "antd": "^5.22.5",
     "axios": "^1.7.9",
+    "dotenv": "^16.4.5",
+    "formik": "^2.4.6",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.468.0",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
@@ -19,11 +23,9 @@
     "react-icons": "^5.4.0",
     "react-query": "^3.39.3",
     "react-router-dom": "^7.0.2",
+    "react-speech-recognition": "^3.10.0",
     "sweetalert2": "^11.15.2",
-    "tailwind-merge": "^2.5.5",
-     "dotenv": "^16.4.5",
-    "formik": "^2.4.6",
-    "jwt-decode": "^4.0.0"
+    "tailwind-merge": "^2.5.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-//import AddWord from "../../api/wordApi"; // The hook for mutation (AddWord)
+import { AddWord } from "../Api/vocabularyApi";
+
 //import { useMutation } from "react-query";
 
 const WordAdd = () => {
@@ -7,7 +8,7 @@ const WordAdd = () => {
   const [fileName, setFileName] = useState(""); // To display the file name
   const [selectedFile, setSelectedFile] = useState(null); // Store the file
   const [wordAdd, setWordAdd] = useState("");
-  //const addWordMutation = AddWord(); // This is the hook that triggers the mutation
+  const addWordMutation = AddWord(); // This is the hook that triggers the mutation
   const userid = localStorage.getItem("userid"); // Get user ID from localStorage
 
   // Handle file upload
@@ -40,7 +41,7 @@ const WordAdd = () => {
 
     try {
       // Trigger the mutation by passing FormData to mutate function
-    //   await addWordMutation.mutateAsync(formData);
+      await addWordMutation.mutateAsync(formData);
       console.log("Word added successfully");
     } catch (error) {
       console.error("Failed to add word:", error);
