@@ -10,7 +10,7 @@ function SystemPage() {
   const [randomCategory, setRandomCategory] = useState("");
   const navigate = useNavigate();
 
-  const categories = ["catch", "walk", "jump"];
+  const categories = ["catch", "walk", "jump","run"];
   const categoryVideos = {
     catch: "/videos/catch.mp4",
     walk: "/videos/walk.mp4",
