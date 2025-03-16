@@ -11,9 +11,9 @@ function Grossmotorskills() {
     var typeSpeed = 220;
     useEffect(() => {
       const interval = setInterval(() => {
-        // Check if reached the end of the current string
+        
         if (typedText === strings[index]) {
-          // Reset index if reached the end of strings array
+  
           if (index === strings.length - 1) {
             setIndex(0);
           } else {
@@ -21,7 +21,7 @@ function Grossmotorskills() {
           }
           setTypedText("");
         } else {
-          // Type next character
+          
           setTypedText(
             (prevTypedText) =>
               prevTypedText + strings[index][prevTypedText.length]
@@ -29,7 +29,7 @@ function Grossmotorskills() {
         }
       }, typeSpeed);
 
-      // Cleanup interval
+      // interval
       return () => clearInterval(interval);
     }, [typedText, index, strings, typeSpeed]);
 
