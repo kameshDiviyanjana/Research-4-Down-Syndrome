@@ -1,194 +1,186 @@
-import React, { useState, useEffect, useRef } from "react";
+// export default WordLearn;
+
+import React, { useState, useRef } from "react";
+import axios from "axios";
+import { encodeWAV } from "./wavEncoder";
 import bush from "../../../assets/bush-clipart-animated-6.png";
 import sun from "../../../assets/source.gif";
-import { AllAddWord, findword } from "../../../Api/vocabularyApi";
-import StartingPage from "../utile/StartingPage";
+import { findword } from "../../../Api/vocabularyApi";
 import { useParams } from "react-router-dom";
-function WordLearn() {
-  const [pagecount, setPagecount] = useState(1);
-  const userme = localStorage.getItem("userid");
+import StartingPage from "../utile/StartingPage";
+
+const WordLearn = () => {
+  const [recording, setRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState(null);
   const [completed, setCompleted] = useState(false);
+  const [taskCompleted, setTaskCompleted] = useState(false);
   const [start, setStart] = useState(true);
-  const [isRecording, setIsRecording] = useState(false);
-  const [audioURL, setAudioURL] = useState(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
+  const [prediction, setPrediction] = useState(null);
   const { id } = useParams();
   const { data: getallword, isLoading, error } = findword(id);
 
-  const spechword = (textword) => {
-    const utterance = new SpeechSynthesisUtterance(textword);
-    window.speechSynthesis.speak(utterance);
-  };
-
-  const nextWord = () => {
-    if (pagecount < getallword?.data?.totalPages) {
-      setPagecount((prev) => prev + 1);
-    } else {
-      setCompleted(true);
-    }
-  };
-
-  const prevWord = () => {
-    setPagecount((prev) => (prev > 1 ? prev - 1 : 1));
-  };
-
+  // 🎙 Start Recording
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: "audio/webm",
+      });
+
+      audioChunksRef.current = [];
 
       mediaRecorderRef.current.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data);
+        console.log("Data available, size:", event.data.size);
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
       };
 
-      mediaRecorderRef.current.onstop = () => {
+      mediaRecorderRef.current.onstop = async () => {
+        console.log("Recording stopped, processing audio...");
         const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/wav",
+          type: "audio/webm",
         });
-        const audioURL = URL.createObjectURL(audioBlob);
-        setAudioURL(audioURL);
+
+        try {
+          const wavBlob = await convertToWav(audioBlob);
+          console.log("WAV conversion completed, size:", wavBlob.size);
+          setAudioBlob(wavBlob);
+        } catch (error) {
+          console.error("Error converting to WAV:", error);
+        }
       };
 
       mediaRecorderRef.current.start();
-      setIsRecording(true);
+      setRecording(true);
     } catch (error) {
       console.error("Error accessing microphone:", error);
     }
   };
 
+  // ⏹ Stop Recording
   const stopRecording = () => {
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
+    if (mediaRecorderRef.current && recording) {
+      setTimeout(() => {
+        mediaRecorderRef.current.stop();
+        mediaRecorderRef.current.stream
+          .getTracks()
+          .forEach((track) => track.stop());
+        setRecording(false);
+        console.log("Recording stopped successfully.");
+      }, 500); // ⏳ Delay ensures all data is processed
     }
   };
-  const [taskcompleted, settaskcompleted] = useState(false);
 
-  const sendAudioToBackend = async () => {
+  // 🎵 Convert Audio to WAV
+  const convertToWav = async (blob) => {
+    const arrayBuffer = await blob.arrayBuffer();
+    const audioBuffer = await new AudioContext().decodeAudioData(arrayBuffer);
+    return encodeWAV(audioBuffer);
+  };
+
+  // 📤 Upload Audio File
+  const uploadAudio = async () => {
+    // if (!audioBlob) {
+    //   console.error("❌ No audio recorded, blob is null");
+    //   alert("No audio recorded");
+    //   return;
+    // }
+
+    console.log("Uploading audio file...");
+    console.log("Audio Blob Details:", audioBlob);
+    console.log("Blob Size:", audioBlob.size, "Type:", audioBlob.type);
+
+    const formData = new FormData();
+    formData.append("file", audioBlob, "audio.wav");
+
     try {
-      const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
-
-      if (audioBlob.size === 0) {
-        console.error("Audio Blob is empty. Cannot send to backend.");
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("file", audioBlob, "audio.wav");
-
-      for (let [key, value] of formData.entries()) {
-        if (value instanceof Blob) {
-          console.log(
-            `${key}: Blob - size: ${value.size}, type: ${value.type}`
-          );
-        } else {
-          console.log(`${key}: ${value}`);
+      const response = await axios.post(
+        "http://127.0.0.1:5000/audio/predict",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
         }
-      }
-
-      // Send FormData to backend
-      const response = await fetch("http://127.0.0.1:5000/predict", {
-        method: "POST",
-        body: formData,
-      });
-
-      // Handle server response
-      if (response.ok) {
-        const result = await response.json();
-        console.log("Server response:", result);
-
-        // Example: Handle successful task completion
-        settaskcompleted(true);
-      } else {
-        // Capture and log the error response
-        const error = await response.json();
-        console.error("Error from server:", error.message || "Unknown error");
-      }
-    } catch (err) {
-      // Log any unexpected errors
-      console.error("Error sending audio:", err);
+      );
+      setPrediction(response.data);
+      setTaskCompleted(true);
+      console.log("✅ Upload success:", response.data);
+    } catch (error) {
+      console.error("❌ Error uploading file:", error);
     }
   };
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading words! Please try again later.</div>;
 
-  const sgg = () => {
-    startRecording();
-    setStart(false);
+  // ▶ Move to Next Word
+  const nextWord = () => {
+    setCompleted(true);
   };
+
   return (
-    <div className="bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat bg-center lg:h-[700px] w-full">
+    <div
+      className="bg-cover bg-center h-screen"
+    >
       <div className="py-10 px-11">
         <div className="flex justify-between">
-          {/* Left Images */}
-          <div className="mb-0">
-            <img src={sun} alt="sun" className="h-48 max-lg:hidden" />
-            <div className="mt-80">
-              <img src={bush} alt="bush" className="h-48 max-lg:hidden" />
-            </div>
-          </div>
-
-          {/* Word Cards */}
+          <img src={sun} alt="sun" className="h-48" />
           {start ? (
-            <StartingPage setstart={sgg} />
+            <StartingPage
+              setstart={() => {
+                startRecording();
+                setStart(false);
+              }}
+            />
           ) : (
-            <div className="lg:flex justify-between w-full">
-              <button onClick={prevWord} className="max-lg:hidden">
-                Previous
-              </button>
-              <div className="flex flex-wrap justify-center space-x-4">
-                {getallword?.data && (
-                  <div className="text-center space-y-4">
-                    <img
-                      src={getallword.data.imagewordUrl}
-                      alt={getallword.data.wordAdd}
-                      className="lg:h-[500px] lg:w-[700px] rounded-xl"
-                    />
-                    <h1
-                      className="font-bold text-[90px] text-center hover:text-blue-500 active:text-red-500 transition-colors cursor-pointer"
-                      onClick={() => spechword(getallword.data.wordAdd)}
-                    >
-                      {getallword.data.wordAdd}
-                    </h1>
-                  </div>
-                )}
-              </div>
-              {taskcompleted ? (
-                <button
-                  className="max-lg:hidden"
-                  onClick={() => {
-                    // sendAudioToBackend();
-                    nextWord();
-                    startRecording();
-                    //stopRecording();
-                  }}
-                >
-                  Next
-                </button>
-              ) : (
-                <button
-                  className="max-lg:hidden"
-                  onClick={() => {
-                    sendAudioToBackend();
-                    //  nextWord();
-                    stopRecording();
-                  }}
-                >
-                  Complete
-                </button>
+            <div className="flex flex-wrap justify-center space-x-4">
+              {prediction && (
+                <div>
+                  <h2>Prediction Result</h2>
+                  <p>Cluster: {prediction.cluster}</p>
+                  <p>Confidence: {prediction.confidence}</p>
+                </div>
+              )}
+              {getallword?.data && (
+                <div className="text-center">
+                  <img
+                    src={getallword.data.imagewordUrl}
+                    alt={getallword.data.wordAdd}
+                    className="h-[500px] w-[700px] rounded-xl"
+                  />
+                  <h1
+                    className="font-bold text-[90px] cursor-pointer"
+                    onClick={() => spechword(getallword.data.wordAdd)}
+                  >
+                    {getallword.data.wordAdd}
+                  </h1>
+                </div>
               )}
             </div>
           )}
-
-          {/* Bottom Images */}
-          <div className="mb-0 mt-[490px]">
-            <img src={bush} alt="bush" className="h-48 max-lg:hidden" />
-          </div>
+          {taskCompleted ? (
+            <button
+              onClick={() => {
+                nextWord();
+                startRecording();
+              }}
+            >
+              Next
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                uploadAudio();
+                stopRecording();
+              }}
+            >
+              Complete
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default WordLearn;
+

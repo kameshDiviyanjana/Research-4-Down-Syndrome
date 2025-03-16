@@ -1,5 +1,11 @@
 import maths from "../assets/maths.png";
+import { useNavigate } from "react-router-dom";
+
 const MathsIntro = () => {
+   const navigate = useNavigate();
+   const handleNavigate = () => {
+     navigate("/math");
+   };
   return (
     <div className="flex flex-col md:flex-row items-center justify-between bg-white p-6 md:py-16 md:px-32">
       {/* Left Section: Text Content */}
@@ -23,7 +29,10 @@ const MathsIntro = () => {
           interactive and playful way. Click below to start this hands-on math
           adventure!
         </p>
-        <button className="bg-emerald-50 text-emerald-500 font-semibold px-6 py-2 rounded-md hover:bg-emerald-100 transition">
+        <button
+          className="bg-emerald-50 text-emerald-500 font-semibold px-6 py-2 rounded-md hover:bg-emerald-100 transition"
+          onClick={handleNavigate}
+        >
           Lets Practice and Learn how to do it
         </button>
       </div>

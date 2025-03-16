@@ -97,7 +97,7 @@ function Word() {
             <img src={vehical} alt="car" className="  h-[190px] rounded-lg" />
             <h1 className=" text-center font-bold mt-2">Vehicale </h1>
           </div>
-
+{/* 
           {getallword?.data?.wordses?.map((word) => (
             <div className="flex items-center justify-center bg-white w-[200px] h-[240px] rounded-lg shadow-lg">
               <div
@@ -115,7 +115,7 @@ function Word() {
                 <h1 className="text-center font-bold">{word.wordAdd}</h1>
               </div>
             </div>
-          ))}
+          ))} */}
 
           <div className="flex items-center justify-center bg-white w-[200px] h-[240px] rounded-lg shadow-lg">
             <button

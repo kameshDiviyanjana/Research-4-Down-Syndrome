@@ -71,19 +71,36 @@ export function AuthProvider({ children }) {
       user: user ? safelyParseJSON(user) : null,
     };
   });
+useEffect(() => {
+  if (authState.token) {
+    try {
+      const { exp } = jwtDecode(authState.token);
+      console.log("Token Expiry:", new Date(exp * 1000)); // Debugging log
+      console.log("Current Time:", new Date());
 
-  useEffect(() => {
-    if (authState.token) {
-      try {
-        const { exp } = jwtDecode(authState.token);
-        if (Date.now() >= exp * 1000) {
-          logoutUser();
-        }
-      } catch {
+      if (Date.now() >= exp * 1000 - 10000) {
+        // Logout 10 sec before expiry
         logoutUser();
       }
+    } catch (error) {
+      console.error("JWT Decode Error:", error);
+      logoutUser();
     }
-  }, [authState.token]);
+  }
+}, [authState.token]);
+
+  // useEffect(() => {
+  //   if (authState.token) {
+  //     try {
+  //       const { exp } = jwtDecode(authState.token);
+  //       if (Date.now() >= exp * 1000) {
+  //         logoutUser();
+  //       }
+  //     } catch {
+  //       logoutUser();
+  //     }
+  //   }
+  // }, [authState.token]);
 
   const logoutUser = () => {
     localStorage.removeItem("token");
