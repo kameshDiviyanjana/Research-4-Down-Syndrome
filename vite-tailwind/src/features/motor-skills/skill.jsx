@@ -17,7 +17,8 @@ function Grossmotorskill() {
   const openWordlsit = () => setIsModalOpenWordList(true);
   const closeWordlsit = () => setIsModalOpenWordList(false);
   const Pacticesvideo = ()=>{
-    navigate("/grossmotor/list-video");
+   // navigate("/grossmotor/list-video");
+    navigate("/grossmotor/system");
   }
   return (
     <div className="bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat bg-center h-[700px] w-full overflow-y-auto">
