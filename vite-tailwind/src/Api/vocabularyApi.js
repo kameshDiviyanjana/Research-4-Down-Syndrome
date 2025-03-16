@@ -1,30 +1,25 @@
 import { useMutation, useQueryClient, useQuery } from "react-query";
- import apiClient from "./apiClient"; // Axios instance
-import axios from "axios";
+import apiClient from "./apiClient";
+
 export const AddWord = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationKey: "add_word", // Unique key for this mutation
+    mutationKey: "add_word", 
     mutationFn: async (data) => {
       try {
-        const response = await apiClient.post(
-          `/word`,
-          data,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data", // Set only for file upload requests
-            },
-          }
-        ); // POST to the /word endpoint
+        const response = await apiClient.post(`/word`, data, {
+          headers: {
+            "Content-Type": "multipart/form-data", 
+          },
+        }); 
         return response.data;
-      } catch (error) {
-        throw error; // Handle errors as needed
+      } catch (ex) {
+        throw ex; 
       }
     },
-    onSuccess: (data) => {
-      console.log("Word added successfully", data);
+    onSuccess: () => {
       queryClient.invalidateQueries(["All_add_word"]);
-      // Optionally invalidate queries or update state
+     
     },
     onError: (error) => {
       console.error("Mutation error:", error);
@@ -34,31 +29,55 @@ export const AddWord = () => {
 
 export const AllAddWord = (page, limit = 20, userme, pacticesword) => {
   return useQuery(
-    ["All_add_word", page, limit, userme, pacticesword], // Unique key for this query (helps with caching and refetching)
+    ["All_add_word", page, limit, userme, pacticesword], 
     async () => {
       try {
-        // Pass page and limit to your API for pagination
+       
         const response = await apiClient.get(
           `/word/words`,
           {
             params: { page, limit, userme, pacticesword },
           }
         );
-        return response.data; // Return the fetched data
+        return response.data; 
       } catch (error) {
-        throw error; // Handle errors if the request fails
+        throw error; 
       }
     },
     {
-      onSuccess: (data) => {
-        console.log("Fetched words successfully", data);
-        // Optionally process the data or update state here
+      onSuccess: () => {
+    
+      
       },
       onError: (error) => {
-        console.error("Query error:", error); // Handle error
+        console.error("Query error:", error); 
       },
     }
   );
 };
 
-// export default AddWord;
+
+export const findword = (id) => {
+  return useQuery(
+    ["All_add_word", id],
+    async () => {
+      try {
+       
+        const response = await apiClient.get(`/word/${id}`);
+        return response.data; 
+      } catch (error) {
+        throw error; 
+      }
+    },
+    {
+      onSuccess: (data) => {
+      
+      },
+      onError: (error) => {
+        console.error("Query error:", error); 
+      },
+    }
+  );
+};
+
+

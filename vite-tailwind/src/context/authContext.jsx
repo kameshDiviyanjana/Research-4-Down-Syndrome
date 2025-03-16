@@ -13,125 +13,120 @@ const api = axios.create({
 });
 
 export const AuthProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, initialState);
+  // const [state, dispatch] = useReducer(authReducer, initialState);
 
-  useEffect(() => {
-    initializeAuth();
-  }, []);
+  // useEffect(() => {
+  //   initializeAuth();
+  // }, []);
 
-  // Add auth token to all requests
-  useEffect(() => {
-    const interceptor = api.interceptors.request.use((config) => {
-      if (state.token) {
-        config.headers.Authorization = `Bearer ${state.token}`;
-      }
-      return config;
-    });
+  // // Add auth token to all requests
+  // useEffect(() => {
+  //   const interceptor = api.interceptors.request.use((config) => {
+  //     if (state.token) {
+  //       config.headers.Authorization = `Bearer ${state.token}`;
+  //     }
+  //     return config;
+  //   });
 
-    return () => api.interceptors.request.eject(interceptor);
-  }, [state.token]);
+  //   return () => api.interceptors.request.eject(interceptor);
+  // }, [state.token]);
 
-  const initializeAuth = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (token) {
-        const response = await api.get("/auth/verify");
-        const userData = response.data;
+  // const initializeAuth = async () => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     if (token) {
+  //       const response = await api.get("/auth/verify");
+  //       const userData = response.data;
 
-        dispatch({
-          type: AUTH_TYPES.INITIALIZE,
-          payload: {
-            isAuthenticated: true,
-            user: userData,
-          },
-        });
-      } else {
-        dispatch({
-          type: AUTH_TYPES.INITIALIZE,
-          payload: {
-            isAuthenticated: false,
-            user: null,
-          },
-        });
-      }
-    } catch (error) {
-      localStorage.removeItem("token");
-      console.log(error);
-      dispatch({
-        type: AUTH_TYPES.INITIALIZE,
-        payload: {
-          isAuthenticated: false,
-          user: null,
-        },
-      });
-    }
-  };
+  //       dispatch({
+  //         type: AUTH_TYPES.INITIALIZE,
+  //         payload: {
+  //           isAuthenticated: true,
+  //           user: userData,
+  //         },
+  //       });
+  //     } else {
+  //       dispatch({
+  //         type: AUTH_TYPES.INITIALIZE,
+  //         payload: {
+  //           isAuthenticated: false,
+  //           user: null,
+  //         },
+  //       });
+  //     }
+  //   } catch (error) {
+  //     localStorage.removeItem("token");
+  //     console.log(error);
+  //     dispatch({
+  //       type: AUTH_TYPES.INITIALIZE,
+  //       payload: {
+  //         isAuthenticated: false,
+  //         user: null,
+  //       },
+  //     });
+  //   }
+  // };
 
-  const login = async (email, password) => {
-    dispatch({ type: AUTH_TYPES.LOGIN_REQUEST });
+  // const login = async (email, password) => {
+  //   dispatch({ type: AUTH_TYPES.LOGIN_REQUEST });
 
-    try {
-      const response = await api.post("/auth/login", {
-        email,
-        password,
-      });
+  //   try {
+  //     const response = await api.post("/auth/login", {
+  //       email,
+  //       password,
+  //     });
 
-      const { token, user } = response.data;
-      localStorage.setItem("token", token);
+  //     const { token, user } = response.data;
+  //     localStorage.setItem("token", token);
 
-      dispatch({
-        type: AUTH_TYPES.LOGIN_SUCCESS,
-        payload: {
-          user,
-          token,
-          role: user.role,
-        },
-      });
+  //     dispatch({
+  //       type: AUTH_TYPES.LOGIN_SUCCESS,
+  //       payload: {
+  //         user,
+  //         token,
+  //         role: user.role,
+  //       },
+  //     });
 
-      return { success: true };
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || "Login failed";
-      dispatch({
-        type: AUTH_TYPES.LOGIN_FAILURE,
-        payload: errorMessage,
-      });
-      return { success: false, error: errorMessage };
-    }
-  };
+  //     return { success: true };
+  //   } catch (error) {
+  //     const errorMessage = error.response?.data?.message || "Login failed";
+  //     dispatch({
+  //       type: AUTH_TYPES.LOGIN_FAILURE,
+  //       payload: errorMessage,
+  //     });
+  //     return { success: false, error: errorMessage };
+  //   }
+  // };
 
-  const logout = async () => {
-    try {
-      await api.post("/auth/logout");
-    } finally {
-      localStorage.removeItem("token");
-      dispatch({ type: AUTH_TYPES.LOGOUT });
-    }
-  };
+  // const logout = async () => {
+  //   try {
+  //     await api.post("/auth/logout");
+  //   } finally {
+  //     localStorage.removeItem("token");
+  //     dispatch({ type: AUTH_TYPES.LOGOUT });
+  //   }
+  // };
 
-  const updateProfile = async (data) => {
-    try {
-      const response = await api.put("/auth/profile", data);
-      dispatch({
-        type: AUTH_TYPES.UPDATE_PROFILE,
-        payload: response.data,
-      });
-      return { success: true };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || "Update failed",
-      };
-    }
-  };
+  // const updateProfile = async (data) => {
+  //   try {
+  //     const response = await api.put("/auth/profile", data);
+  //     dispatch({
+  //       type: AUTH_TYPES.UPDATE_PROFILE,
+  //       payload: response.data,
+  //     });
+  //     return { success: true };
+  //   } catch (error) {
+  //     return {
+  //       success: false,
+  //       error: error.response?.data?.message || "Update failed",
+  //     };
+  //   }
+  // };
 
   return (
     <AuthContext.Provider
-      value={{
-        ...state,
-        login,
-        logout,
-        updateProfile,
-      }}
+     
     >
       {children}
     </AuthContext.Provider>
