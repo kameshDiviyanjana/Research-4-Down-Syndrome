@@ -16,6 +16,7 @@
     "dotenv": "^16.4.5",
     "formik": "^2.4.6",
     "jwt-decode": "^4.0.0",
+    "lamejs": "^1.2.1",
     "lucide-react": "^0.468.0",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
@@ -24,6 +25,7 @@
     "react-query": "^3.39.3",
     "react-router-dom": "^7.0.2",
     "react-speech-recognition": "^3.10.0",
+    "recorder-js": "^1.0.7",
     "sweetalert2": "^11.15.2",
     "tailwind-merge": "^2.5.5"
   },

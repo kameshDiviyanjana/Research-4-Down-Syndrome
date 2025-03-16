@@ -6,6 +6,8 @@ function VideoUpload() {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [videoPreview, setVideoPreview] = useState("");
   const [satart, setstart] = useState(true);
+  const [randomCategory, setRandomCategory] = useState("");
+
 
   const handleVideoUpload = (event) => {
     const file = event.target.files[0];
@@ -19,6 +21,27 @@ function VideoUpload() {
       alert("Please select a valid video file.");
     }
   };
+ const categoriesMap = {
+   Easy: ["catch", "walk", "jump"],
+   Medium: ["run", "throw"],
+   Hard: ["dribble", "handstand", "kick_ball", "somersault"],
+ };
+
+ const categoryVideos = {
+   catch: "/videos/catch.mp4",
+   walk: "/videos/walk.mp4",
+   jump: "/videos/jump.mp4",
+   run: "/videos/run.mp4",
+   throw: "/videos/throw.mp4",
+   dribble: "/videos/dribble.mp4",
+   handstand: "/videos/handstand.mp4",
+   kick_ball: "/videos/kick_ball.mp4",
+   somersault: "/videos/somersault.mp4",
+ };
+    const handleRandomCategory = () => {
+      const randomIndex = Math.floor(Math.random() * categories.length);
+      setRandomCategory(categories[randomIndex]);
+    };
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
@@ -29,10 +52,10 @@ function VideoUpload() {
     }
 
     const formData = new FormData();
-    formData.append("video", selectedVideo);
+    formData.append("file", selectedVideo);
 
     try {
-      const response = await fetch("https://your-server-endpoint/upload", {
+      const response = await fetch("http://127.0.0.1:5000/video/upload", {
         method: "POST",
         body: formData,
       });
@@ -120,6 +143,22 @@ function VideoUpload() {
             <StartingPage setstart={startPactices} />
           ) : (
             <div>
+              {/* <div style={{ marginTop: "20px" }}>
+                  <button onClick={handleRandomCategory} style={{ marginBottom: "10px" }}>
+        Generate Random Category
+      </button>
+                <h3>Introduction Video for: {randomCategory}</h3>
+                <video
+                  src={categoryVideos[randomCategory]}
+                  controls
+                  style={{
+                    width: "100%",
+                    maxWidth: "600px",
+                    borderRadius: "10px",
+                    marginTop: "10px",
+                  }}
+                />
+              </div> */}
               <form onSubmit={handleFormSubmit}>
                 <input
                   type="file"

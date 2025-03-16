@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import bush from "../../../assets/bush-clipart-animated-6.png";
 import sun from "../../../assets/source.gif";
 import { AllAddWord } from "../../../Api/vocabularyApi";
 import StartingPage from "../utile/StartingPage";
+import { encodeWAV } from "./wavEncoder";
 
 function Listword() {
   const [pagecount, setPagecount] = useState(1);
   const userme = localStorage.getItem("userid");
-  const [completed, setCompleted] = useState(false);
-  const [start, setStart] = useState(true);
+  // const [completed, setCompleted] = useState(false);
+  // const [start, setStart] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState(null);
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
+  // const mediaRecorderRef = useRef(null);
+  // const audioChunksRef = useRef([]);
   const [wordis, setwordid] = useState("");
   // Fetching words data
   const {
@@ -39,97 +41,111 @@ function Listword() {
   const prevWord = () => {
     setPagecount((prev) => (prev > 1 ? prev - 1 : 1));
   };
+ const [recording, setRecording] = useState(false);
+ const [audioBlob, setAudioBlob] = useState(null);
+ const [completed, setCompleted] = useState(false);
+ const [taskCompleted, setTaskCompleted] = useState(false);
+ const [start, setStart] = useState(true);
+ const mediaRecorderRef = useRef(null);
+ const audioChunksRef = useRef([]);
+ const [prediction, setPrediction] = useState(null);
+//  const { id } = useParams();
+//  const { data: getallwords, isLoading:find, error:Errrorfinda } = findword(id);
 
-  // Audio Recording Handlers
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+ // 🎙 Start Recording
+ const startRecording = async () => {
+   try {
+     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+     mediaRecorderRef.current = new MediaRecorder(stream, {
+       mimeType: "audio/webm",
+     });
 
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data);
-      };
+     audioChunksRef.current = [];
 
-      mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/wav",
-        });
-        const audioURL = URL.createObjectURL(audioBlob);
-        setAudioURL(audioURL);
-      };
+     mediaRecorderRef.current.ondataavailable = (event) => {
+       console.log("Data available, size:", event.data.size);
+       if (event.data.size > 0) {
+         audioChunksRef.current.push(event.data);
+       }
+     };
 
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
-    } catch (error) {
-      console.error("Error accessing microphone:", error);
-    }
-  };
+     mediaRecorderRef.current.onstop = async () => {
+       console.log("Recording stopped, processing audio...");
+       const audioBlob = new Blob(audioChunksRef.current, {
+         type: "audio/webm",
+       });
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
-  };
+       try {
+         const wavBlob = await convertToWav(audioBlob);
+         console.log("WAV conversion completed, size:", wavBlob.size);
+         setAudioBlob(wavBlob);
+       } catch (error) {
+         console.error("Error converting to WAV:", error);
+       }
+     };
+
+     mediaRecorderRef.current.start();
+     setRecording(true);
+   } catch (error) {
+     console.error("Error accessing microphone:", error);
+   }
+ };
+
+ // ⏹ Stop Recording
+ const stopRecording = () => {
+   if (mediaRecorderRef.current && recording) {
+     setTimeout(() => {
+       mediaRecorderRef.current.stop();
+       mediaRecorderRef.current.stream
+         .getTracks()
+         .forEach((track) => track.stop());
+       setRecording(false);
+       console.log("Recording stopped successfully.");
+     }, 500); // ⏳ Delay ensures all data is processed
+   }
+ };
+
+ // 🎵 Convert Audio to WAV
+ const convertToWav = async (blob) => {
+   const arrayBuffer = await blob.arrayBuffer();
+   const audioBuffer = await new AudioContext().decodeAudioData(arrayBuffer);
+   return encodeWAV(audioBuffer);
+ };
+
+ // 📤 Upload Audio File
+ const uploadAudio = async () => {
+   // if (!audioBlob) {
+   //   console.error("❌ No audio recorded, blob is null");
+   //   alert("No audio recorded");
+   //   return;
+   // }
+
+   console.log("Uploading audio file...");
+   console.log("Audio Blob Details:", audioBlob);
+   console.log("Blob Size:", audioBlob.size, "Type:", audioBlob.type);
+
+   const formData = new FormData();
+   formData.append("file", audioBlob, "audio.wav");
+
+   try {
+     const response = await axios.post(
+       "http://127.0.0.1:5000/audio/predict",
+       formData,
+       {
+         headers: { "Content-Type": "multipart/form-data" },
+       }
+     );
+     setPrediction(response.data);
+     setTaskCompleted(true);
+     console.log("✅ Upload success:", response.data);
+   } catch (error) {
+     console.error("❌ Error uploading file:", error);
+   }
+ };
+
+ 
   const [taskcompleted, settaskcompleted] = useState(false);
 
-  const sendAudioToBackend = async () => {
-    try {
-      // Create an audio blob from recorded chunks
-      const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
-
-      // Debug: Check the audio blob details
-      console.log("Audio Blob:", audioBlob);
-      console.log("Audio Blob size:", audioBlob.size);
-      console.log("Audio Blob type:", audioBlob.type);
-
-      // Ensure the blob is valid
-      if (audioBlob.size === 0) {
-        console.error("Audio Blob is empty. Cannot send to backend.");
-        return;
-      }
-
-      // Create FormData and append the blob
-      const formData = new FormData();
-      formData.append("file", audioBlob, "audio.wav");
-
-      // Optional: Add any metadata if required
-      //  formData.append("userId", "12345"); // Example metadata
-
-      // Debug: Log FormData content
-      for (let [key, value] of formData.entries()) {
-        if (value instanceof Blob) {
-          console.log(
-            `${key}: Blob - size: ${value.size}, type: ${value.type}`
-          );
-        } else {
-          console.log(`${key}: ${value}`);
-        }
-      }
-
-      // Send FormData to backend
-      const response = await fetch("http://127.0.0.1:5000/predict", {
-        method: "POST",
-        body: formData,
-      });
-
-      // Handle server response
-      if (response.ok) {
-        const result = await response.json();
-        console.log("Server response:", result);
-
-        // Example: Handle successful task completion
-        settaskcompleted(true);
-      } else {
-        // Capture and log the error response
-        const error = await response.json();
-        console.error("Error from server:", error.message || "Unknown error");
-      }
-    } catch (err) {
-      // Log any unexpected errors
-      console.error("Error sending audio:", err);
-    }
-  };
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading words! Please try again later.</div>;
 
@@ -190,8 +206,10 @@ function Listword() {
                 <button
                   className="max-lg:hidden"
                   onClick={() => {
-                    sendAudioToBackend();
-                    //  nextWord();
+                  //  sendAudioToBackend();
+                     nextWord();
+                  
+                     uploadAudio();
                     stopRecording();
                   }}
                 >

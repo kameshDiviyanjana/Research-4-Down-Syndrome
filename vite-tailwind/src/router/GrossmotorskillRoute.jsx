@@ -7,6 +7,9 @@ import { AuthProvider } from '../auth/AuthProvider';
 import Grossmotorskills from '../features/motor-skills';
 import Grossmotorskill from '../features/motor-skills/skill';
 import VideoUpload from '../features/motor-skills/VideoUpload';
+import MainPage from '../features/motor-skills/MainPage';
+import SystemPage from '../features/motor-skills/SystemPage';
+import NextTaskPage from '../features/motor-skills/NextTaskPage';
 function GrossmotorskillRoute() {
   return (
     <div>
@@ -15,9 +18,12 @@ function GrossmotorskillRoute() {
           <Route path="" element={<Grossmotorskills />} />
           <Route path="video-grossmotor" element={<Grossmotorskill />} />
           <Route path="list-video" element={<VideoUpload />} />
+          <Route path="main" element={<MainPage />} />
+          <Route path="system" element={<SystemPage />} />
+          <Route path="next-task" element={<NextTaskPage />} />
         </Routes>
       </AuthProvider>
-      <Outlet/>
+      <Outlet />
     </div>
   );
 }
