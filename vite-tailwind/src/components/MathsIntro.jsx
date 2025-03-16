@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 const MathsIntro = () => {
    const navigate = useNavigate();
    const handleNavigate = () => {
-     navigate("/math");
+     navigate("/math/mathdashboard");
    };
   return (
     <div className="flex flex-col md:flex-row items-center justify-between bg-white p-6 md:py-16 md:px-32">

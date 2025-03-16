@@ -1,0 +1,68 @@
+.subtraction-learning {
+    text-align: center;
+    /* background: white; */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    margin: auto;
+}
+
+/* Example Box */
+.example {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.example:hover {
+    transform: scale(1.02);
+}
+
+/* Subtraction Equation Layout */
+.subtraction-equation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* Number Images */
+.number-img {
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.number-img:hover {
+    transform: scale(1.1);
+}
+
+/* Operators (-, =) */
+.operator {
+    font-size: 32px;
+    font-weight: bold;
+    color: #ff5722;
+}
+
+/* Start Button */
+.start-button {
+    background: #2196F3;
+    color: white;
+    font-size: 18px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-top: 20px;
+}
+
+.start-button:hover {
+    background: #1976D2;
+}
