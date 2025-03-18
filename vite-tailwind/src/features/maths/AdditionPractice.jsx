@@ -1,169 +1,10 @@
-// import React, { useRef, useState } from "react";
-// import Webcam from "react-webcam";
-// import Swal from "sweetalert2";
-// import { predictGesture } from "../api";
-// import "./PracticeAnimations.css";
-
-// const AdditionPractice = () => {
-//     const webcamRef = useRef(null);
-//     const [num1, setNum1] = useState(null);
-//     const [num2, setNum2] = useState(null);
-//     const [capturedImages, setCapturedImages] = useState([]);
-//     const [predictionResults, setPredictionResults] = useState([]);
-//     const [finalPrediction, setFinalPrediction] = useState("");
-//     const [countdown, setCountdown] = useState(null);
-//     const [isCapturing, setIsCapturing] = useState(false);
-
-    
-//     const startPractice = () => {
-//         const newNum1 = Math.floor(Math.random() * 6);
-//         const newNum2 = Math.floor(Math.random() * 6);
-//         setNum1(newNum1);
-//         setNum2(newNum2);
-//         setCapturedImages([]);
-//         setPredictionResults([]);
-//         setFinalPrediction("");
-//         setCountdown(5);
-//         setIsCapturing(true);
-
-//         let count = 5;
-//         const countdownInterval = setInterval(() => {
-//             count -= 1;
-//             setCountdown(count);
-
-//             if (count === 0) {
-//                 clearInterval(countdownInterval);
-//                 captureImages();
-//             }
-//         }, 1000);
-//     };
-
-   
-//     const captureImages = () => {
-//         let images = [];
-//         let count = 0;
-//         const captureInterval = setInterval(() => {
-//             if (count < 5) {
-//                 const imageSrc = webcamRef.current.getScreenshot();
-//                 images.push(imageSrc);
-//                 setCapturedImages((prev) => [...prev, imageSrc]);
-//                 count++;
-//             } else {
-//                 clearInterval(captureInterval);
-//                 processPredictions(images);
-//             }
-//         }, 1000);
-//     };
-
-    
-//     const processPredictions = async (images) => {
-//         let predictions = [];
-
-//         for (let i = 0; i < images.length; i++) {
-//             const blob = await fetch(images[i]).then((res) => res.blob());
-//             const file = new File([blob], `captured_image_${i}.jpg`, { type: "image/jpeg" });
-
-//             const result = await predictGesture(file);
-//             predictions.push(result);
-//             setPredictionResults((prev) => [...prev, result]);
-//         }
-
-        
-//         const finalPred = getMostFrequentPrediction(predictions);
-//         setFinalPrediction(finalPred);
-//         setIsCapturing(false);
-
-      
-//         const correctAnswer = num1 + num2;
-//         if (finalPred === correctAnswer.toString()) {
-//             showSuccessAlert();
-//         } else {
-//             showFailureAlert();
-//         }
-//     };
-
-  
-//     const getMostFrequentPrediction = (predictions) => {
-//         const counts = {};
-//         predictions.forEach(pred => {
-//             counts[pred] = (counts[pred] || 0) + 1;
-//         });
-
-//         return Object.keys(counts).reduce((a, b) => (counts[a] > counts[b] ? a : b), null);
-//     };
-
-   
-//     const showSuccessAlert = () => {
-//         Swal.fire({
-//             title: "🎉 Well Done!",
-//             text: "✅ Practice Passed!",
-//             icon: "success",
-//             showConfirmButton: false,
-//             timer: 2000,
-//         });
-
-//         document.body.classList.add("success-animation");
-//         setTimeout(() => {
-//             document.body.classList.remove("success-animation");
-//         }, 2000);
-//     };
-
-   
-//     const showFailureAlert = () => {
-//         Swal.fire({
-//             title: "❌ Try Again!",
-//             text: "Incorrect answer.",
-//             icon: "error",
-//             showConfirmButton: false,
-//             timer: 2000,
-//         });
-
-//         document.body.classList.add("failure-animation");
-//         setTimeout(() => {
-//             document.body.classList.remove("failure-animation");
-//         }, 2000);
-//     };
-
-//     return (
-//         <div className="addition-practice">
-//             <h2>📝 Practice Addition</h2>
-//             <p>Show the sum of the numbers using your fingers.</p>
-//             <Webcam 
-//                 audio={false} 
-//                 ref={webcamRef} 
-//                 screenshotFormat="image/jpeg" 
-//                 className="webcam-view" 
-//             />
-
-//             <button onClick={startPractice} disabled={isCapturing}>📸 Start Practice</button>
-
-//             {num1 !== null && num2 !== null && (
-//                 <h2 className="addition-display">{num1} + {num2} = ?</h2>
-//             )}
-
-//             {countdown !== null && countdown > 0 && <h2>Starting in: {countdown}s</h2>}
-//             {capturedImages.length > 0 && <h3>Captured {capturedImages.length}/5 Images</h3>}
-
-//             {finalPrediction && (
-//                 <div>
-//                     <h2>Final Prediction: {finalPrediction}</h2>
-//                 </div>
-//             )}
-//         </div>
-//     );
-// };
-
-// export default AdditionPractice;
-
 import React, { useRef, useState } from "react";
 import Webcam from "react-webcam";
 import Swal from "sweetalert2";
 import { predictGesture } from "./api";
-import "./PracticeAnimations.css";
+import SmileImage from '../../../src/assets/smile.jpg'
 
-// Import number ima'
-// import num0 from "../../assets";
-
+// Import number images
 import num0 from "../../assets/numbers/0.png";
 import num1 from "../../assets/numbers/1.png";
 import num2 from "../../assets/numbers/2.png";
@@ -196,9 +37,9 @@ const AdditionPractice = () => {
     const [countdown, setCountdown] = useState(null);
     const [isCapturing, setIsCapturing] = useState(false);
 
-    // Function to select a predefined task and start practice
     const startPractice = () => {
         const randomTask = tasks[Math.floor(Math.random() * tasks.length)];
+        console.log(`[startPractice] Generated randomTask: ${JSON.stringify(randomTask)}`);
         setCurrentTask(randomTask);
         setCapturedImages([]);
         setPredictionResults([]);
@@ -213,77 +54,99 @@ const AdditionPractice = () => {
 
             if (count === 0) {
                 clearInterval(countdownInterval);
-                captureImages();
+                console.log("[startPractice] Countdown complete, starting captureImages");
+                captureImages(randomTask);
             }
         }, 1000);
     };
 
-    // Function to capture 5 images over 5 seconds
-    const captureImages = () => {
+    const captureImages = (targetTask) => {
         let images = [];
         let count = 0;
+        console.log("[captureImages] Starting image capture");
+        console.log(`[captureImages] Target task: ${JSON.stringify(targetTask)}`);
         const captureInterval = setInterval(() => {
             if (count < 5) {
                 const imageSrc = webcamRef.current.getScreenshot();
                 images.push(imageSrc);
                 setCapturedImages((prev) => [...prev, imageSrc]);
                 count++;
+                console.log(`[captureImages] Captured image ${count}/5`);
             } else {
                 clearInterval(captureInterval);
-                processPredictions(images);
+                console.log("[captureImages] All images captured, processing predictions");
+                processPredictions(images, targetTask);
             }
         }, 1000);
     };
 
-    // Function to send images for prediction
-    const processPredictions = async (images) => {
+    const processPredictions = async (images, targetTask) => {
+        console.log("[processPredictions] Starting prediction processing");
+        console.log(`[processPredictions] Target task: ${JSON.stringify(targetTask)}`);
         let predictions = [];
 
         for (let i = 0; i < images.length; i++) {
             const blob = await fetch(images[i]).then((res) => res.blob());
             const file = new File([blob], `captured_image_${i}.jpg`, { type: "image/jpeg" });
-
             const result = await predictGesture(file);
             predictions.push(result);
             setPredictionResults((prev) => [...prev, result]);
+            console.log(`[processPredictions] Prediction ${i + 1}: ${result}`);
         }
 
-        // Determine the final prediction using majority voting
         const finalPred = getMostFrequentPrediction(predictions);
+        console.log(`[processPredictions] Final prediction calculated: ${finalPred}`);
+        console.log(`[processPredictions] Type of finalPred: ${typeof finalPred}`);
+
         setFinalPrediction(finalPred);
         setIsCapturing(false);
 
-        // Compare the prediction with the correct sum
-        if (finalPred === currentTask.answer.toString()) {
+        const targetAnswer = targetTask.answer;
+        console.log(`[processPredictions] Comparing finalPred: ${finalPred} with targetAnswer: ${targetAnswer}`);
+        const isCorrect = String(finalPred) === String(targetAnswer);
+        console.log(`[processPredictions] Comparison result (finalPred === targetAnswer): ${isCorrect}`);
+        console.log(`[processPredictions] String(finalPred): ${String(finalPred)}, String(targetAnswer): ${String(targetAnswer)}`);
+
+        if (targetAnswer !== null && isCorrect) {
+            console.log("[processPredictions] Prediction is correct, showing success alert");
             showSuccessAlert();
         } else {
+            console.log("[processPredictions] Prediction is incorrect or targetAnswer is null, showing failure alert");
+            console.log(`[processPredictions] Reason: targetAnswer=${targetAnswer}, isCorrect=${isCorrect}`);
             showFailureAlert();
         }
     };
 
-    // Function to determine the most common prediction using majority voting
     const getMostFrequentPrediction = (predictions) => {
+        console.log("[getMostFrequentPrediction] Calculating most frequent prediction");
+        console.log(`[getMostFrequentPrediction] All predictions: ${JSON.stringify(predictions)}`);
         const counts = {};
         predictions.forEach(pred => {
             counts[pred] = (counts[pred] || 0) + 1;
+            console.log(`[getMostFrequentPrediction] Count for ${pred}: ${counts[pred]}`);
         });
-
-        return Object.keys(counts).reduce((a, b) => (counts[a] > counts[b] ? a : b), null);
+        const mostFrequent = Object.keys(counts).reduce((a, b) => (counts[a] > counts[b] ? a : b), null) || "0";
+        console.log(`[getMostFrequentPrediction] Most frequent prediction: ${mostFrequent}`);
+        return mostFrequent;
     };
 
-    // Success Alert
     const showSuccessAlert = () => {
+        console.log("[showSuccessAlert] Displaying success alert");
         Swal.fire({
             title: "🎉 Correct Answer!",
             text: "✅ Well Done!",
             icon: "success",
+            imageUrl: SmileImage,
+            imageWidth: 100,
+            imageHeight: 100,
+            imageAlt: 'Smile image',
             showConfirmButton: false,
             timer: 2000,
         });
     };
 
-    // Failure Alert
     const showFailureAlert = () => {
+        console.log("[showFailureAlert] Displaying failure alert");
         Swal.fire({
             title: "❌ Incorrect!",
             text: "Try Again!",
@@ -294,35 +157,74 @@ const AdditionPractice = () => {
     };
 
     return (
-        <div className="addition-practice">
-            <h2>📝 Practice Addition</h2>
-            <p>Show the sum of the numbers using your fingers.</p>
-            <Webcam 
-                audio={false} 
-                ref={webcamRef} 
-                screenshotFormat="image/jpeg" 
-                className="webcam-view" 
-            />
+        <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-6">
+            {/* Main Content Container */}
+            <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-10">
+                {/* Left Section: Task Display */}
+                <div className="flex flex-col items-center lg:w-1/2 bg-white rounded-2xl shadow-xl p-8 transform transition-all hover:scale-105">
+                    <div className="text-center mb-6 animate-fade-in">
+                        <h2 className="text-4xl font-bold text-indigo-700 drop-shadow-md">✨ Addition Practice</h2>
+                        <p className="text-lg text-gray-600 mt-2">Show the sum with your fingers!</p>
+                    </div>
 
-            <button onClick={startPractice} disabled={isCapturing}>📸 Start Practice</button>
+                    <button 
+                        onClick={startPractice} 
+                        disabled={isCapturing}
+                        className="w-full px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                    >
+                        📸 Start Practice
+                    </button>
 
-            {currentTask && (
-                <div className="addition-display">
-                    <img src={numberImages[currentTask.num1]} alt={`${currentTask.num1}`} className="number-img" onClick={() => playSound(currentTask.num1)} />
-                    <span className="operator">+</span>
-                    <img src={numberImages[currentTask.num2]} alt={`${currentTask.num2}`} className="number-img" onClick={() => playSound(currentTask.num2)} />
-                    <span className="operator">= ?</span>
+                    {currentTask && (
+                        <div className="flex items-center mt-8 animate-bounce-in gap-6">
+                            <img 
+                                src={numberImages[currentTask.num1]} 
+                                alt={`${currentTask.num1}`} 
+                                className="w-36 h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200" 
+                                onClick={() => playSound(currentTask.num1)} 
+                            />
+                            <span className="text-3xl font-bold text-gray-700">+</span>
+                            <img 
+                                src={numberImages[currentTask.num2]} 
+                                alt={`${currentTask.num2}`} 
+                                className="w-36 h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200" 
+                                onClick={() => playSound(currentTask.num2)} 
+                            />
+                            <span className="text-3xl font-bold text-gray-700">= ?</span>
+                        </div>
+                    )}
+
+                    {countdown !== null && countdown > 0 && (
+                        <div className="mt-6 text-2xl font-semibold text-indigo-600 animate-pulse">
+                            Starting in: {countdown}s
+                        </div>
+                    )}
+
+                    {capturedImages.length > 0 && (
+                        <div className="mt-6 text-lg text-gray-700">
+                            Captured {capturedImages.length}/5 Images
+                        </div>
+                    )}
+
+                    {finalPrediction && (
+                        <div className="mt-8 animate-fade-in">
+                            <h2 className="text-2xl font-bold text-purple-700">
+                                Prediction: <span className="text-indigo-600">{finalPrediction}</span>
+                            </h2>
+                        </div>
+                    )}
                 </div>
-            )}
 
-            {countdown !== null && countdown > 0 && <h2>Starting in: {countdown}s</h2>}
-            {capturedImages.length > 0 && <h3>Captured {capturedImages.length}/5 Images</h3>}
-
-            {finalPrediction && (
-                <div>
-                    <h2>Final Prediction: {finalPrediction}</h2>
+                {/* Right Section: Webcam */}
+                <div className="lg:w-1/2 flex justify-center">
+                    <Webcam 
+                        audio={false} 
+                        ref={webcamRef} 
+                        screenshotFormat="image/jpeg" 
+                        className="w-full max-w-2xl rounded-2xl shadow-xl border-4 border-indigo-200 transform transition-all hover:border-indigo-400"
+                    />
                 </div>
-            )}
+            </div>
         </div>
     );
 };

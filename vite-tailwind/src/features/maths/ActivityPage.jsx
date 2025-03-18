@@ -1,35 +1,7 @@
-// import React from "react";
-// import { useNavigate } from "react-router-dom";
-// import "./ActivityPage.css";
-
-// const ActivityPage = ({ title, learningComponent, practiceComponent }) => {
-//     const navigate = useNavigate();
-//     const [isLearning, setIsLearning] = React.useState(true);
-
-//     return (
-//         <div className="activity-container">
-//             <h1>{title}</h1>
-//             <div className="switch-buttons">
-//                 <button onClick={() => setIsLearning(true)}>📖 Learning</button>
-//                 <button onClick={() => setIsLearning(false)}>📝 Practice</button>
-//             </div>
-
-//             <div className="activity-content">
-//                 {isLearning ? learningComponent : practiceComponent}
-//             </div>
-
-//             <button className="back-button" onClick={() => navigate("/")}>🔙 Back to Dashboard</button>
-//         </div>
-//     );
-// };
-
-// export default ActivityPage;
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { updateProgress } from "../../utils/progress";
 import Swal from "sweetalert2";
-import "./ActivityPage.css";
 
 const ActivityPage = ({ title, activityKey, learningComponent, practiceComponent }) => {
     const navigate = useNavigate();
@@ -51,31 +23,49 @@ const ActivityPage = ({ title, activityKey, learningComponent, practiceComponent
     };
 
     return (
-        <div className="activity-container-one">
-        <div className="activity-container">
-            {/* <h1>{title}</h1> */}
-            <br></br>
-            <br></br>
-            <div className="switch-buttons">
-                <button onClick={() => setIsLearning(true)}>📖 Learning</button>
-                <button onClick={() => setIsLearning(false)}>📝 Practice</button>
+        <div className={`min-h-screen w-full ${isLearning ? "bg-transparent" : "bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100"} flex flex-col items-center justify-between`}>
+            {/* Switch Buttons - Centered at the Top */}
+            <div className="w-full flex justify-center pt-6 mb-2">
+                <div className="flex space-x-4">
+                    <button
+                        onClick={() => setIsLearning(true)}
+                        className="bg-indigo-500 text-white text-lg font-semibold px-6 py-3 rounded-full shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
+                    >
+                        📖 Learning
+                    </button>
+                    <button
+                        onClick={() => setIsLearning(false)}
+                        className="bg-indigo-500 text-white text-lg font-semibold px-6 py-3 rounded-full shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
+                    >
+                        📝 Practice
+                    </button>
+                </div>
             </div>
 
-            <div className="activity-content">
+            {/* Content Area - No styling to respect learningComponent */}
+            <div className="flex-grow w-full flex items-center justify-center">
                 {isLearning ? learningComponent : practiceComponent}
             </div>
 
-            {!isLearning && (
-                <button className="complete-button" onClick={handleComplete}>
-                    ✅ Mark as Complete
+            {/* Footer Buttons - Fixed at Bottom with Spacing */}
+            <div className="w-full flex justify-center pb-6 space-x-4 mt-2">
+                {!isLearning && (
+                    <button
+                        onClick={handleComplete}
+                        className="bg-green-500 text-white text-lg font-semibold px-6 py-3 rounded-full shadow-lg hover:bg-green-600 active:scale-95 transition-all duration-200"
+                    >
+                        ✅ Mark as Complete
+                    </button>
+                )}
+                <button
+                    onClick={() => navigate("/math/mathdashboard")}
+                    className="bg-red-500 text-white text-lg font-semibold px-6 py-3 rounded-full shadow-lg hover:bg-red-600 active:scale-95 transition-all duration-200"
+                >
+                    🔙 Back to Dashboard
                 </button>
-            )}
-
-            <button className="back-button" onClick={() => navigate("/")}>🔙 Back to Dashboard</button>
-        </div>
+            </div>
         </div>
     );
 };
 
 export default ActivityPage;
-

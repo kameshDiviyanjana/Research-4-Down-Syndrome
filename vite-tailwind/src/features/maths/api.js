@@ -25,7 +25,7 @@ export const predictGesture = async (imageFile) => {
 
     try {
         console.log("📤 Sending image to backend...");
-        const response = await axios.post("http://localhost:8005/image/predict-math", formData, {
+        const response = await axios.post("http://localhost:8005/predict-math", formData, {
             headers: { "Content-Type": "multipart/form-data" },
         });
         console.log("✅ Response from backend:", response.data);
@@ -43,7 +43,7 @@ export const predictFromBase64 = async (base64Image) => {
 
     try {
         console.log("📤 Sending captured image to backend...");
-        const response = await axios.post("http://localhost:8005/image/predict-math", formData, {
+        const response = await axios.post("http://localhost:8005/predict-math", formData, {
             headers: { "Content-Type": "multipart/form-data" },
         });
         console.log("✅ Response from backend:", response.data);
