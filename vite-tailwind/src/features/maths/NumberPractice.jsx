@@ -11,7 +11,7 @@ import num2 from "../../assets/numbers/2.png";
 import num3 from "../../assets/numbers/3.png";
 import num4 from "../../assets/numbers/4.png";
 import num5 from "../../assets/numbers/5.png";
-
+ 
 // Number images map
 const numberImages = { 0: num0, 1: num1, 2: num2, 3: num3, 4: num4, 5: num5 };
 

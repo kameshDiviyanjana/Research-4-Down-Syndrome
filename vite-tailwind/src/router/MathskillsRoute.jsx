@@ -13,8 +13,9 @@ import SubtractionLearning from "../features/maths/SubtractionLearning";
 import SequencePractice from "../features/maths/SequencePractice";
 import AdditionPractice from "../features/maths/AdditionPractice";
 import NumberPractice from "../features/maths/NumberPractice";
-import SubtractionPractice from "../features/maths/SequencePractice";
+import SubtractionPractice from "../features/maths/SubtractionPractice";
 
+import ProgressBar from "../features/maths/ProgressBar";
 
 
 
@@ -30,7 +31,8 @@ function MathskillRoute() {
                 <Route path="numbers" element={<ActivityPage title="Numbers" learningComponent={<NumberLearning/>} practiceComponent={<NumberPractice />} />} />
                 <Route path="sequence" element={<ActivityPage title="sequence" learningComponent={<SequenceLearning />} practiceComponent={<SequencePractice/>} />} />
                 <Route path="addition" element={<ActivityPage title="sequence" learningComponent={<AdditionLearning />} practiceComponent={<AdditionPractice />} />} />
-                <Route path="subtraction" element={<ActivityPage title="sequence" learningComponent={<SubtractionLearning />} practiceComponent={<SubtractionPractice/>} />} />
+                <Route path="subtraction" element={<ActivityPage title="subtraction" learningComponent={<SubtractionLearning />} practiceComponent={<SubtractionPractice/>} />} />
+                <Route path="progress" element={<ProgressBar />} /> 
 
         </Routes>
       </AuthProvider>

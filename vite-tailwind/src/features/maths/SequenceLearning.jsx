@@ -23,8 +23,11 @@ const numberImages = {
 // Import sounds
 import sound1 from "../maths/sounds/1.mp3";
 import sound2 from "../maths/sounds/2.mp3";
+import sound3 from "../maths/sounds/3.mp3";
 import sound4 from "../maths/sounds/4.mp3";
 import sound5 from "../maths/sounds/5.mp3";
+import sound6 from "../maths/sounds/6.mp3";
+import sound7 from "../maths/sounds/7.mp3";
 import sound8 from "../maths/sounds/8.mp3";
 import sound9 from "../maths/sounds/9.mp3";
 
@@ -32,8 +35,11 @@ import sound9 from "../maths/sounds/9.mp3";
 const numberSounds = {
     1: sound1,
     2: sound2,
+    3:sound3,
     4: sound4,
     5: sound5,
+    6: sound6,
+    7:sound7,
     8: sound8,
     9: sound9,
 };
@@ -53,9 +59,40 @@ const generateRandomExample = () => {
     return { sequence, answer };
 };
 
+// Instruction guides in English and Sinhala
+const instructions = {
+    en: {
+        title: "Guide for Parents: Helping Your Child Learn Number Sequences",
+        content: [
+            "1. Sit Together: Sit with your child in a calm, comfortable spot to focus on the sequences.",
+            "2. Show the Sequence: Look at the numbers on the screen. Point out the pattern step-by-step.",
+            "3. Tap to Hear: Click each number to hear its sound. Encourage your child to listen closely.",
+            "4. Say it Together: Say the numbers out loud with your child after hearing them. Use a happy tone!",
+            "5. Find the Missing Number: Point to the question mark and ask, 'What comes next?' Show the answer and say it together.",
+            "6. Use Fingers: Count the sequence using your fingers. Help your child do the same.",
+            "7. Repeat and Praise: Go over the sequence a few times. Clap or cheer for every try!",
+            "8. Next Example: Click 'Next Example' to see a new sequence and keep learning fun.",
+        ],
+    },
+    si: {
+        title: "දෙමවුපියන් සඳහා මාර්ගෝපදේශය: ඔබේ දරුවාට ඉලක්කම් අනුක්‍රම ඉගෙන ගැනීමට උපකාර කිරීම",
+        content: [
+            "1. එකට වාඩි වන්න: ඔබේ දරුවා සමඟ සන්සුන්, සුවපහසු ස්ථානයක වාඩි වී අනුක්‍රම කෙරෙහි අවධානය යොමු කරන්න.",
+            "2. අනුක්‍රමය පෙන්වන්න: තිරයේ ඇති ඉලක්කම් දෙස බලන්න. රටාව පියවරෙන් පියවර පෙන්වන්න.",
+            "3. තට්ටු කර ඇසීමට: එක් එක් ඉලක්කම ක්ලික් කර එහි ශබ්දය ඇසෙන්න. ඔබේ දරුවාට හොඳින් ඇසීමට ධෛර්යමත් කරන්න.",
+            "4. එකට කියන්න: ශබ්ද ඇසූ පසු ඔබේ දරුවා සමඟ ඉලක්කම් ශබ්ද නඟා කියන්න. සතුටු හඬකින් භාවිතා කරන්න!",
+            "5. නැති ඉලක්කම සොයන්න: ප්‍රශ්න ලකුණට ඇඟිල්ලෙන් යොමු කර, 'මීළඟට එන්නේ මොකක්ද?' කියා ඇසිල්ලක් කරන්න. පිළිතුර පෙන්වා එකට කියන්න.",
+            "6. ඇඟිලි භාවිතා කරන්න: අනුක්‍රමය ඔබේ ඇඟිලි භාවිතයෙන් ගණන් කරන්න. ඔබේ දරුවාටත් එසේ කිරීමට උපකාර කරන්න.",
+            "7. පුනරුච්චාරණය කර ප්‍රශංසා කරන්න: අනුක්‍රමය කිහිප වතාවක් යන්න. සෑම උත්සාහයකටම අත්පුඩි ගසන්න හෝ සතුටු වන්න!",
+            "8. ඊළඟ උදාහරණය: නව අනුක්‍රමයක් බැලීමට 'ඊළඟ උදාහරණය' ක්ලික් කර ඉගෙනීම රසවත් කරන්න.",
+        ],
+    },
+};
+
 const SequenceLearning = () => {
     const [example, setExample] = useState(generateRandomExample()); // Initial example
     const [exampleCount, setExampleCount] = useState(1); // Track example number
+    const [language, setLanguage] = useState("en"); // Default to English
     const navigate = useNavigate();
 
     // Function to play sound
@@ -73,6 +110,11 @@ const SequenceLearning = () => {
     const swapExample = () => {
         setExample(generateRandomExample());
         setExampleCount((prev) => prev + 1); // Increment example number
+    };
+
+    // Function to toggle language
+    const toggleLanguage = () => {
+        setLanguage((prevLang) => (prevLang === "en" ? "si" : "en"));
     };
 
     return (
@@ -104,7 +146,7 @@ const SequenceLearning = () => {
 
                 {/* Dynamic Sequence - Horizontal Layout with Centering */}
                 <div className="!flex !flex-row justify-center items-center gap-4 my-6">
-                    {example.sequence.map((num, index) => (
+                    {example.sequence.map((num, index) =>
                         num !== null ? (
                             <img
                                 key={index}
@@ -116,13 +158,13 @@ const SequenceLearning = () => {
                         ) : (
                             <div
                                 key={index}
-                                className="w-40 h-40 flex justify-center items-center   border-gray-300 rounded-full"
+                                className="w-40 h-40 flex justify-center items-center border-gray-300 rounded-full"
                             >
                                 <AiOutlineQuestionCircle className="w-24 h-24 text-purple-600" />
                             </div>
                         )
-                    ))}
-                    <div className="text-3xl text-purple-600 font-bold my-4">,</div>
+                    )}
+                    <div className="text-3xl text-purple-600 font-bold my-4"></div>
                     <h3 className="text-lg font-semibold text-purple-600 drop-shadow-md">
                         Answer is:
                     </h3>
@@ -138,10 +180,30 @@ const SequenceLearning = () => {
             {/* Start Practice Button */}
             <button
                 onClick={() => navigate("/sequence-practice")}
-                className="mt-6 bg-blue-500 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-600 transition"
+                className="mt-6 bg-blue-500 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-600 transition mb-10"
             >
                 📝 Start Practice
             </button>
+
+            {/* Instruction Guide */}
+            <div className="mt-20 w-full max-w-2xl bg-white rounded-lg shadow-lg p-6">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-2xl font-bold text-indigo-600">
+                        {instructions[language].title}
+                    </h3>
+                    <button
+                        className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-all duration-200"
+                        onClick={toggleLanguage}
+                    >
+                        {language === "en" ? "සිංහල" : "English"}
+                    </button>
+                </div>
+                <ul className="list-disc list-inside text-gray-700 text-lg">
+                    {instructions[language].content.map((item, index) => (
+                        <li key={index} className="mb-2">{item}</li>
+                    ))}
+                </ul>
+            </div>
         </div>
     );
 };
