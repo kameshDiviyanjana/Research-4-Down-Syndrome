@@ -2,7 +2,9 @@ import React, { useRef, useState } from "react";
 import Webcam from "react-webcam";
 import Swal from "sweetalert2";
 import { predictGesture } from "./api";
-import SmileImage from '../../../src/assets/smile.jpg'
+import SmileImage from '../../../src/assets/smile.jpg';
+import useProgressStore from '../maths/store/progressStore'; // Adjust the path as needed
+import "./PracticeAnimations.css"; // Assuming you want animations
 
 // Import number images
 import num0 from "../../assets/numbers/0.png";
@@ -11,7 +13,7 @@ import num2 from "../../assets/numbers/2.png";
 import num3 from "../../assets/numbers/3.png";
 import num4 from "../../assets/numbers/4.png";
 import num5 from "../../assets/numbers/5.png";
- 
+
 // Number images map
 const numberImages = { 0: num0, 1: num1, 2: num2, 3: num3, 4: num4, 5: num5 };
 
@@ -29,6 +31,9 @@ const NumberPractice = () => {
     const [finalPrediction, setFinalPrediction] = useState("");
     const [countdown, setCountdown] = useState(null);
     const [isCapturing, setIsCapturing] = useState(false);
+
+    // Zustand store hook
+    const addProgress = useProgressStore((state) => state.addProgress);
 
     const startPractice = () => {
         const newRandomNumber = Math.floor(Math.random() * 6);
@@ -98,13 +103,17 @@ const NumberPractice = () => {
         console.log(`[processPredictions] Comparison result (finalPred === targetNumber): ${isCorrect}`);
         console.log(`[processPredictions] String(finalPred): ${String(finalPred)}, String(targetNumber): ${String(targetNumber)}`);
 
-        if (targetNumber !== null && isCorrect) {
-            console.log("[processPredictions] Prediction is correct, showing success alert");
-            showSuccessAlert();
-        } else {
-            console.log("[processPredictions] Prediction is incorrect or targetNumber is null, showing failure alert");
-            console.log(`[processPredictions] Reason: targetNumber=${targetNumber}, isCorrect=${isCorrect}`);
-            showFailureAlert();
+        // Update progress based on correctness
+        if (targetNumber !== null) {
+            if (isCorrect) {
+                console.log("[processPredictions] Prediction is correct, adding progress: NumberPractice, count: 1");
+                addProgress("NumberPractice", 1); // Correct answer
+                showSuccessAlert();
+            } else {
+                console.log("[processPredictions] Prediction is incorrect, adding progress: NumberPractice, count: 0");
+                addProgress("NumberPractice", 0); // Incorrect answer
+                showFailureAlert();
+            }
         }
     };
 
@@ -171,7 +180,7 @@ const NumberPractice = () => {
                             <img 
                                 src={numberImages[randomNumber]} 
                                 alt={`Show this number: ${randomNumber}`} 
-                                className="w-50 h-50 object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
+                                className="w-36 h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
                                 onClick={() => playSound(randomNumber)}
                             />
                         </div>

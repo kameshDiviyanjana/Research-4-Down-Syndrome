@@ -2,7 +2,8 @@ import React, { useRef, useState } from "react";
 import Webcam from "react-webcam";
 import Swal from "sweetalert2";
 import { predictGesture } from "./api";
-import SmileImage from '../../../src/assets/smile.jpg'
+import SmileImage from '../../../src/assets/smile.jpg';
+import useProgressStore from '../maths/store/progressStore'; // Adjust the path as needed
 import "./PracticeAnimations.css"; // Added for animations
 
 // Import number images
@@ -37,6 +38,9 @@ const SequencePractice = () => {
   const [finalPrediction, setFinalPrediction] = useState("");
   const [countdown, setCountdown] = useState(null);
   const [isCapturing, setIsCapturing] = useState(false);
+
+  // Zustand store hook
+  const addProgress = useProgressStore((state) => state.addProgress);
 
   const startPractice = () => {
     const randomIndex = Math.floor(Math.random() * sequences.length);
@@ -105,13 +109,17 @@ const SequencePractice = () => {
     console.log(`[processPredictions] Comparison result (finalPred === targetAnswer): ${isCorrect}`);
     console.log(`[processPredictions] String(finalPred): ${String(finalPred)}, String(targetAnswer): ${String(targetAnswer)}`);
 
-    if (targetAnswer !== null && isCorrect) {
-      console.log("[processPredictions] Prediction is correct, showing success alert");
-      showSuccessAlert();
-    } else {
-      console.log("[processPredictions] Prediction is incorrect or targetAnswer is null, showing failure alert");
-      console.log(`[processPredictions] Reason: targetAnswer=${targetAnswer}, isCorrect=${isCorrect}`);
-      showFailureAlert();
+    // Update progress based on correctness
+    if (targetSequence !== null) {
+      if (isCorrect) {
+        console.log("[processPredictions] Prediction is correct, adding progress: SequencePractice, count: 1");
+        addProgress("SequencePractice", 1); // Correct answer
+        showSuccessAlert();
+      } else {
+        console.log("[processPredictions] Prediction is incorrect, adding progress: SequencePractice, count: 0");
+        addProgress("SequencePractice", 0); // Incorrect answer
+        showFailureAlert();
+      }
     }
   };
 
