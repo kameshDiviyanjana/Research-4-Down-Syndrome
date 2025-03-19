@@ -178,12 +178,12 @@ const SequenceLearning = () => {
             </div>
 
             {/* Start Practice Button */}
-            <button
+            {/* <button
                 onClick={() => navigate("/sequence-practice")}
                 className="mt-6 bg-blue-500 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-600 transition mb-10"
             >
                 📝 Start Practice
-            </button>
+            </button> */}
 
             {/* Instruction Guide */}
             <div className="mt-20 w-full max-w-2xl bg-white rounded-lg shadow-lg p-6">
