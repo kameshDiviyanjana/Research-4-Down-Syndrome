@@ -1,54 +1,69 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import ProgressBar from "./ProgressBar";
-import numbersImg from "../../assets/dash.png"; 
-import backgroundImage from "../../assets/dashboard-bg.jpg"; 
+import backgroundImage from "../../assets/dashboard-bg.jpg";
 
 const Dashboard = () => {
     const navigate = useNavigate();
 
+    const buttonStyles = `
+        flex items-center justify-center gap-2
+        px-6 py-4 
+        bg-gradient-to-r from-blue-500 to-indigo-600 
+        text-white rounded-xl 
+        hover:from-blue-600 hover:to-indigo-700 
+        transform hover:-translate-y-1 
+        transition-all duration-300 
+        shadow-md hover:shadow-lg
+        text-lg font-medium
+    `;
+
     return (
         <div 
-            className="relative w-screen h-screen bg-cover bg-center flex items-end justify-center pb-40"
+            className="relative w-screen h-screen bg-cover bg-center flex items-center justify-center p-6"
             style={{ backgroundImage: `url(${backgroundImage})` }}
         >
-            <div className="text-center bg-white bg-opacity-85 p-8 rounded-lg shadow-lg max-w-lg w-full">
-                <h1 className="text-4xl font-bold text-gray-800 mb-4">
-                    Welcome to <span className="text-orange-500">Maths Learning</span>
-                </h1>
-                <p className="text-xl text-gray-600 mb-6">Learning Dashboard</p>
+            {/* Overlay for better contrast */}
+            <div className="absolute inset-0 "></div>
 
-                {/* Button Grid Layout */}
-                <div className="grid grid-cols-2 gap-4">
+            {/* Main Card */}
+            <div className="relative z-10 mt-[95px] p-8 rounded-2xl shadow-xl max-w-2xl w-full animate-fade-in">
+                <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-3 text-center">
+                    Welcome to 
+                    <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent"> Maths Learning</span>
+                </h1>
+                <p className="text-xl text-gray-600 mb-8 text-center font-light">Your Interactive Learning Dashboard</p>
+
+                {/* Button Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <button 
-                        onClick={() => navigate("/math/numbers")} 
-                        className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300"
+                        onClick={() => navigate("/math/numbers")}
+                        className={buttonStyles}
                     >
-                        🔢 Learn Numbers
+                        <span className="text-2xl">🔢</span> Learn Numbers
                     </button>
                     <button 
-                        onClick={() => navigate("/math/sequence")} 
-                        className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300"
+                        onClick={() => navigate("/math/sequence")}
+                        className={buttonStyles}
                     >
-                        🔢 Number Sequence
+                        <span className="text-2xl">🔢</span> Number Sequence
                     </button>
                     <button 
-                        onClick={() => navigate("/math/addition")} 
-                        className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300"
+                        onClick={() => navigate("/math/addition")}
+                        className={buttonStyles}
                     >
-                        ➕ Addition
+                        <span className="text-2xl">➕</span> Addition
                     </button>
                     <button 
-                        onClick={() => navigate("/math/subtraction")} 
-                        className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300"
+                        onClick={() => navigate("/math/subtraction")}
+                        className={buttonStyles}
                     >
-                        ➖ Subtraction
+                        <span className="text-2xl">➖</span> Subtraction
                     </button>
                     <button 
-                        onClick={() => navigate("/math/progress")} 
-                        className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300"
+                        onClick={() => navigate("/math/progress")}
+                        className={buttonStyles + " sm:col-span-2 w-3/4 mx-auto"}
                     >
-                        ➖ progress
+                        <span className="text-2xl">📊</span> Track Progress
                     </button>
                 </div>
             </div>

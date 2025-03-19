@@ -101,7 +101,7 @@ const LearningComponent = () => {
     // Function to generate a new random example
     const swapExample = () => {
         setExample(generateRandomExample());
-        setExampleCount((prev) => prev + 1); // Increment example number
+        setExampleCount((prev) => prev + 1);
     };
 
     // Function to toggle language
@@ -162,12 +162,12 @@ const LearningComponent = () => {
             </div>
 
             {/* Start Practice Button */}
-            <button
+            {/* <button
                 onClick={() => navigate("/learning-practice")}
                 className="mt-6 bg-blue-500 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-600 transition"
             >
                 📝 Start Practice
-            </button>
+            </button> */}
 
             {/* Instruction Guide */}
             <div className="mt-10 w-full max-w-2xl bg-white rounded-lg shadow-lg p-6">
