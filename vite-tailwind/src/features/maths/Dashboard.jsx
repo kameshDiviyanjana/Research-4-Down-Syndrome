@@ -26,7 +26,7 @@ const Dashboard = () => {
             <div className="absolute inset-0 "></div>
 
             {/* Main Card */}
-            <div className="relative z-10 mt-[95px] p-8 rounded-2xl shadow-xl max-w-2xl w-full animate-fade-in">
+            <div className="relative z-10 mt-[95px]  rounded-2xl shadow-xl max-w-2xl w-full animate-fade-in">
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-3 text-center">
                     Welcome to 
                     <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent"> Maths Learning</span>
@@ -34,7 +34,7 @@ const Dashboard = () => {
                 <p className="text-xl text-gray-600 mb-8 text-center font-light">Your Interactive Learning Dashboard</p>
 
                 {/* Button Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-10 pr-10">
                     <button 
                         onClick={() => navigate("/math/numbers")}
                         className={buttonStyles}
