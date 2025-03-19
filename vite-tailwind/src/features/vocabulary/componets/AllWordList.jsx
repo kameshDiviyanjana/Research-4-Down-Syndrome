@@ -22,7 +22,7 @@ const AllWordList = () => {
   const userme = localStorage.getItem("userid");
   const [prediction, setPrediction] = useState(null);
   const [scoreborder, setscoreborder] = useState(true);
-  const [marks, setmarks] = useState(false);
+  const [marks, setmarks] = useState(0);
   const addspeechMutation = AddSpeechResults(); // This is the hook that triggers the mutation
   const userid = localStorage.getItem("userid"); // Get user ID from localStorage
   const { word } = useParams();
@@ -131,6 +131,7 @@ const AllWordList = () => {
         }
       );
       setPrediction(response.data);
+      setmarks(response.data.confidence);
       setTaskCompleted(true);
       await addresulis(response.data);
       console.log("✅ Upload success:", response.data);
@@ -189,12 +190,19 @@ const AllWordList = () => {
       setTaskCompleted(true);
     }
   };
-  let starCount = 0;
-  if (marks >= 75) {
-    starCount = 4;
-  } else if (marks >= 50) {
+  let starCount =0 ;
+  if (marks >= 2) {
+    starCount = 2;
+  } else if (marks >= 3) {
     starCount = 3;
+  }else if (marks >= 4) {
+    starCount = 4;
   }
+else if (marks >= 5) {
+    starCount = 5;
+  }
+
+
 
   const stars = Array.from({ length: 5 }, (_, index) => (
     <span
@@ -240,21 +248,40 @@ const AllWordList = () => {
                 </div>
               )} */}
                 {getallword?.data?.wordses?.map((word) => (
-                  <div key={word._id} className="text-center space-y-4">
+                  <div
+                    key={word._id}
+                    className="text-center space-y-4 p-4 rounded-2xl shadow-xl bg-gradient-to-br from-yellow-100 to-blue-100"
+                  >
                     <img
                       src={word.imagewordUrl}
                       alt={word.wordAdd}
-                      className="lg:h-[500px] lg:w-[700px] rounded-xl"
+                      className="lg:h-[500px] lg:w-[700px] rounded-xl border-8 border-white shadow-md"
                     />
                     {isActive && (
                       <h1
-                        className="font-bold text-[90px] text-center hover:text-blue-500 active:text-red-500 transition-colors cursor-pointer"
+                        className="font-extrabold text-[90px] text-center text-pink-500 hover:text-green-500 active:text-orange-500 transition-all cursor-pointer drop-shadow-lg"
                         onClick={() => spechword(word.wordAdd)}
                       >
                         {word.wordAdd}
                       </h1>
                     )}
                   </div>
+
+                  // <div key={word._id} className="text-center space-y-4">
+                  //   <img
+                  //     src={word.imagewordUrl}
+                  //     alt={word.wordAdd}
+                  //     className="lg:h-[500px] lg:w-[700px] rounded-xl"
+                  //   />
+                  //   {isActive && (
+                  //     <h1
+                  //       className="font-bold text-[90px] text-center hover:text-blue-500 active:text-red-500 transition-colors cursor-pointer"
+                  //       onClick={() => spechword(word.wordAdd)}
+                  //     >
+                  //       {word.wordAdd}
+                  //     </h1>
+                  //   )}
+                  // </div>
                 ))}
               </div>
             )
@@ -276,8 +303,9 @@ const AllWordList = () => {
                     setscoreborder(false);
                     setmarks(true);
                   }}
+                  className="bg-gradient-to-r from-green-400 to-yellow-400 text-white text-2xl font-bold py-3 px-8 rounded-full shadow-lg hover:from-blue-400 hover:to-purple-400 h-[100px] active:scale-95 transition-all"
                 >
-                  Complete
+                  🎉 Complete ✅
                 </button>
               ) : (
                 <button
@@ -285,9 +313,19 @@ const AllWordList = () => {
                     nextWord();
                     //startRecording();
                   }}
+                  className="bg-gradient-to-r from-yellow-400 to-pink-400 text-white text-2xl font-bold py-3 px-8 h-[100px] rounded-full shadow-lg hover:from-green-400 hover:to-blue-400 active:scale-95 transition-all"
                 >
-                  Next
+                  🚀 Next 🎈
                 </button>
+
+                // <button
+                //   onClick={() => {
+                //     nextWord();
+                //     //startRecording();
+                //   }}
+                // >
+                //   Next
+                // </button>
               )}
             </>
           )}
@@ -309,36 +347,111 @@ const AllWordList = () => {
               <div>
                 <div className=" flex justify-center">
                   {prediction && (
-                    <div>
-                      <div className=" shadow-2xl text-center  w-[450px] h-[250px] py-16">
-                        <h2>Prediction Result</h2>
-                        <p>Confidence: {prediction.confidence}</p>
-                        <p>Cluster: {prediction.cluster}</p>
+                    // <div>
+                    //   <div className=" shadow-2xl text-center  w-[450px] h-[250px] py-16">
+                    //     <h2>Prediction Result</h2>
+                    //     <p>Confidence: {prediction.confidence}</p>
+                    //     <p>Cluster: {prediction.cluster}</p>
+                    //   </div>
+                    //   <div className="flex">{stars}</div>
+                    // </div>
+                    <div className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-blue-100 to-pink-100 rounded-2xl shadow-2xl w-[450px] h-[300px]">
+                      <h2 className="text-2xl font-bold text-pink-600">
+                        🎈 Prediction Result 🎈
+                      </h2>
+                      <p className="text-lg font-semibold text-blue-700 mt-2">
+                        Confidence:{" "}
+                        <span className="text-orange-500">
+                          {prediction.confidence}
+                        </span>
+                      </p>
+                      <p className="text-lg font-semibold text-blue-700">
+                        Cluster:{" "}
+                        <span className="text-green-500">
+                          {prediction.cluster}
+                        </span>
+                      </p>
+                      <div className="flex mt-4 text-yellow-500 text-3xl">
+                        {stars}
                       </div>
-                      <div className="flex">{stars}</div>
                     </div>
                   )}
                 </div>{" "}
                 <div className=" flex flex-col justify-center">
-                  <div className=" text-center">
-                    <h1 className=" font-bold">Last Results</h1>
-                  </div>
+                  <div className=" text-center"></div>
                   <div className=" flex justify-center">
                     {getlastresults.data && (
                       <div>
                         <div className=" shadow-2xl text-center  w-[450px] h-[250px] py-16">
-                          <h2>Prediction Result</h2>
+                          <h2 className="text-2xl font-bold text-pink-600">
+                            🎈Last Results Prediction Result 🎈
+                          </h2>
+                          <p className="text-lg font-semibold text-blue-700 mt-2">
+                            Confidence:{" "}
+                            <span className="text-orange-500">
+                              {getlastresults.data.confidence}
+                            </span>
+                          </p>
+                          <p className="text-lg font-semibold text-blue-700">
+                            Cluster:{" "}
+                            <span className="text-green-500">
+                              {getlastresults.data.cluster}
+                            </span>
+                          </p>
+                          {/* <div className="flex mt-4 text-yellow-500 text-3xl">
+                            {stars}
+                          </div> */}
+                          {/* <h2>Prediction Result</h2>
                           <p>Confidence: {getlastresults.data.confidence}</p>
-                          <p>Cluster: {getlastresults.data.cluster}</p>
+                          <p>Cluster: {getlastresults.data.cluster}</p> */}
                         </div>
-                        <div className="flex">{stars}</div>
+                        {/* <div className="flex">{stars}</div> */}
                       </div>
                     )}
                   </div>
                 </div>
               </div>
               <div class="overflow-x-auto">
-                <table class="w-full border-collapse border bg-white border-gray-200">
+                <table className="w-full border-collapse bg-white rounded-xl shadow-md overflow-hidden">
+                  <thead className="bg-gradient-to-r from-blue-300 to-purple-400 text-white">
+                    <tr>
+                      <th className="border border-gray-300 px-6 py-3 text-left text-lg font-bold">
+                        Cluster
+                      </th>
+                      <th className="border border-gray-300 px-6 py-3 text-left text-lg font-bold">
+                        Confidence
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {getresults?.data?.length > 0 ? (
+                      getresults?.data?.map((user) => (
+                        <tr
+                          key={user._id}
+                          className="hover:bg-yellow-200 transition-all duration-300"
+                        >
+                          <td className="border border-gray-300 px-6 py-3 text-lg text-center text-blue-600 font-semibold">
+                            {user.cluster}
+                          </td>
+                          <td className="border border-gray-300 px-6 py-3 text-lg text-center text-green-600 font-semibold">
+                            {user.confidence}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan="2"
+                          className="border border-gray-300 px-6 py-3 text-center text-gray-500 text-lg animate-pulse"
+                        >
+                          🚀 No results found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+
+                {/* <table class="w-full border-collapse border bg-white border-gray-200">
                   <thead class="bg-gray-200">
                     <tr>
                       <th class="border border-gray-300 px-4 py-2 text-left">
@@ -372,8 +485,8 @@ const AllWordList = () => {
                       </tr>
                     )}
                   </tbody>
-                </table>
-{/* 
+                </table> */}
+                {/* 
                 <div>
                   {getresults.data.length > 0 && (
                     <LineChart

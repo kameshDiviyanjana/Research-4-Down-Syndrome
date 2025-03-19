@@ -16,9 +16,9 @@ function SystemPage() {
   const [recording, setRecording] = useState(false);
   const [videoBlob, setVideoBlob] = useState(null);
   const [cameraStream, setCameraStream] = useState(null);
-  const [Playe,setplaye]=useState(false)
+  const [Playe, setplaye] = useState(false);
   const [radamselect, setradamselect] = useState(true);
-const [displayrecode, setdisplayrecode] = useState(true);
+  const [displayrecode, setdisplayrecode] = useState(true);
   const categories = ["catch", "walk", "jump"];
   const categoryVideos = {
     catch: "/videos/catch.mp4",
@@ -27,7 +27,11 @@ const [displayrecode, setdisplayrecode] = useState(true);
   };
 
   useEffect(() => {
-    if (webcamRef.current && webcamRef.current.video && webcamRef.current.video.srcObject) {
+    if (
+      webcamRef.current &&
+      webcamRef.current.video &&
+      webcamRef.current.video.srcObject
+    ) {
       setCameraStream(webcamRef.current.video.srcObject);
     }
   }, [webcamRef]);
@@ -49,12 +53,20 @@ const [displayrecode, setdisplayrecode] = useState(true);
 
   const handleFileUpload = async (file) => {
     if (!file) {
-      Swal.fire("Warning!", "Please select or record a video first!", "warning");
+      Swal.fire(
+        "Warning!",
+        "Please select or record a video first!",
+        "warning"
+      );
       return;
     }
 
     if (!randomCategory) {
-      Swal.fire("Warning!", "Please generate a random category first!", "warning");
+      Swal.fire(
+        "Warning!",
+        "Please generate a random category first!",
+        "warning"
+      );
       return;
     }
 
@@ -87,9 +99,7 @@ const [displayrecode, setdisplayrecode] = useState(true);
         // timer: 5000,
         timerProgressBar: true,
       });
-        setVideoBlob(null);
-
-
+      setVideoBlob(null);
     } catch (error) {
       console.error("Error uploading file:", error);
       setUploadStatus("Failed to process video.");
@@ -99,7 +109,9 @@ const [displayrecode, setdisplayrecode] = useState(true);
 
   const calculateMatchPercentage = (predictionsList) => {
     if (predictionsList.length === 0) return 0;
-    const matchCount = predictionsList.filter((item) => item.prediction === randomCategory).length;
+    const matchCount = predictionsList.filter(
+      (item) => item.prediction === randomCategory
+    ).length;
     return ((matchCount / predictionsList.length) * 100).toFixed(2);
   };
 
@@ -122,7 +134,11 @@ const [displayrecode, setdisplayrecode] = useState(true);
 
   const startRecording = async () => {
     if (!cameraStream) {
-      Swal.fire("Error!", "Camera is not available! Please check your webcam settings.", "error");
+      Swal.fire(
+        "Error!",
+        "Camera is not available! Please check your webcam settings.",
+        "error"
+      );
       return;
     }
 
@@ -155,16 +171,16 @@ const [displayrecode, setdisplayrecode] = useState(true);
   const stopRecording = () => {
     if (mediaRecorderRef.current) {
       setRecording(false);
-      setdisplayrecode(false)
+      setdisplayrecode(false);
       mediaRecorderRef.current.stop();
     }
   };
-const  startrecodevedio = ()=>{
-  setplaye(true)
-  setdisplayrecode(true)
-  setVideoBlob(null);
-  setPredictions([]);
-}
+  const startrecodevedio = () => {
+    setplaye(true);
+    setdisplayrecode(true);
+    setVideoBlob(null);
+    setPredictions([]);
+  };
   const categoryCounts = calculateCategoryCounts();
 
   return (
@@ -196,7 +212,7 @@ const  startrecodevedio = ()=>{
       <div className="  flex flex-row justify-center gap-8">
         <div>
           {randomCategory && (
-            <div style={{ marginTop: "20px" }} >
+            <div style={{ marginTop: "20px" }}>
               <h3 className="text-4xl font-bold   mb-4 text-center  ">
                 Start Learing: {randomCategory}
               </h3>
@@ -395,8 +411,3 @@ const  startrecodevedio = ()=>{
 }
 
 export default SystemPage;
-
-
-
-
-
