@@ -3,15 +3,17 @@ import child from '../../../assets/child.png'
 function StartingPage(props) {
   return (
     <div>
-      <div>
+      <div className="flex flex-col items-center justify-center">
         <button
           onClick={props.setstart}
-          className='"bg-[#F18F02] bg-orange-500 font-bold py-2 rounded-md hover:bg-blue-900 hover:text-white transition duration-300 text-white px-5 mt-14 '
+          className="bg-orange-500 font-bold py-4 px-8 rounded-full text-white hover:bg-yellow-600 transition duration-300 transform hover:scale-105 mt-14"
         >
-          Click
+          Let's Play!
         </button>
-        <div className=" mt-4">
-          <h1 className=" font-bold text-3xl"> Welcome To Word Pactise</h1>
+        <div className="mt-6">
+          <h1 className="font-bold text-4xl text-center text-[#F18F02]">
+            Welcome to Word Practice!
+          </h1>
         </div>
         <div>
           <img src={child} alt="image" />
