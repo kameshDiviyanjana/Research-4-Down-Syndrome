@@ -21,23 +21,27 @@ const numberImages = {
 };
 
 // Import number sounds
-import sound0 from "../maths/sounds/0.mp3";
 import sound1 from "../maths/sounds/1.mp3";
 import sound2 from "../maths/sounds/2.mp3";
+import sound3 from "../maths/sounds/3.mp3";
 import sound4 from "../maths/sounds/4.mp3";
 import sound5 from "../maths/sounds/5.mp3";
+import sound6 from "../maths/sounds/6.mp3";
+import sound7 from "../maths/sounds/7.mp3";
 import sound8 from "../maths/sounds/8.mp3";
 import sound9 from "../maths/sounds/9.mp3";
 
-// Number sounds map
+// Map numbers to sounds dynamically
 const numberSounds = {
-    0: sound0,
     1: sound1,
     2: sound2,
+    3:sound3,
     4: sound4,
     5: sound5,
+    6: sound6,
+    7:sound7,
     8: sound8,
-    9: sound9
+    9: sound9,
 };
 
 // Function to generate a simple subtraction example
@@ -48,10 +52,41 @@ const generateRandomExample = () => {
     return { minuend, subtrahend, difference };
 };
 
+// Instruction guides in English and Sinhala
+const instructions = {
+    en: {
+        title: "Guide for Parents: Helping Your Child Learn Subtraction",
+        content: [
+            "1. Sit Together: Sit with your child in a calm, comfortable place to focus on subtraction.",
+            "2. Show the Numbers: Point to the first number (bigger one) and the second number (to take away) on the screen.",
+            "3. Tap to Hear: Click each number to hear its sound. Encourage your child to listen closely.",
+            "4. Explain Subtraction: Say, 'We take this away from that,' pointing to the minus sign (-). Then show the result.",
+            "5. Count with Fingers: Hold up fingers for the first number, then fold down the second number’s worth. Count what’s left.",
+            "6. Say the Result: After hearing the result’s sound, say it together in a happy voice!",
+            "7. Repeat and Praise: Go over the example a few times. Cheer or clap for every try!",
+            "8. Try a New Example: Click 'Next Example' to practice more subtraction and keep it fun.",
+        ],
+    },
+    si: {
+        title: "දෙමවුපියන් සඳහා මාර්ගෝපදේශය: ඔබේ දරුවාට අඩු කිරීම ඉගෙන ගැනීමට උපකාර කිරීම",
+        content: [
+            "1. එකට වාඩි වන්න: ඔබේ දරුවා සමඟ සන්සුන්, සුවපහසු ස්ථානයක වාඩි වී අඩු කිරීම කෙරෙහි අවධානය යොමු කරන්න.",
+            "2. ඉලක්කම් පෙන්වන්න: තිරයේ ඇති පළමු ඉලක්කම (විශාල එක) සහ දෙවන ඉලක්කම (අඩු කරන එක) ඇඟිල්ලෙන් යොමු කරන්න.",
+            "3. තට්ටු කර ඇසීමට: එක් එක් ඉලක්කම ක්ලික් කර එහි ශබ්දය ඇසෙන්න. ඔබේ දරුවාට හොඳින් ඇසීමට ධෛර්යමත් කරන්න.",
+            "4. අඩු කිරීම පැහැදිලි කරන්න: 'අපි මෙය එතැනින් අඩු කරමු' කියන්න සහ අඩු ලකුණට (-) යොමු කරන්න. පසුව ප්‍රතිඵලය පෙන්වන්න.",
+            "5. ඇඟිලිවලින් ගණන් කරන්න: පළමු ඉලක්කම සඳහා ඇඟිලි ඉහළට තබන්න, පසුව දෙවන ඉලක්කමේ ප්‍රමාණය බිමට හකුලන්න. ඉතිරි වූ ගණන ගණන් කරන්න.",
+            "6. ප්‍රතිඵලය කියන්න: ප්‍රතිඵලයේ ශබ්දය ඇසූ පසු, එය සතුටු හඬකින් එකට කියන්න!",
+            "7. පුනරුච්�චාරණය කර ප්‍රශංසා කරන්න: උදාහරණය කිහිප වතාවක් යන්න. සෑම උත්සාහයකටම සතුටු වන්න හෝ අත්පුඩි ගසන්න!",
+            "8. නව උදාහරණයක් උත්සාහ කරන්න: තවත් අඩු කිරීම් පුහුණු කිරීමට 'ඊළඟ උදාහරණය' ක්ලික් කර එය රසවත් කරන්න.",
+        ],
+    },
+};
+
 const SubtractionLearning = () => {
     const navigate = useNavigate();
     const [example, setExample] = useState(generateRandomExample()); // Initial example
     const [exampleCount, setExampleCount] = useState(1); // Track example number
+    const [language, setLanguage] = useState("en"); // Default to English
 
     // Function to play sound
     const playSound = (number) => {
@@ -68,6 +103,11 @@ const SubtractionLearning = () => {
     const swapExample = () => {
         setExample(generateRandomExample());
         setExampleCount((prev) => prev + 1); // Increment example number
+    };
+
+    // Function to toggle language
+    const toggleLanguage = () => {
+        setLanguage((prevLang) => (prevLang === "en" ? "si" : "en"));
     };
 
     return (
@@ -102,21 +142,21 @@ const SubtractionLearning = () => {
                     <img
                         src={numberImages[example.minuend]}
                         alt={String(example.minuend)}
-                        className="w-50 h-50 cursor-pointer hover:scale-110 transition"
+                        className="w-36 h-36 cursor-pointer hover:scale-110 transition"
                         onClick={() => playSound(example.minuend)}
                     />
                     <span className="text-4xl font-bold text-purple-600">-</span>
                     <img
                         src={numberImages[example.subtrahend]}
                         alt={String(example.subtrahend)}
-                        className="w-50 h-50 cursor-pointer hover:scale-110 transition"
+                        className="w-36 h-36 cursor-pointer hover:scale-110 transition"
                         onClick={() => playSound(example.subtrahend)}
                     />
                     <span className="text-4xl font-bold text-purple-600">=</span>
                     <img
                         src={numberImages[example.difference]}
                         alt={String(example.difference)}
-                        className="w-50 h-50 cursor-pointer hover:scale-110 transition"
+                        className="w-36 h-36 cursor-pointer hover:scale-110 transition"
                         onClick={() => playSound(example.difference)}
                     />
                 </div>
@@ -129,6 +169,26 @@ const SubtractionLearning = () => {
             >
                 📝 Start Practice
             </button>
+
+            {/* Instruction Guide */}
+            <div className="mt-10 w-full max-w-2xl bg-white rounded-lg shadow-lg p-6">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-2xl font-bold text-indigo-600">
+                        {instructions[language].title}
+                    </h3>
+                    <button
+                        className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-all duration-200"
+                        onClick={toggleLanguage}
+                    >
+                        {language === "en" ? "සිංහල" : "English"}
+                    </button>
+                </div>
+                <ul className="list-disc list-inside text-gray-700 text-lg">
+                    {instructions[language].content.map((item, index) => (
+                        <li key={index} className="mb-2">{item}</li>
+                    ))}
+                </ul>
+            </div>
         </div>
     );
 };

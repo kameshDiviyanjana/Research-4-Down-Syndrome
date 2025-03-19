@@ -2,7 +2,8 @@ import React, { useRef, useState } from "react";
 import Webcam from "react-webcam";
 import Swal from "sweetalert2";
 import { predictGesture } from "./api";
-import SmileImage from '../../../src/assets/smile.jpg'
+import SmileImage from '../../../src/assets/smile.jpg';
+import useProgressStore from '../maths/store/progressStore'; // Adjust the path as needed
 
 // Import number images
 import num0 from "../../assets/numbers/0.png";
@@ -36,6 +37,9 @@ const AdditionPractice = () => {
     const [finalPrediction, setFinalPrediction] = useState("");
     const [countdown, setCountdown] = useState(null);
     const [isCapturing, setIsCapturing] = useState(false);
+
+    // Zustand store hook
+    const addProgress = useProgressStore((state) => state.addProgress);
 
     const startPractice = () => {
         const randomTask = tasks[Math.floor(Math.random() * tasks.length)];
@@ -107,13 +111,17 @@ const AdditionPractice = () => {
         console.log(`[processPredictions] Comparison result (finalPred === targetAnswer): ${isCorrect}`);
         console.log(`[processPredictions] String(finalPred): ${String(finalPred)}, String(targetAnswer): ${String(targetAnswer)}`);
 
-        if (targetAnswer !== null && isCorrect) {
-            console.log("[processPredictions] Prediction is correct, showing success alert");
-            showSuccessAlert();
-        } else {
-            console.log("[processPredictions] Prediction is incorrect or targetAnswer is null, showing failure alert");
-            console.log(`[processPredictions] Reason: targetAnswer=${targetAnswer}, isCorrect=${isCorrect}`);
-            showFailureAlert();
+        // Update progress based on correctness
+        if (targetTask !== null) {
+            if (isCorrect) {
+                console.log("[processPredictions] Prediction is correct, adding progress: AdditionPractice, count: 1");
+                addProgress("AdditionPractice", 1); // Correct answer
+                showSuccessAlert();
+            } else {
+                console.log("[processPredictions] Prediction is incorrect, adding progress: AdditionPractice, count: 0");
+                addProgress("AdditionPractice", 0); // Incorrect answer
+                showFailureAlert();
+            }
         }
     };
 
