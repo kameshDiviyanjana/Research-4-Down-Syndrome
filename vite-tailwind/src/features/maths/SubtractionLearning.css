@@ -1,6 +1,6 @@
 .subtraction-learning {
     text-align: center;
-    /* background: white; */
+ 
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
@@ -8,7 +8,7 @@
     margin: auto;
 }
 
-/* Example Box */
+
 .example {
     background: #f9f9f9;
     padding: 15px;
@@ -22,7 +22,7 @@
     transform: scale(1.02);
 }
 
-/* Subtraction Equation Layout */
+
 .subtraction-equation {
     display: flex;
     justify-content: center;
@@ -31,7 +31,7 @@
     margin-top: 10px;
 }
 
-/* Number Images */
+
 .number-img {
     width: 60px;
     height: 60px;
@@ -43,14 +43,13 @@
     transform: scale(1.1);
 }
 
-/* Operators (-, =) */
 .operator {
     font-size: 32px;
     font-weight: bold;
     color: #ff5722;
 }
 
-/* Start Button */
+
 .start-button {
     background: #2196F3;
     color: white;
