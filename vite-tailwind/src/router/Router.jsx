@@ -8,7 +8,7 @@ import { AuthProvider } from "../auth/AuthProvider";
 import ProtectedRoute from "../auth/ProtectedRoute";
 import GrossmotorskillRoute from "./GrossmotorskillRoute";
 import MathskillRoute from "./MathskillsRoute";
-
+import WritingRoutes from "./WritingRoutes";
 const Router = () => {
   return (
     <AuthProvider>
@@ -23,6 +23,7 @@ const Router = () => {
           <Route path="/vocabulary/*" element={<VocabularyRoute />} />
           <Route path="/grossmotor/*" element={<GrossmotorskillRoute />} />
           <Route path="/math/*" element={<MathskillRoute />} />
+          <Route path="/write/*" element={<WritingRoutes />} />
         </Route>
 
         {/* Fallback Route */}
