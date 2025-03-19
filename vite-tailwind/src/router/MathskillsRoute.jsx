@@ -31,7 +31,7 @@ function MathskillRoute() {
                 <Route path="sequence" element={<ActivityPage title="sequence" learningComponent={<SequenceLearning />} practiceComponent={<SequencePractice/>} />} />
                 <Route path="addition" element={<ActivityPage title="sequence" learningComponent={<AdditionLearning />} practiceComponent={<AdditionPractice />} />} />
                 <Route path="subtraction" element={<ActivityPage title="sequence" learningComponent={<SubtractionLearning />} practiceComponent={<SubtractionPractice/>} />} />
-            
+
         </Routes>
       </AuthProvider>
       <Outlet />
