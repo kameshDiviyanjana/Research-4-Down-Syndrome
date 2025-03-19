@@ -41,7 +41,7 @@ function SystemPage() {
   };
 
   const handleNextTask = () => {
-    navigate("/next-task", { state: { difficultyLevel } });
+    navigate("/grossmotor/next-task", { state: { difficultyLevel } });
   };
 
   const handleRandomCategory = () => {
@@ -186,7 +186,7 @@ function SystemPage() {
   return (
     <div
       style={{ padding: "20px" }}
-      className="bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat bg-center h-[700px] w-full overflow-y-auto "
+      className="bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat bg-center h-[700px] w-full overflow-y-auto   "
     >
       {radamselect && (
         <>
@@ -209,171 +209,329 @@ function SystemPage() {
           </div>
         </>
       )}
-      <div className="  flex flex-row justify-center gap-8">
-        <div>
-          {randomCategory && (
-            <div style={{ marginTop: "20px" }}>
-              <h3 className="text-4xl font-bold   mb-4 text-center  ">
-                Start Learing: {randomCategory}
-              </h3>
-              <video
-                src={categoryVideos[randomCategory]}
-                controls
-                // style={{
-                //   width: "100%",
-                //   maxWidth: "600px",
-                //   borderRadius: "10px",
-                //   marginTop: "10px",
-                // }}
-                className="w-full max-w-3xl rounded-xl mt-4"
-              />
-            </div>
-          )}
-        </div>
-        <div>
-          {randomCategory && (
-            <div style={{ marginTop: "20px" }}>
-              <h2>Live Camera Preview & Recording</h2>
-              <div>
-                {Playe && displayrecode ? (
-                  <>
-                    <Webcam
-                      audio={false}
-                      ref={webcamRef}
-                      onUserMedia={(stream) => setCameraStream(stream)}
-                      mirrored={true}
-                      style={{
-                        width: "100%",
-                        maxWidth: "600px",
-                        borderRadius: "10px",
-                        backgroundColor: "black",
-                      }}
-                    />
-                    <div>
-                      {recording ? (
-                        <div>
+      <div
+        className={`${
+          randomCategory && "bg-white py-16 px-8  shadow-2xl  rounded-xl"
+        }`}
+      >
+        <div className="  flex flex-row justify-center gap-8 ">
+          <div>
+            {randomCategory && (
+              <div className="flex flex-col items-center mt-6">
+                <h3 className="text-4xl font-extrabold text-pink-500 mb-4 animate-bounce">
+                  Start Learning: {randomCategory}
+                </h3>
+                <div className="relative">
+                  <video
+                    src={categoryVideos[randomCategory]}
+                    controls
+                    className="w-full max-w-3xl rounded-3xl shadow-lg border-4 border-blue-400 hover:border-yellow-400 transition-all duration-500"
+                  />
+                  {/* Fun animation around the video */}
+                  <div className="absolute top-0 left-0 w-full h-full animate-pulse"></div>
+                </div>
+              </div>
+
+              // <div style={{ marginTop: "20px" }}>
+              //   <h3 className="text-4xl font-bold   mb-4 text-center  ">
+              //     Start Learing: {randomCategory}
+              //   </h3>
+              //   <video
+              //     src={categoryVideos[randomCategory]}
+              //     controls
+
+              //     className="w-full max-w-3xl rounded-xl mt-4"
+              //   />
+              // </div>
+            )}
+          </div>
+          <div>
+            {randomCategory && (
+              <div className="flex flex-col items-center mt-6 bg-gradient-to-b from-blue-100 to-white p-6 rounded-xl shadow-lg">
+                <h2 className="text-4xl font-extrabold text-blue-600 mb-4">
+                  Live Camera Preview & Recording 🎥
+                </h2>
+
+                <div className="w-full flex flex-col items-center">
+                  {Playe && displayrecode ? (
+                    <>
+                      <Webcam
+                        audio={false}
+                        ref={webcamRef}
+                        onUserMedia={(stream) => setCameraStream(stream)}
+                        mirrored={true}
+                        className="w-full max-w-md rounded-xl border-4 border-blue-400 shadow-md"
+                      />
+                      <div className="mt-4">
+                        {recording ? (
                           <button
                             onClick={stopRecording}
-                            style={{
-                              marginTop: "10px",
-                              padding: "10px",
-                              backgroundColor: "red",
-                              color: "white",
-                            }}
+                            className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-red-700 transition-all"
                           >
                             Stop Recording ⏹️
                           </button>
+                        ) : (
+                          <button
+                            onClick={startRecording}
+                            className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-700 transition-all"
+                          >
+                            Start Recording ⏺️
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div >
+                        <div className="flex flex-col items-center gap-4 mt-5 p-5 bg-blue-50 rounded-xl shadow-lg">
+                          <label className="cursor-pointer bg-yellow-400 text-white font-bold px-5 py-3 rounded-full shadow-md hover:bg-yellow-500 transition-all duration-300 ease-in-out">
+                            📂 Select Video
+                            <input
+                              type="file"
+                              accept="video/*"
+                              onChange={handleFileChange}
+                              className="hidden"
+                            />
+                          </label>
+
+                          <button
+                            onClick={() => handleFileUpload(selectedFile)}
+                            className="bg-green-500 text-white font-bold px-6 py-3 rounded-full shadow-lg hover:bg-green-600 transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
+                          >
+                            🚀 Upload & Process Video 🎬
+                          </button>
+
+                          <p className="text-blue-600 font-semibold">
+                            {uploadStatus}
+                          </p>
                         </div>
-                      ) : (
-                        <button
-                          onClick={startRecording}
-                          style={{
-                            marginTop: "10px",
-                            padding: "10px",
-                            backgroundColor: "green",
-                            color: "white",
-                          }}
-                        >
-                          Start Recording ⏺️
-                        </button>
-                      )}
-                    </div>
-                  </>
+                        <div className="  flex justify-center mt-9">
+                          <button
+                            onClick={startrecodevedio}
+                            className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition-all"
+                          >
+                            Start recode🚀
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {videoBlob ? (
+                  <div className="mt-6 w-full max-w-md">
+                    <h3 className="text-2xl font-semibold text-blue-600">
+                      Recorded Video 🎬
+                    </h3>
+                    <video
+                      src={URL.createObjectURL(videoBlob)}
+                      controls
+                      className="w-full rounded-xl shadow-md mt-3"
+                    />
+                    <button
+                      onClick={() => handleFileUpload(videoBlob)}
+                      className="mt-4 bg-purple-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-purple-700 transition-all"
+                    >
+                      Upload Recorded Video ⏫
+                    </button>
+                  </div>
                 ) : (
                   <>
-                    <button
-                      onClick={startrecodevedio}
-                      style={{
-                        marginTop: "10px",
-                        padding: "10px",
-                        backgroundColor: "green",
-                        color: "white",
-                      }}
-                    >
-                      Start
-                    </button>
+                    {predictions.length > 0 && (
+                      <div className="mt-6 w-full">
+                        <h2 className="text-2xl font-bold text-blue-700 mb-4">
+                          Predictions Summary 📊
+                        </h2>
+                        <table className="w-full border-collapse shadow-md bg-white rounded-lg overflow-hidden">
+                          <thead className="bg-blue-200 text-blue-900">
+                            <tr>
+                              <th className="p-3">Category</th>
+                              <th className="p-3">Count</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {Object.entries(categoryCounts).map(
+                              ([category, count], index) => (
+                                <tr
+                                  key={index}
+                                  className={`${
+                                    index % 2 === 0 ? "bg-gray-100" : "bg-white"
+                                  } text-center border-b border-gray-200`}
+                                >
+                                  <td className="p-3">{category}</td>
+                                  <td className="p-3">{count}</td>
+                                </tr>
+                              )
+                            )}
+                          </tbody>
+                        </table>
+
+                        <div className="flex justify-center mt-6">
+                          <button
+                            onClick={handleRandomCategory}
+                            className="bg-yellow-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-yellow-600 transition-all"
+                          >
+                            Generate Random Category 🎲
+                          </button>
+                          {/* <button
+                            onClick={handleNextTask}
+                            style={{
+                              marginTop: "10px",
+                              padding: "10px",
+                              fontSize: "16px",
+                            }}
+                          >
+                            Go to Next Task
+                          </button> */}
+                          <button
+                            onClick={handleNextTask}
+                            className="mt-4 px-6 py-3 text-lg font-bold text-white bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-lg hover:from-orange-500 hover:to-yellow-400 transform hover:scale-105 transition-all duration-300 ease-in-out flex items-center justify-center gap-2"
+                          >
+                            🚀 Go to Next Task 🎉
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
 
-              {videoBlob ? (
-                <div>
-                  <h3>Recorded Video:</h3>
-                  <video
-                    src={URL.createObjectURL(videoBlob)}
-                    controls
-                    style={{ width: "100%", maxWidth: "600px" }}
-                  />
-                  <button
-                    onClick={() => handleFileUpload(videoBlob)}
-                    style={{ marginTop: "10px" }}
-                  >
-                    Upload Recorded Video
-                  </button>
-                </div>
-              ) : (
-                <>
-                  {predictions.length > 0 && (
-                    <div className="mt-5">
-                      <h2 className="text-2xl font-bold mb-4">
-                        Predictions Summary
-                      </h2>
-                      <table className="w-full mt-3 border-collapse shadow-md">
-                        <thead>
-                          <tr className="bg-gray-100 text-gray-700 font-bold text-left">
-                            <th className="p-3">Category</th>
-                            <th className="p-3">Count</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {Object.entries(categoryCounts).map(
-                            ([category, count], index) => (
-                              <tr
-                                key={index}
-                                className={`${
-                                  index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                                } border-b border-gray-200`}
-                              >
-                                <td className="p-3">{category}</td>
-                                <td className="p-3">{count}</td>
-                              </tr>
-                            )
-                          )}
-                        </tbody>
-                      </table>
+              // <div style={{ marginTop: "20px" }}>
+              //   <h2>Live Camera Preview & Recording</h2>
+              //   <div>
+              //     {Playe && displayrecode ? (
+              //       <>
+              //         <Webcam
+              //           audio={false}
+              //           ref={webcamRef}
+              //           onUserMedia={(stream) => setCameraStream(stream)}
+              //           mirrored={true}
+              //           style={{
+              //             width: "100%",
+              //             maxWidth: "600px",
+              //             borderRadius: "10px",
+              //             backgroundColor: "black",
+              //           }}
+              //         />
+              //         <div>
+              //           {recording ? (
+              //             <div>
+              //               <button
+              //                 onClick={stopRecording}
+              //                 style={{
+              //                   marginTop: "10px",
+              //                   padding: "10px",
+              //                   backgroundColor: "red",
+              //                   color: "white",
+              //                 }}
+              //               >
+              //                 Stop Recording ⏹️
+              //               </button>
+              //             </div>
+              //           ) : (
+              //             <button
+              //               onClick={startRecording}
+              //               style={{
+              //                 marginTop: "10px",
+              //                 padding: "10px",
+              //                 backgroundColor: "green",
+              //                 color: "white",
+              //               }}
+              //             >
+              //               Start Recording ⏺️
+              //             </button>
+              //           )}
+              //         </div>
+              //       </>
+              //     ) : (
+              //       <>
+              //         <button
+              //           onClick={startrecodevedio}
+              //           style={{
+              //             marginTop: "10px",
+              //             padding: "10px",
+              //             backgroundColor: "green",
+              //             color: "white",
+              //           }}
+              //         >
+              //           Start
+              //         </button>
+              //       </>
+              //     )}
+              //   </div>
 
-                      <div className=" flex justify-center">
-                        <button
-                          onClick={handleRandomCategory}
-                          className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-all mb-6 w-[400px] mt-10"
-                          style={{ marginBottom: "10px" }}
-                        >
-                          Generate Random Category
-                        </button>
-                      </div>
-                      {/* <button
-                        onClick={handleNextTask}
-                        className="mt-5 px-6 py-3 text-lg text-white bg-green-500 rounded-md hover:bg-green-600"
-                      >
-                        Go to Next Task
-                      </button> */}
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          )}
+              //   {videoBlob ? (
+              //     <div>
+              //       <h3>Recorded Video:</h3>
+              //       <video
+              //         src={URL.createObjectURL(videoBlob)}
+              //         controls
+              //         style={{ width: "100%", maxWidth: "600px" }}
+              //       />
+              //       <button
+              //         onClick={() => handleFileUpload(videoBlob)}
+              //         style={{ marginTop: "10px" }}
+              //       >
+              //         Upload Recorded Video
+              //       </button>
+              //     </div>
+              //   ) : (
+              //     <>
+              //       {predictions.length > 0 && (
+              //         <div className="mt-5">
+              //           <h2 className="text-2xl font-bold mb-4">
+              //             Predictions Summary
+              //           </h2>
+              //           <table className="w-full mt-3 border-collapse shadow-md">
+              //             <thead>
+              //               <tr className="bg-gray-100 text-gray-700 font-bold text-left">
+              //                 <th className="p-3">Category</th>
+              //                 <th className="p-3">Count</th>
+              //               </tr>
+              //             </thead>
+              //             <tbody>
+              //               {Object.entries(categoryCounts).map(
+              //                 ([category, count], index) => (
+              //                   <tr
+              //                     key={index}
+              //                     className={`${
+              //                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
+              //                     } border-b border-gray-200`}
+              //                   >
+              //                     <td className="p-3">{category}</td>
+              //                     <td className="p-3">{count}</td>
+              //                   </tr>
+              //                 )
+              //               )}
+              //             </tbody>
+              //           </table>
+
+              //           <div className=" flex justify-center">
+              //             <button
+              //               onClick={handleRandomCategory}
+              //               className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-all mb-6 w-[400px] mt-10"
+              //               style={{ marginBottom: "10px" }}
+              //             >
+              //               Generate Random Category
+              //             </button>
+              //           </div>
+              //           {/* <button
+              //             onClick={handleNextTask}
+              //             className="mt-5 px-6 py-3 text-lg text-white bg-green-500 rounded-md hover:bg-green-600"
+              //           >
+              //             Go to Next Task
+              //           </button> */}
+              //         </div>
+              //       )}
+              //     </>
+              //   )}
+              // </div>
+            )}
+          </div>
         </div>
       </div>
       <br />
-      {/* <input type="file" accept="video/*" onChange={handleFileChange} />
-      <button
-        onClick={() => handleFileUpload(selectedFile)}
-        style={{ marginLeft: "10px" }}
-      >
-        Upload and Process Video
-      </button>
-      <p>{uploadStatus}</p> */}
+
       {/* Camera Recording Section */}
 
       {/* {predictions.length > 0 && (
