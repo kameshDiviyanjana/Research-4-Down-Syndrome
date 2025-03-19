@@ -223,7 +223,7 @@ function NextTaskPage() {
     try {
       setUploadStatus("Uploading and processing...");
       const response = await axios.post(
-        "http://localhost:5000/upload",
+        "http://127.0.0.1:5000/video/upload",
         formData
       );
 
@@ -328,57 +328,129 @@ function NextTaskPage() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Next Task Page</h1>
-      <p>
+    <div className="p-6 bg-blue-50 rounded-xl shadow-lg flex flex-col items-center text-center">
+      <h1 className="text-3xl font-bold text-blue-700">🎯 Next Task!</h1>
+
+      <p className="text-lg mt-2">
         Difficulty Level: <strong>{difficultyLevel || "Not available"}</strong>
       </p>
-      <button onClick={handleRandomCategory} style={{ marginBottom: "10px" }}>
-        Generate Random Category
+
+      <button
+        onClick={handleRandomCategory}
+        className="mt-4 px-6 py-3 bg-yellow-400 text-white font-bold rounded-full shadow-md hover:bg-yellow-500 transition-all duration-300"
+      >
+        🎲 Generate Random Category
       </button>
 
       {randomCategory && categoryVideos[randomCategory] && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>Introduction Video for: {randomCategory}</h3>
+        <div className="mt-5">
+          <h3 className="text-xl font-semibold text-blue-600">
+            📺 Introduction Video: {randomCategory}
+          </h3>
           <video
             src={categoryVideos[randomCategory]}
             controls
-            style={{ width: "100%", maxWidth: "600px", borderRadius: "10px" }}
+            className="w-full max-w-lg rounded-lg shadow-md mt-3"
           />
         </div>
       )}
 
-      <br />
-      <input type="file" accept="video/*" onChange={handleFileChange} />
-      <button
-        onClick={() => handleFileUpload(selectedFile)}
-        style={{ marginLeft: "10px" }}
-      >
-        Upload Video
-      </button>
-      <p>{uploadStatus}</p>
+      <div className="mt-6 bg-white p-5 rounded-lg shadow-md">
+        <h2 className="text-lg font-bold text-green-600">
+          📤 Upload Your Video
+        </h2>
+        <label className="cursor-pointer bg-purple-500 text-white font-bold px-5 py-3 rounded-full shadow-md hover:bg-purple-600 transition-all duration-300 mt-3 inline-block">
+          🎥 Choose Video
+          <input
+            type="file"
+            accept="video/*"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+        </label>
+        <button
+          onClick={() => handleFileUpload(selectedFile)}
+          className="ml-4 px-5 py-3 bg-green-500 text-white font-bold rounded-full shadow-md hover:bg-green-600 transition-all duration-300"
+        >
+          🚀 Upload Video
+        </button>
+        <p className="mt-3 text-blue-600 font-semibold">{uploadStatus}</p>
+      </div>
 
-      <div style={{ marginTop: "20px" }}>
-        <h2>Live Camera & Recording</h2>
+      <div className="mt-8 bg-white p-5 rounded-lg shadow-md">
+        <h2 className="text-lg font-bold text-red-600">
+          🎥 Live Camera & Recording
+        </h2>
         <Webcam
           ref={webcamRef}
           audio={false}
           mirrored={true}
-          style={{ width: "100%", maxWidth: "600px", borderRadius: "10px" }}
+          className="w-full max-w-lg rounded-lg shadow-md mt-3"
         />
         <button
           onClick={recording ? stopRecording : startRecording}
-          style={{
-            marginTop: "10px",
-            padding: "10px",
-            backgroundColor: recording ? "red" : "green",
-            color: "white",
-          }}
+          className={`mt-4 px-6 py-3 font-bold rounded-full shadow-md transition-all duration-300 ${
+            recording
+              ? "bg-red-500 hover:bg-red-600"
+              : "bg-green-500 hover:bg-green-600"
+          } text-white`}
         >
-          {recording ? "Stop Recording ⏹️" : "Start Recording ⏺️"}
+          {recording ? "⏹️ Stop Recording" : "⏺️ Start Recording"}
         </button>
       </div>
     </div>
+
+    // <div style={{ padding: "20px" }}>
+    //   <h1>Next Task Page</h1>
+    //   <p>
+    //     Difficulty Level: <strong>{difficultyLevel || "Not available"}</strong>
+    //   </p>
+    //   <button onClick={handleRandomCategory} style={{ marginBottom: "10px" }}>
+    //     Generate Random Category
+    //   </button>
+
+    //   {randomCategory && categoryVideos[randomCategory] && (
+    //     <div style={{ marginTop: "20px" }}>
+    //       <h3>Introduction Video for: {randomCategory}</h3>
+    //       <video
+    //         src={categoryVideos[randomCategory]}
+    //         controls
+    //         style={{ width: "100%", maxWidth: "600px", borderRadius: "10px" }}
+    //       />
+    //     </div>
+    //   )}
+
+    //   <br />
+    //   <input type="file" accept="video/*" onChange={handleFileChange} />
+    //   <button
+    //     onClick={() => handleFileUpload(selectedFile)}
+    //     style={{ marginLeft: "10px" }}
+    //   >
+    //     Upload Video
+    //   </button>
+    //   <p>{uploadStatus}</p>
+
+    //   <div style={{ marginTop: "20px" }}>
+    //     <h2>Live Camera & Recording</h2>
+    //     <Webcam
+    //       ref={webcamRef}
+    //       audio={false}
+    //       mirrored={true}
+    //       style={{ width: "100%", maxWidth: "600px", borderRadius: "10px" }}
+    //     />
+    //     <button
+    //       onClick={recording ? stopRecording : startRecording}
+    //       style={{
+    //         marginTop: "10px",
+    //         padding: "10px",
+    //         backgroundColor: recording ? "red" : "green",
+    //         color: "white",
+    //       }}
+    //     >
+    //       {recording ? "Stop Recording ⏹️" : "Start Recording ⏺️"}
+    //     </button>
+    //   </div>
+    // </div>
   );
 }
 
