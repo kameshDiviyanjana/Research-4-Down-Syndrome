@@ -109,15 +109,7 @@ const AllWordList = () => {
 
   // 📤 Upload Audio File
   const uploadAudio = async () => {
-    // if (!audioBlob) {
-    //   console.error("❌ No audio recorded, blob is null");
-    //   alert("No audio recorded");
-    //   return;
-    // }
-
-    // console.log("Uploading audio file...");
-    // console.log("Audio Blob Details:", audioBlob);
-    // console.log("Blob Size:", audioBlob.size, "Type:", audioBlob.type);
+  
 
     const formData = new FormData();
     formData.append("file", audioBlob, "audio.wav");
