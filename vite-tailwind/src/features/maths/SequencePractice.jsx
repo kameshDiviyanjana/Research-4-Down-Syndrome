@@ -98,25 +98,17 @@ const SequencePractice = () => {
 
     const finalPred = getMostFrequentPrediction(predictions);
     console.log(`[processPredictions] Final prediction calculated: ${finalPred}`);
-    console.log(`[processPredictions] Type of finalPred: ${typeof finalPred}`);
-
     setFinalPrediction(finalPred);
     setIsCapturing(false);
 
     const targetAnswer = targetSequence.answer;
-    console.log(`[processPredictions] Comparing finalPred: ${finalPred} with targetAnswer: ${targetAnswer}`);
     const isCorrect = String(finalPred) === String(targetAnswer);
-    console.log(`[processPredictions] Comparison result (finalPred === targetAnswer): ${isCorrect}`);
-    console.log(`[processPredictions] String(finalPred): ${String(finalPred)}, String(targetAnswer): ${String(targetAnswer)}`);
 
-    // Update progress based on correctness
     if (targetSequence !== null) {
       if (isCorrect) {
-        console.log("[processPredictions] Prediction is correct, adding progress: SequencePractice, count: 1");
         addProgress("SequencePractice", 1); // Correct answer
         showSuccessAlert();
       } else {
-        console.log("[processPredictions] Prediction is incorrect, adding progress: SequencePractice, count: 0");
         addProgress("SequencePractice", 0); // Incorrect answer
         showFailureAlert();
       }
@@ -124,20 +116,14 @@ const SequencePractice = () => {
   };
 
   const getMostFrequentPrediction = (predictions) => {
-    console.log("[getMostFrequentPrediction] Calculating most frequent prediction");
-    console.log(`[getMostFrequentPrediction] All predictions: ${JSON.stringify(predictions)}`);
     const counts = {};
     predictions.forEach((pred) => {
       counts[pred] = (counts[pred] || 0) + 1;
-      console.log(`[getMostFrequentPrediction] Count for ${pred}: ${counts[pred]}`);
     });
-    const mostFrequent = Object.keys(counts).reduce((a, b) => (counts[a] > counts[b] ? a : b), null) || "0";
-    console.log(`[getMostFrequentPrediction] Most frequent prediction: ${mostFrequent}`);
-    return mostFrequent;
+    return Object.keys(counts).reduce((a, b) => (counts[a] > counts[b] ? a : b), null) || "0";
   };
 
   const showSuccessAlert = () => {
-    console.log("[showSuccessAlert] Displaying success alert");
     Swal.fire({
       title: "🎉 Correct Answer!",
       text: "✅ Well Done!",
@@ -152,7 +138,6 @@ const SequencePractice = () => {
   };
 
   const showFailureAlert = () => {
-    console.log("[showFailureAlert] Displaying failure alert");
     Swal.fire({
       title: "❌ Incorrect!",
       text: "Try Again!",
@@ -163,35 +148,26 @@ const SequencePractice = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-6">
-      <div className="flex flex-col items-center w-full max-w-4xl bg-white rounded-2xl shadow-xl p-8 transform transition-all hover:scale-105">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex flex-row p-6 gap-6">
+      {/* Left Side: Sequence and Results */}
+      <div className="w-2/3 flex flex-col items-center">
+        {/* Header */}
         <div className="text-center mb-6 animate-fade-in">
           <h2 className="text-4xl font-bold text-indigo-700 drop-shadow-md">✨ Sequence Practice</h2>
           <p className="text-lg text-gray-600 mt-2">Show the missing number with your fingers!</p>
         </div>
 
-        <Webcam 
-          audio={false} 
-          ref={webcamRef} 
-          screenshotFormat="image/jpeg" 
-          className="w-full max-w-2xl rounded-2xl shadow-xl border-4 border-indigo-200 transform transition-all hover:border-indigo-400 mb-8"
-        />
-
-        <button 
-          onClick={startPractice}
-          disabled={isCapturing}
-          className="w-full px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
-        >
-          📸 Start Practice
-        </button>
-
+        {/* Number Sequence Display */}
         {selectedSequence && (
-          <div className="mt-8">
-            <h3 className="text-xl font-medium text-gray-700">Sequence:</h3>
-            <div className="flex justify-center items-center gap-6 mt-4 animate-bounce-in">
+          <div className="mb-8">
+            <h3 className="text-xl font-medium text-gray-700 text-center">Sequence:</h3>
+            <div className="flex justify-center items-center gap-8 mt-4 animate-bounce-in">
               {selectedSequence.sequence.map((num, index) =>
                 num === "?" ? (
-                  <div key={index} className="w-36 h-36 flex items-center justify-center bg-gray-200 rounded-lg text-3xl font-bold text-gray-600">
+                  <div 
+                    key={index} 
+                    className="w-36 h-36 flex items-center justify-center bg-gradient-to-r from-red-300 to-orange-400 rounded-lg text-6xl font-extrabold text-white shadow-lg"
+                  >
                     ?
                   </div>
                 ) : (
@@ -199,7 +175,7 @@ const SequencePractice = () => {
                     key={index}
                     src={numberImages[num]}
                     alt={`Number ${num}`}
-                    className="w-36 h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
+                    className="w-40 h-40 object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
                     onClick={() => playSound(num)}
                   />
                 )
@@ -208,25 +184,48 @@ const SequencePractice = () => {
           </div>
         )}
 
+        {/* Countdown */}
         {countdown !== null && countdown > 0 && (
           <div className="mt-6 text-2xl font-semibold text-indigo-600 animate-pulse">
             Starting in: {countdown}s
           </div>
         )}
 
+        {/* Captured Images Count */}
         {capturedImages.length > 0 && (
           <div className="mt-6 text-lg text-gray-700">
             Captured {capturedImages.length}/5 Images
           </div>
         )}
 
+        {/* Final Prediction */}
         {finalPrediction && (
           <div className="mt-8 animate-fade-in">
-            <h2 className="text-2xl font-bold text-purple-700">
+            <h2 className="text-2xl font-bold text-purple-700 text-center">
               Prediction: <span className="text-indigo-600">{finalPrediction}</span>
             </h2>
           </div>
         )}
+      </div>
+
+      {/* Right Side: Webcam and Button */}
+      <div className="w-1/3 flex flex-col items-end">
+        {/* Webcam */}
+        <Webcam 
+          audio={false} 
+          ref={webcamRef} 
+          screenshotFormat="image/jpeg" 
+          className="w-full max-w-xl rounded-2xl shadow-xl border-4 border-indigo-200 transform transition-all hover:border-indigo-400 mb-8"
+        />
+
+        {/* Start Practice Button */}
+        <button 
+          onClick={startPractice}
+          disabled={isCapturing}
+          className="w-full max-w-md px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+        >
+          📸 Start Practice
+        </button>
       </div>
     </div>
   );
