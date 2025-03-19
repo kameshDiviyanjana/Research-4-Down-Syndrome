@@ -16,7 +16,9 @@ function SystemPage() {
   const [recording, setRecording] = useState(false);
   const [videoBlob, setVideoBlob] = useState(null);
   const [cameraStream, setCameraStream] = useState(null);
-
+  const [Playe,setplaye]=useState(false)
+  const [radamselect, setradamselect] = useState(true);
+const [displayrecode, setdisplayrecode] = useState(true);
   const categories = ["catch", "walk", "jump"];
   const categoryVideos = {
     catch: "/videos/catch.mp4",
@@ -41,6 +43,8 @@ function SystemPage() {
   const handleRandomCategory = () => {
     const randomIndex = Math.floor(Math.random() * categories.length);
     setRandomCategory(categories[randomIndex]);
+    setPredictions([]);
+    setradamselect(false);
   };
 
   const handleFileUpload = async (file) => {
@@ -83,6 +87,8 @@ function SystemPage() {
         // timer: 5000,
         timerProgressBar: true,
       });
+        setVideoBlob(null);
+
 
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -149,10 +155,16 @@ function SystemPage() {
   const stopRecording = () => {
     if (mediaRecorderRef.current) {
       setRecording(false);
+      setdisplayrecode(false)
       mediaRecorderRef.current.stop();
     }
   };
-
+const  startrecodevedio = ()=>{
+  setplaye(true)
+  setdisplayrecode(true)
+  setVideoBlob(null);
+  setPredictions([]);
+}
   const categoryCounts = calculateCategoryCounts();
 
   return (
@@ -160,103 +172,195 @@ function SystemPage() {
       style={{ padding: "20px" }}
       className="bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat bg-center h-[700px] w-full overflow-y-auto "
     >
-      <h1>System Page</h1>
-      <p>
+      {radamselect && (
+        <>
+          <h1 className="text-9xl font-bold  font-fontstle2 mb-4 text-center  mt-36">
+            Playe The Game
+          </h1>
+          {/* <p>
         Randomly Mentioned Category:{" "}
         <strong>{randomCategory || "None selected yet"}</strong>
-      </p>
-      <button onClick={handleRandomCategory} style={{ marginBottom: "10px" }}>
-        Generate Random Category
-      </button>
+      </p> */}
 
-      {randomCategory && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>Introduction Video for: {randomCategory}</h3>
-          <video
-            src={categoryVideos[randomCategory]}
-            controls
-            style={{
-              width: "100%",
-              maxWidth: "600px",
-              borderRadius: "10px",
-              marginTop: "10px",
-            }}
-          />
-        </div>
+          <div className=" flex justify-center">
+            <button
+              onClick={handleRandomCategory}
+              className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-all mb-6 w-[400px] mt-10"
+              style={{ marginBottom: "10px" }}
+            >
+              Generate Random Category
+            </button>
+          </div>
+        </>
       )}
+      <div className="  flex flex-row justify-center gap-8">
+        <div>
+          {randomCategory && (
+            <div style={{ marginTop: "20px" }} >
+              <h3 className="text-4xl font-bold   mb-4 text-center  ">
+                Start Learing: {randomCategory}
+              </h3>
+              <video
+                src={categoryVideos[randomCategory]}
+                controls
+                // style={{
+                //   width: "100%",
+                //   maxWidth: "600px",
+                //   borderRadius: "10px",
+                //   marginTop: "10px",
+                // }}
+                className="w-full max-w-3xl rounded-xl mt-4"
+              />
+            </div>
+          )}
+        </div>
+        <div>
+          {randomCategory && (
+            <div style={{ marginTop: "20px" }}>
+              <h2>Live Camera Preview & Recording</h2>
+              <div>
+                {Playe && displayrecode ? (
+                  <>
+                    <Webcam
+                      audio={false}
+                      ref={webcamRef}
+                      onUserMedia={(stream) => setCameraStream(stream)}
+                      mirrored={true}
+                      style={{
+                        width: "100%",
+                        maxWidth: "600px",
+                        borderRadius: "10px",
+                        backgroundColor: "black",
+                      }}
+                    />
+                    <div>
+                      {recording ? (
+                        <div>
+                          <button
+                            onClick={stopRecording}
+                            style={{
+                              marginTop: "10px",
+                              padding: "10px",
+                              backgroundColor: "red",
+                              color: "white",
+                            }}
+                          >
+                            Stop Recording ⏹️
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={startRecording}
+                          style={{
+                            marginTop: "10px",
+                            padding: "10px",
+                            backgroundColor: "green",
+                            color: "white",
+                          }}
+                        >
+                          Start Recording ⏺️
+                        </button>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={startrecodevedio}
+                      style={{
+                        marginTop: "10px",
+                        padding: "10px",
+                        backgroundColor: "green",
+                        color: "white",
+                      }}
+                    >
+                      Start
+                    </button>
+                  </>
+                )}
+              </div>
 
+              {videoBlob ? (
+                <div>
+                  <h3>Recorded Video:</h3>
+                  <video
+                    src={URL.createObjectURL(videoBlob)}
+                    controls
+                    style={{ width: "100%", maxWidth: "600px" }}
+                  />
+                  <button
+                    onClick={() => handleFileUpload(videoBlob)}
+                    style={{ marginTop: "10px" }}
+                  >
+                    Upload Recorded Video
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {predictions.length > 0 && (
+                    <div className="mt-5">
+                      <h2 className="text-2xl font-bold mb-4">
+                        Predictions Summary
+                      </h2>
+                      <table className="w-full mt-3 border-collapse shadow-md">
+                        <thead>
+                          <tr className="bg-gray-100 text-gray-700 font-bold text-left">
+                            <th className="p-3">Category</th>
+                            <th className="p-3">Count</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Object.entries(categoryCounts).map(
+                            ([category, count], index) => (
+                              <tr
+                                key={index}
+                                className={`${
+                                  index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                                } border-b border-gray-200`}
+                              >
+                                <td className="p-3">{category}</td>
+                                <td className="p-3">{count}</td>
+                              </tr>
+                            )
+                          )}
+                        </tbody>
+                      </table>
+
+                      <div className=" flex justify-center">
+                        <button
+                          onClick={handleRandomCategory}
+                          className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-all mb-6 w-[400px] mt-10"
+                          style={{ marginBottom: "10px" }}
+                        >
+                          Generate Random Category
+                        </button>
+                      </div>
+                      {/* <button
+                        onClick={handleNextTask}
+                        className="mt-5 px-6 py-3 text-lg text-white bg-green-500 rounded-md hover:bg-green-600"
+                      >
+                        Go to Next Task
+                      </button> */}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
       <br />
-      <input type="file" accept="video/*" onChange={handleFileChange} />
+      {/* <input type="file" accept="video/*" onChange={handleFileChange} />
       <button
         onClick={() => handleFileUpload(selectedFile)}
         style={{ marginLeft: "10px" }}
       >
         Upload and Process Video
       </button>
-      <p>{uploadStatus}</p>
-
+      <p>{uploadStatus}</p> */}
       {/* Camera Recording Section */}
-      <div style={{ marginTop: "20px" }}>
-        <h2>Live Camera Preview & Recording</h2>
-        <Webcam
-          audio={false}
-          ref={webcamRef}
-          onUserMedia={(stream) => setCameraStream(stream)}
-          mirrored={true}
-          style={{
-            width: "100%",
-            maxWidth: "600px",
-            borderRadius: "10px",
-            backgroundColor: "black",
-          }}
-        />
-        <div>
-          {recording ? (
-            <button
-              onClick={stopRecording}
-              style={{
-                marginTop: "10px",
-                padding: "10px",
-                backgroundColor: "red",
-                color: "white",
-              }}
-            >
-              Stop Recording ⏹️
-            </button>
-          ) : (
-            <button
-              onClick={startRecording}
-              style={{
-                marginTop: "10px",
-                padding: "10px",
-                backgroundColor: "green",
-                color: "white",
-              }}
-            >
-              Start Recording ⏺️
-            </button>
-          )}
-        </div>
 
-        {videoBlob && (
-          <div>
-            <h3>Recorded Video:</h3>
-            <video
-              src={URL.createObjectURL(videoBlob)}
-              controls
-              style={{ width: "100%", maxWidth: "600px" }}
-            />
-            <button
-              onClick={() => handleFileUpload(videoBlob)}
-              style={{ marginTop: "10px" }}
-            >
-              Upload Recorded Video
-            </button>
-          </div>
-        )}
-      </div>
-
-      {predictions.length > 0 && (
+      {/* {predictions.length > 0 && (
         <div style={{ marginTop: "20px" }}>
           <h2>Predictions Summary</h2>
           <table border="1" style={{ width: "100%", marginTop: "10px" }}>
@@ -285,7 +389,7 @@ function SystemPage() {
             Go to Next Task
           </button>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
