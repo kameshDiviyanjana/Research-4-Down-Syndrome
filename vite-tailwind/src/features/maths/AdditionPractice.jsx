@@ -1,141 +1,102 @@
-import React, { useRef, useState } from "react";
-import Webcam from "react-webcam";
+import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { predictGesture } from "./api";
 import SmileImage from '../../../src/assets/smile.jpg';
-import useProgressStore from '../maths/store/progressStore'; // Adjust the path as needed
+import useProgressStore from '../maths/store/progressStore';
+import "./PracticeAnimations.css";
 
-// Import number images
 import num0 from "../../assets/numbers/0.png";
 import num1 from "../../assets/numbers/1.png";
 import num2 from "../../assets/numbers/2.png";
 import num3 from "../../assets/numbers/3.png";
 import num4 from "../../assets/numbers/4.png";
 import num5 from "../../assets/numbers/5.png";
-import plus from "../../assets/numbers/plus.png";
 
-// Number images map
-const numberImages = { 0: num0, 1: num1, 2: num2, 3: num3, 4: num4, 5: num5, plus: plus };
+const numberImages = { 
+    0: num0, 
+    1: num1, 
+    2: num2, 
+    3: num3, 
+    4: num4, 
+    5: num5
+};
 
-// Function to play sound
 const playSound = (number) => {
     const audio = new Audio(`/sounds/${number}.mp3`);
     audio.play().catch((error) => console.log("Audio play error:", error));
 };
 
-// Predefined addition tasks
 const tasks = [
     { num1: 1, num2: 4, answer: 5 },
     { num1: 2, num2: 3, answer: 5 }
 ];
 
 const AdditionPractice = () => {
-    const webcamRef = useRef(null);
     const [currentTask, setCurrentTask] = useState(null);
-    const [capturedImages, setCapturedImages] = useState([]);
-    const [predictionResults, setPredictionResults] = useState([]);
-    const [finalPrediction, setFinalPrediction] = useState("");
     const [countdown, setCountdown] = useState(null);
     const [isCapturing, setIsCapturing] = useState(false);
+    const [finalPrediction, setFinalPrediction] = useState("");
+    const [isChecking, setIsChecking] = useState(false);
 
-    // Zustand store hook
     const addProgress = useProgressStore((state) => state.addProgress);
 
     const startPractice = () => {
         const randomTask = tasks[Math.floor(Math.random() * tasks.length)];
         console.log(`[startPractice] Generated randomTask: ${JSON.stringify(randomTask)}`);
         setCurrentTask(randomTask);
-        setCapturedImages([]);
-        setPredictionResults([]);
         setFinalPrediction("");
         setCountdown(5);
         setIsCapturing(true);
+        setIsChecking(false);
 
         let count = 5;
         const countdownInterval = setInterval(() => {
             count -= 1;
             setCountdown(count);
-
             if (count === 0) {
                 clearInterval(countdownInterval);
-                console.log("[startPractice] Countdown complete, starting captureImages");
-                captureImages(randomTask);
+                console.log("[startPractice] Countdown complete, waiting for user input");
+                setTimeout(() => {
+                    setIsChecking(true);
+                }, 3000); // Wait 3 seconds after countdown before checking
             }
         }, 1000);
     };
 
-    const captureImages = (targetTask) => {
-        let images = [];
-        let count = 0;
-        console.log("[captureImages] Starting image capture");
-        console.log(`[captureImages] Target task: ${JSON.stringify(targetTask)}`);
-        const captureInterval = setInterval(() => {
-            if (count < 5) {
-                const imageSrc = webcamRef.current.getScreenshot();
-                images.push(imageSrc);
-                setCapturedImages((prev) => [...prev, imageSrc]);
-                count++;
-                console.log(`[captureImages] Captured image ${count}/5`);
-            } else {
-                clearInterval(captureInterval);
-                console.log("[captureImages] All images captured, processing predictions");
-                processPredictions(images, targetTask);
-            }
-        }, 1000);
-    };
+    const checkResult = async (targetTask) => {
+        console.log("[checkResult] Fetching finger count from API");
+        try {
+            const response = await fetch("http://localhost:5000/finger_counting/count");
+            const data = await response.json();
+            const userPrediction = data.finger_count;
+            const confidence = data.confidence;
+            console.log(`[checkResult] Fetched finger count: ${userPrediction}, Confidence: ${confidence}`);
 
-    const processPredictions = async (images, targetTask) => {
-        console.log("[processPredictions] Starting prediction processing");
-        console.log(`[processPredictions] Target task: ${JSON.stringify(targetTask)}`);
-        let predictions = [];
+            setFinalPrediction(userPrediction);
+            setIsCapturing(false);
+            setIsChecking(false);
 
-        for (let i = 0; i < images.length; i++) {
-            const blob = await fetch(images[i]).then((res) => res.blob());
-            const file = new File([blob], `captured_image_${i}.jpg`, { type: "image/jpeg" });
-            const result = await predictGesture(file);
-            predictions.push(result);
-            setPredictionResults((prev) => [...prev, result]);
-            console.log(`[processPredictions] Prediction ${i + 1}: ${result}`);
-        }
-
-        const finalPred = getMostFrequentPrediction(predictions);
-        console.log(`[processPredictions] Final prediction calculated: ${finalPred}`);
-        console.log(`[processPredictions] Type of finalPred: ${typeof finalPred}`);
-
-        setFinalPrediction(finalPred);
-        setIsCapturing(false);
-
-        const targetAnswer = targetTask.answer;
-        console.log(`[processPredictions] Comparing finalPred: ${finalPred} with targetAnswer: ${targetAnswer}`);
-        const isCorrect = String(finalPred) === String(targetAnswer);
-        console.log(`[processPredictions] Comparison result (finalPred === targetAnswer): ${isCorrect}`);
-        console.log(`[processPredictions] String(finalPred): ${String(finalPred)}, String(targetAnswer): ${String(targetAnswer)}`);
-
-        // Update progress based on correctness
-        if (targetTask !== null) {
+            const targetAnswer = targetTask.answer;
+            const isCorrect = userPrediction === targetAnswer && confidence >= 0.8; // Require 80% confidence
+            console.log(`[checkResult] Comparison result: ${isCorrect} (Target: ${targetAnswer}, User: ${userPrediction}, Conf: ${confidence})`);
             if (isCorrect) {
-                console.log("[processPredictions] Prediction is correct, adding progress: AdditionPractice, count: 1");
-                addProgress("AdditionPractice", 1); // Correct answer
+                addProgress("AdditionPractice", 1);
                 showSuccessAlert();
             } else {
-                console.log("[processPredictions] Prediction is incorrect, adding progress: AdditionPractice, count: 0");
-                addProgress("AdditionPractice", 0); // Incorrect answer
-                showFailureAlert();
+                addProgress("AdditionPractice", 0);
+                showFailureAlert(confidence);
             }
+        } catch (error) {
+            console.error("[checkResult] Error fetching finger count:", error);
+            setIsCapturing(false);
+            setIsChecking(false);
+            Swal.fire({
+                title: "Error",
+                text: "Failed to fetch finger count. Please try again.",
+                icon: "error",
+                showConfirmButton: false,
+                timer: 2000,
+            });
         }
-    };
-
-    const getMostFrequentPrediction = (predictions) => {
-        console.log("[getMostFrequentPrediction] Calculating most frequent prediction");
-        console.log(`[getMostFrequentPrediction] All predictions: ${JSON.stringify(predictions)}`);
-        const counts = {};
-        predictions.forEach(pred => {
-            counts[pred] = (counts[pred] || 0) + 1;
-            console.log(`[getMostFrequentPrediction] Count for ${pred}: ${counts[pred]}`);
-        });
-        const mostFrequent = Object.keys(counts).reduce((a, b) => (counts[a] > counts[b] ? a : b), null) || "0";
-        console.log(`[getMostFrequentPrediction] Most frequent prediction: ${mostFrequent}`);
-        return mostFrequent;
     };
 
     const showSuccessAlert = () => {
@@ -153,22 +114,30 @@ const AdditionPractice = () => {
         });
     };
 
-    const showFailureAlert = () => {
+    const showFailureAlert = (confidence) => {
         console.log("[showFailureAlert] Displaying failure alert");
+        let message = "Try Again!";
+        if (confidence < 0.8) {
+            message += " (Hold your hand steady for a higher confidence score)";
+        }
         Swal.fire({
             title: "❌ Incorrect!",
-            text: "Try Again!",
+            text: message,
             icon: "error",
             showConfirmButton: false,
             timer: 2000,
         });
     };
 
+    useEffect(() => {
+        if (isChecking && currentTask !== null) {
+            checkResult(currentTask);
+        }
+    }, [isChecking, currentTask]);
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-6">
-            {/* Main Content Container */}
             <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-10">
-                {/* Left Section: Task Display */}
                 <div className="flex flex-col items-center lg:w-1/2 bg-white rounded-2xl shadow-xl p-8 transform transition-all hover:scale-105">
                     <div className="text-center mb-6 animate-fade-in">
                         <h2 className="text-4xl font-bold text-indigo-700 drop-shadow-md">✨ Addition Practice</h2>
@@ -184,21 +153,23 @@ const AdditionPractice = () => {
                     </button>
 
                     {currentTask && (
-                        <div className="flex items-center mt-8 animate-bounce-in gap-6">
-                            <img 
-                                src={numberImages[currentTask.num1]} 
-                                alt={`${currentTask.num1}`} 
-                                className="w-36 h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200" 
-                                onClick={() => playSound(currentTask.num1)} 
-                            />
-                            <span className="text-3xl font-bold text-gray-700">+</span>
-                            <img 
-                                src={numberImages[currentTask.num2]} 
-                                alt={`${currentTask.num2}`} 
-                                className="w-36 h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200" 
-                                onClick={() => playSound(currentTask.num2)} 
-                            />
-                            <span className="text-3xl font-bold text-gray-700">= ?</span>
+                        <div className="mt-8 animate-bounce-in">
+                            <div className="flex justify-center items-center gap-6">
+                                <img 
+                                    src={numberImages[currentTask.num1]} 
+                                    alt={`Number ${currentTask.num1}`} 
+                                    className="w-36 h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
+                                    onClick={() => playSound(currentTask.num1)}
+                                />
+                                <span className="text-3xl font-bold text-gray-700">+</span>
+                                <img 
+                                    src={numberImages[currentTask.num2]} 
+                                    alt={`Number ${currentTask.num2}`} 
+                                    className="w-36 h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
+                                    onClick={() => playSound(currentTask.num2)}
+                                />
+                                <span className="text-3xl font-bold text-gray-700">= ?</span>
+                            </div>
                         </div>
                     )}
 
@@ -208,27 +179,19 @@ const AdditionPractice = () => {
                         </div>
                     )}
 
-                    {capturedImages.length > 0 && (
-                        <div className="mt-6 text-lg text-gray-700">
-                            Captured {capturedImages.length}/5 Images
-                        </div>
-                    )}
-
-                    {finalPrediction && (
+                    {finalPrediction !== "" && (
                         <div className="mt-8 animate-fade-in">
                             <h2 className="text-2xl font-bold text-purple-700">
-                                Prediction: <span className="text-indigo-600">{finalPrediction}</span>
+                                You showed: <span className="text-indigo-600">{finalPrediction}</span>
                             </h2>
                         </div>
                     )}
                 </div>
 
-                {/* Right Section: Webcam */}
                 <div className="lg:w-1/2 flex justify-center">
-                    <Webcam 
-                        audio={false} 
-                        ref={webcamRef} 
-                        screenshotFormat="image/jpeg" 
+                    <img 
+                        src="http://localhost:5000/finger_counting/feed" 
+                        alt="Finger counting feed" 
                         className="w-full max-w-2xl rounded-2xl shadow-xl border-4 border-indigo-200 transform transition-all hover:border-indigo-400"
                     />
                 </div>
