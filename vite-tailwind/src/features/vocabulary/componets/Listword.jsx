@@ -9,50 +9,38 @@ import { encodeWAV } from "./wavEncoder";
 function Listword() {
   const [pagecount, setPagecount] = useState(1);
   const userme = localStorage.getItem("userid");
-  // const [completed, setCompleted] = useState(false);
-  // const [start, setStart] = useState(true);
-  const [isRecording, setIsRecording] = useState(false);
-  const [audioURL, setAudioURL] = useState(null);
-  // const mediaRecorderRef = useRef(null);
-  // const audioChunksRef = useRef([]);
-  const [wordis, setwordid] = useState("");
-  // Fetching words data
+
   const {
     data: getallword,
     isLoading,
     error,
   } = AllAddWord(pagecount, 1, userme);
 
-  // Text-to-speech function
+  
   const spechword = (textword) => {
     const utterance = new SpeechSynthesisUtterance(textword);
     window.speechSynthesis.speak(utterance);
   };
 
-  // Pagination Handlers
+  
   const nextWord = () => {
     if (pagecount < getallword?.data?.totalPages) {
       setPagecount((prev) => prev + 1);
     } else {
-      setCompleted(true);
+      
     }
   };
-  const passid = (id) => {};
+  
   const prevWord = () => {
     setPagecount((prev) => (prev > 1 ? prev - 1 : 1));
   };
  const [recording, setRecording] = useState(false);
  const [audioBlob, setAudioBlob] = useState(null);
- const [completed, setCompleted] = useState(false);
- const [taskCompleted, setTaskCompleted] = useState(false);
  const [start, setStart] = useState(true);
  const mediaRecorderRef = useRef(null);
  const audioChunksRef = useRef([]);
  const [prediction, setPrediction] = useState(null);
-//  const { id } = useParams();
-//  const { data: getallwords, isLoading:find, error:Errrorfinda } = findword(id);
 
- // 🎙 Start Recording
  const startRecording = async () => {
    try {
      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -101,24 +89,20 @@ function Listword() {
          .forEach((track) => track.stop());
        setRecording(false);
        console.log("Recording stopped successfully.");
-     }, 500); // ⏳ Delay ensures all data is processed
+     }, 500); 
    }
  };
 
- // 🎵 Convert Audio to WAV
+ 
  const convertToWav = async (blob) => {
    const arrayBuffer = await blob.arrayBuffer();
    const audioBuffer = await new AudioContext().decodeAudioData(arrayBuffer);
    return encodeWAV(audioBuffer);
  };
 
- // 📤 Upload Audio File
+ 
  const uploadAudio = async () => {
-   // if (!audioBlob) {
-   //   console.error("❌ No audio recorded, blob is null");
-   //   alert("No audio recorded");
-   //   return;
-   // }
+   
 
    console.log("Uploading audio file...");
    console.log("Audio Blob Details:", audioBlob);
@@ -136,10 +120,9 @@ function Listword() {
        }
      );
      setPrediction(response.data);
-     setTaskCompleted(true);
-     console.log("✅ Upload success:", response.data);
+     
    } catch (error) {
-     console.error("❌ Error uploading file:", error);
+     throw (error)
    }
  };
 
