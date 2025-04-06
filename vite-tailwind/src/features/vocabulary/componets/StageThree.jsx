@@ -1,24 +1,9 @@
-// import React from 'react'
 
-// function StageThree() {
-//   return (
-//     <div className="bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat bg-center lg:h-[700px] w-full">
-//       stage Three
-//     </div>
-//   );
-// }
-
-// export default StageThree
 
 import React, { useState } from "react";
-import { FaRegStar } from "react-icons/fa";
 import Modal from "../../../atomes/Modal";
 import WordAdd from "../../../atomes/Form";
-import WordList from "../WordList";
 import backgroundMusic from "../../../assets/ZestSound.mp3";
-import fruite from "../../../assets/ruteites.jpeg";
-import vehical from "../../../assets/car.jpeg";
-import VehicalList from "../VehicaleList";
 import { AllAddWord } from "../../../Api/vocabularyApi";
 import { useNavigate } from "react-router-dom";
 import { findscore } from "../../../Api/scoreApi";
@@ -26,11 +11,7 @@ function StageThree() {
   const navigate = useNavigate();
   const [pagecount, setPagecount] = useState(1);
   const userme = localStorage.getItem("userid");
-  const [rating, setRating] = useState(null);
-  const [hover, setHover] = useState(null);
-  const [totalStars, setTotalStars] = useState(5);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedWords, setSelectedWords] = useState([]);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
   const [isModalOpenWordList, setIsModalOpenWordList] = useState(false);
@@ -87,37 +68,11 @@ function StageThree() {
             </h1>
           </div>
           <div className="flex">{stars}</div>
-          {/* <div className=" flex">
-            <span className="mr-2 text-yellow-500 text-4xl">★</span>
-            <span className="mr-2 text-yellow-500 text-4xl">★</span>
-            <span className="mr-2 text-yellow-500 text-4xl">★</span>
-            <span className="mr-2 text-yellow-500 text-4xl">★</span>
-            <span className="mr-2 text-yellow-500 text-4xl">★</span>
-          </div> */}
+         
         </div>
         <div className=" flex flex-wrap gap-6">
-          {/* <div
-            className=" bg-white w-[200px] h-[240px] rounded-lg shadow-lg overflow-auto "
-            onClick={openWordlsit}
-          >
-            <img
-              src={fruite}
-              alt="a sunrise over a mountain range"
-              className=" rounded-lg h-[200px] "
-            />
-            <h1 className=" text-center font-bold">Fruite </h1>
-          </div> */}
-          {/* <div
-            className=" bg-white w-[200px] h-[240px] rounded-lg shadow-lg overflow-auto "
-            //onClick={opeenVehiclelsit}
-          >
-            <button
-              className="flex items-center justify-center bg-orange-400  w-24 h-24 text-white text-4xl font-bold shadow-md hover:bg-orange-500 active:scale-95 transition duration-200"
-              onClick={navigareAllList}
-            >
-              Start List
-            </button>
-          </div> */}
+          
+          
           <div className="bg-white w-52 h-60 rounded-xl shadow-lg flex flex-col items-center justify-center p-4 border border-gray-200">
             <h2 className="text-lg font-semibold text-gray-700 mb-3">
               Start List
@@ -161,17 +116,7 @@ function StageThree() {
         <Modal open={isModalOpen} onClose={closeModal}>
           <WordAdd />
         </Modal>
-        {/* 
-        <Modal open={isModalOpenWordList} onClose={closeWordlsit}>
-          <div className=" flex justify-center">
-            <WordList />
-          </div>
-        </Modal>
-        <Modal open={isModalOpenVehicleList} onClose={closeVehiclelsit}>
-          <div className=" flex justify-center">
-            <VehicalList />
-          </div>
-        </Modal> */}
+       
 
         <audio autoPlay loop hidden>
           <source src={backgroundMusic}></source>
