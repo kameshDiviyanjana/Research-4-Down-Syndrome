@@ -14,7 +14,6 @@ function VideoUpload() {
     if (file && file.type.startsWith("video/")) {
       setSelectedVideo(file);
 
-      // Create a preview URL for the video
       const videoURL = URL.createObjectURL(file);
       setVideoPreview(videoURL);
     } else {
@@ -77,8 +76,8 @@ function VideoUpload() {
  const [compare, setcompare] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordedVideoURL, setRecordedVideoURL] = useState("");
-  const videoRef = useRef(null); // Reference for the live feed
-  const playbackRef = useRef(null); // Reference for playback of the recorded video
+  const videoRef = useRef(null); 
+  const playbackRef = useRef(null); 
   const mediaRecorderRef = useRef(null);
   const recordedChunks = useRef([]);
 
@@ -143,22 +142,7 @@ function VideoUpload() {
             <StartingPage setstart={startPactices} />
           ) : (
             <div>
-              {/* <div style={{ marginTop: "20px" }}>
-                  <button onClick={handleRandomCategory} style={{ marginBottom: "10px" }}>
-        Generate Random Category
-      </button>
-                <h3>Introduction Video for: {randomCategory}</h3>
-                <video
-                  src={categoryVideos[randomCategory]}
-                  controls
-                  style={{
-                    width: "100%",
-                    maxWidth: "600px",
-                    borderRadius: "10px",
-                    marginTop: "10px",
-                  }}
-                />
-              </div> */}
+              
               <form onSubmit={handleFormSubmit}>
                 <input
                   type="file"
@@ -201,7 +185,6 @@ function VideoUpload() {
                   Live Video Recorder
                 </h1>
                 <div className="video-container mb-4 flex gap-4">
-                  {/* Live feed */}
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Live Feed:</h3>
                     <video
@@ -213,7 +196,7 @@ function VideoUpload() {
                     ></video>
                   </div>
 
-                  {/* Playback */}
+                  
                   {recordedVideoURL && (
                     <div>
                       <h3 className="text-lg font-semibold mb-2">

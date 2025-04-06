@@ -17,7 +17,6 @@ function Grossmotorskill() {
   const openWordlsit = () => setIsModalOpenWordList(true);
   const closeWordlsit = () => setIsModalOpenWordList(false);
   const Pacticesvideo = ()=>{
-   // navigate("/grossmotor/list-video");
     navigate("/grossmotor/system");
   }
   return (
@@ -47,7 +46,7 @@ function Grossmotorskill() {
               muted
               onClick={Pacticesvideo}
             >
-              {/* <source src={vedieogross} type="video/mp4" /> */}
+              
               <source src={vedieogross} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
@@ -65,9 +64,7 @@ function Grossmotorskill() {
           </div>
         </div>
 
-        {/* <audio autoPlay loop hidden>
-          <source src={backgroundMusic}></source>
-        </audio> */}
+        
       </div>
     </div>
   );
