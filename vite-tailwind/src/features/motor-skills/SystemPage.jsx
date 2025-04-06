@@ -85,7 +85,6 @@ function SystemPage() {
       setVideoURL(video_url);
       setUploadStatus("Processing complete!");
 
-      // Calculate match percentage
       const matchPercentage = calculateMatchPercentage(receivedPredictions);
       const level = getDifficultyLevel(matchPercentage);
       setDifficultyLevel(level);
@@ -96,7 +95,6 @@ function SystemPage() {
         icon: "success",
         confirmButtonText: "OK",
         confirmButtonColor: "#3085d6",
-        // timer: 5000,
         timerProgressBar: true,
       });
       setVideoBlob(null);
@@ -193,10 +191,6 @@ function SystemPage() {
           <h1 className="text-9xl font-bold  font-fontstle2 mb-4 text-center  mt-36">
             Playe The Game
           </h1>
-          {/* <p>
-        Randomly Mentioned Category:{" "}
-        <strong>{randomCategory || "None selected yet"}</strong>
-      </p> */}
 
           <div className=" flex justify-center">
             <button
@@ -227,22 +221,12 @@ function SystemPage() {
                     controls
                     className="w-full max-w-3xl rounded-3xl shadow-lg border-4 border-blue-400 hover:border-yellow-400 transition-all duration-500"
                   />
-                  {/* Fun animation around the video */}
+                  
                   <div className="absolute top-0 left-0 w-full h-full animate-pulse"></div>
                 </div>
               </div>
 
-              // <div style={{ marginTop: "20px" }}>
-              //   <h3 className="text-4xl font-bold   mb-4 text-center  ">
-              //     Start Learing: {randomCategory}
-              //   </h3>
-              //   <video
-              //     src={categoryVideos[randomCategory]}
-              //     controls
-
-              //     className="w-full max-w-3xl rounded-xl mt-4"
-              //   />
-              // </div>
+              
             )}
           </div>
           <div>
@@ -373,16 +357,7 @@ function SystemPage() {
                           >
                             Generate Random Category 🎲
                           </button>
-                          {/* <button
-                            onClick={handleNextTask}
-                            style={{
-                              marginTop: "10px",
-                              padding: "10px",
-                              fontSize: "16px",
-                            }}
-                          >
-                            Go to Next Task
-                          </button> */}
+                          
                           <button
                             onClick={handleNextTask}
                             className="mt-4 px-6 py-3 text-lg font-bold text-white bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-lg hover:from-orange-500 hover:to-yellow-400 transform hover:scale-105 transition-all duration-300 ease-in-out flex items-center justify-center gap-2"
@@ -396,174 +371,13 @@ function SystemPage() {
                 )}
               </div>
 
-              // <div style={{ marginTop: "20px" }}>
-              //   <h2>Live Camera Preview & Recording</h2>
-              //   <div>
-              //     {Playe && displayrecode ? (
-              //       <>
-              //         <Webcam
-              //           audio={false}
-              //           ref={webcamRef}
-              //           onUserMedia={(stream) => setCameraStream(stream)}
-              //           mirrored={true}
-              //           style={{
-              //             width: "100%",
-              //             maxWidth: "600px",
-              //             borderRadius: "10px",
-              //             backgroundColor: "black",
-              //           }}
-              //         />
-              //         <div>
-              //           {recording ? (
-              //             <div>
-              //               <button
-              //                 onClick={stopRecording}
-              //                 style={{
-              //                   marginTop: "10px",
-              //                   padding: "10px",
-              //                   backgroundColor: "red",
-              //                   color: "white",
-              //                 }}
-              //               >
-              //                 Stop Recording ⏹️
-              //               </button>
-              //             </div>
-              //           ) : (
-              //             <button
-              //               onClick={startRecording}
-              //               style={{
-              //                 marginTop: "10px",
-              //                 padding: "10px",
-              //                 backgroundColor: "green",
-              //                 color: "white",
-              //               }}
-              //             >
-              //               Start Recording ⏺️
-              //             </button>
-              //           )}
-              //         </div>
-              //       </>
-              //     ) : (
-              //       <>
-              //         <button
-              //           onClick={startrecodevedio}
-              //           style={{
-              //             marginTop: "10px",
-              //             padding: "10px",
-              //             backgroundColor: "green",
-              //             color: "white",
-              //           }}
-              //         >
-              //           Start
-              //         </button>
-              //       </>
-              //     )}
-              //   </div>
-
-              //   {videoBlob ? (
-              //     <div>
-              //       <h3>Recorded Video:</h3>
-              //       <video
-              //         src={URL.createObjectURL(videoBlob)}
-              //         controls
-              //         style={{ width: "100%", maxWidth: "600px" }}
-              //       />
-              //       <button
-              //         onClick={() => handleFileUpload(videoBlob)}
-              //         style={{ marginTop: "10px" }}
-              //       >
-              //         Upload Recorded Video
-              //       </button>
-              //     </div>
-              //   ) : (
-              //     <>
-              //       {predictions.length > 0 && (
-              //         <div className="mt-5">
-              //           <h2 className="text-2xl font-bold mb-4">
-              //             Predictions Summary
-              //           </h2>
-              //           <table className="w-full mt-3 border-collapse shadow-md">
-              //             <thead>
-              //               <tr className="bg-gray-100 text-gray-700 font-bold text-left">
-              //                 <th className="p-3">Category</th>
-              //                 <th className="p-3">Count</th>
-              //               </tr>
-              //             </thead>
-              //             <tbody>
-              //               {Object.entries(categoryCounts).map(
-              //                 ([category, count], index) => (
-              //                   <tr
-              //                     key={index}
-              //                     className={`${
-              //                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
-              //                     } border-b border-gray-200`}
-              //                   >
-              //                     <td className="p-3">{category}</td>
-              //                     <td className="p-3">{count}</td>
-              //                   </tr>
-              //                 )
-              //               )}
-              //             </tbody>
-              //           </table>
-
-              //           <div className=" flex justify-center">
-              //             <button
-              //               onClick={handleRandomCategory}
-              //               className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-all mb-6 w-[400px] mt-10"
-              //               style={{ marginBottom: "10px" }}
-              //             >
-              //               Generate Random Category
-              //             </button>
-              //           </div>
-              //           {/* <button
-              //             onClick={handleNextTask}
-              //             className="mt-5 px-6 py-3 text-lg text-white bg-green-500 rounded-md hover:bg-green-600"
-              //           >
-              //             Go to Next Task
-              //           </button> */}
-              //         </div>
-              //       )}
-              //     </>
-              //   )}
-              // </div>
+              
             )}
           </div>
         </div>
       </div>
       <br />
 
-      {/* Camera Recording Section */}
-
-      {/* {predictions.length > 0 && (
-        <div style={{ marginTop: "20px" }}>
-          <h2>Predictions Summary</h2>
-          <table border="1" style={{ width: "100%", marginTop: "10px" }}>
-            <thead>
-              <tr>
-                <th>Category</th>
-                <th>Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(categoryCounts).map(
-                ([category, count], index) => (
-                  <tr key={index}>
-                    <td>{category}</td>
-                    <td>{count}</td>
-                  </tr>
-                )
-              )}
-            </tbody>
-          </table>
-
-          <button
-            onClick={handleNextTask}
-            style={{ marginTop: "10px", padding: "10px", fontSize: "16px" }}
-          >
-            Go to Next Task
-          </button>
-        </div>
-      )} */}
     </div>
   );
 }

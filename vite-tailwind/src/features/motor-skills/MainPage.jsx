@@ -45,7 +45,7 @@ function MainPage() {
         Upload Video
       </button>
       <p>{uploadStatus}</p>
-      {/* Rest of the content from your original App.jsx */}
+    
     </div>
   );
 }
