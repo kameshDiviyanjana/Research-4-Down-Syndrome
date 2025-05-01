@@ -30,7 +30,7 @@ const numberImages = {
     2: num2, 
     3: num3, 
     4: num4, 
-    5: num5
+    5: num5 
 };
 
 const numberSounds = {

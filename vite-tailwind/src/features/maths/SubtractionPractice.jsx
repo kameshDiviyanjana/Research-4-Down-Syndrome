@@ -35,7 +35,7 @@ const numberSounds = {
     1: sound1,
     2: sound2,
     3: sound3,
-    4: sound4,
+    4: sound4, 
     5: sound5,
 };
 

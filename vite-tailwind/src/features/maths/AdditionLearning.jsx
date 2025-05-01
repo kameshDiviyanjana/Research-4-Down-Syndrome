@@ -249,7 +249,7 @@ const LearningComponent = () => {
                     </div>
                 </div>
             )}
-        </div>
+        </div> 
     );
 };
 

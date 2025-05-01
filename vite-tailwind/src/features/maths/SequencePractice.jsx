@@ -218,5 +218,5 @@ const SequencePractice = () => {
         </div>
     );
 };
-
+ 
 export default SequencePractice;

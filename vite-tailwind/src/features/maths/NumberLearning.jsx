@@ -181,7 +181,7 @@ const NumberLearning = () => {
                     onClick={prevNumber}
                 >
                     ⬅️
-                </button>
+                </button> 
                 <img
                     src={numbers[currentIndex].image}
                     alt={`Number ${numbers[currentIndex].value}`}
@@ -191,7 +191,7 @@ const NumberLearning = () => {
                 <button
                     className="bg-yellow-400 text-white text-3xl font-bold p-6 rounded-full shadow-2xl hover:bg-yellow-500 active:scale-90 transition-all duration-200"
                     onClick={nextNumber}
-                >
+                > 
                     ➡️
                 </button>
             </div>

@@ -294,7 +294,7 @@ const SequenceLearning = () => {
           </div>
         </div>
       )}
-    </div>
+    </div> 
   );
 };
 

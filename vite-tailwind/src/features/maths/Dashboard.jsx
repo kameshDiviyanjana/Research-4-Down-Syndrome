@@ -75,7 +75,7 @@ const Dashboard = () => {
                 {/* Button Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <button 
-                        onClick={() => navigate(`/math/numbers?lang=${language}`)}
+                        onClick={() => navigate(`/math/numbers?lang=${language}`)} 
                         className={buttonStyles}
                     >
                         <span className="text-xl">🔢</span> {translations[language].numbers}

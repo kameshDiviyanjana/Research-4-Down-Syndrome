@@ -249,5 +249,5 @@ const SubtractionLearning = () => {
         </div>
     );
 };
-
+ 
 export default SubtractionLearning;

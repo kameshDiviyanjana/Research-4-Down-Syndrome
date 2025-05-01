@@ -29,7 +29,7 @@ const numberImages = {
     8: num8,
     9: num9,
     10: num10
-};
+}; 
 
 const playSound = (number) => {
     const audio = new Audio(`/sounds/${number}.mp3`);
