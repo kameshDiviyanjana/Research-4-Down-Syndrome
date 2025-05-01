@@ -3,6 +3,7 @@ import Swal from "sweetalert2";
 import SmileImage from '../../../src/assets/smile.jpg';
 import useProgressStore from '../maths/store/progressStore';
 import "./PracticeAnimations.css";
+import blankAnswerAudio from '../maths/sounds/blnk_answer.mp3';
 
 import num0 from "../../assets/numbers/0.png";
 import num1 from "../../assets/numbers/1.png";
@@ -49,6 +50,10 @@ const SequencePractice = () => {
     const addProgress = useProgressStore((state) => state.addProgress);
 
     const startPractice = () => {
+
+        const audio = new Audio(blankAnswerAudio);
+            audio.play().catch((error) => console.log("Audio play error:", error));
+
         const randomIndex = Math.floor(Math.random() * sequences.length);
         const targetSequence = sequences[randomIndex];
         console.log(`[startPractice] Generated targetSequence: ${JSON.stringify(targetSequence)}`);

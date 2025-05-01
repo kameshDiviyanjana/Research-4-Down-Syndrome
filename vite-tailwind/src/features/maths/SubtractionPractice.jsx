@@ -3,6 +3,9 @@ import Swal from "sweetalert2";
 import SmileImage from '../../../src/assets/smile.jpg';
 import useProgressStore from '../maths/store/progressStore';
 import "./PracticeAnimations.css";
+import minusAudio from '../maths/sounds/-.mp3'; // Added
+import whatIstheAnswerAudio from '../maths/sounds/wht_answer.mp3'; // Added
+import backgroundImg from "../../../public/images/practiceBg2.jpg"
 
 import num0 from "../../assets/numbers/0.png";
 import num1 from "../../assets/numbers/1.png";
@@ -10,6 +13,13 @@ import num2 from "../../assets/numbers/2.png";
 import num3 from "../../assets/numbers/3.png";
 import num4 from "../../assets/numbers/4.png";
 import num5 from "../../assets/numbers/5.png";
+
+import sound0 from "../maths/sounds/0.mp3"; // Added
+import sound1 from "../maths/sounds/1.mp3"; // Added
+import sound2 from "../maths/sounds/2.mp3"; // Added
+import sound3 from "../maths/sounds/3.mp3"; // Added
+import sound4 from "../maths/sounds/4.mp3"; // Added
+import sound5 from "../maths/sounds/5.mp3"; // Added
 
 const numberImages = { 
     0: num0, 
@@ -20,8 +30,17 @@ const numberImages = {
     5: num5
 };
 
+const numberSounds = {
+    0: sound0,
+    1: sound1,
+    2: sound2,
+    3: sound3,
+    4: sound4,
+    5: sound5,
+};
+
 const playSound = (number) => {
-    const audio = new Audio(`/sounds/${number}.mp3`);
+    const audio = new Audio(numberSounds[number]);
     audio.play().catch((error) => console.log("Audio play error:", error));
 };
 
@@ -50,22 +69,52 @@ const SubtractionPractice = () => {
         console.log(`[startPractice] Generated targetProblem: ${JSON.stringify(targetProblem)}`);
         setCurrentTask(targetProblem);
         setFinalPrediction("");
-        setCountdown(5);
         setIsCapturing(true);
         setIsChecking(false);
 
-        let count = 5;
-        const countdownInterval = setInterval(() => {
-            count -= 1;
-            setCountdown(count);
-            if (count === 0) {
-                clearInterval(countdownInterval);
-                console.log("[startPractice] Countdown complete, waiting for user input");
-                setTimeout(() => {
-                    setIsChecking(true);
-                }, 3000); // Wait 3 seconds after countdown before checking
-            }
-        }, 1000);
+        const playAudioSequence = () => {
+            const firstNumberAudio = new Audio(numberSounds[targetProblem.num1]);
+            const minusAudioFile = new Audio(minusAudio);
+            const secondNumberAudio = new Audio(numberSounds[targetProblem.num2]);
+            const whatIsTheAnswerAudioFile = new Audio(whatIstheAnswerAudio);
+
+            // Play first number
+            firstNumberAudio.play().catch((error) => console.log("First number audio error:", error));
+
+            // When first number ends, play "minus"
+            firstNumberAudio.onended = () => {
+                minusAudioFile.play().catch((error) => console.log("Minus audio error:", error));
+            };
+
+            // When "minus" ends, play second number
+            minusAudioFile.onended = () => {
+                secondNumberAudio.play().catch((error) => console.log("Second number audio error:", error));
+            };
+
+            // When second number ends, play "what is the answer" and start countdown
+            secondNumberAudio.onended = () => {
+                whatIsTheAnswerAudioFile.play().catch((error) => console.log("What is the answer audio error:", error));
+                whatIsTheAnswerAudioFile.onended = () => {
+                    // Start countdown after all audios have played
+                    let count = 5;
+                    setCountdown(count);
+                    const countdownInterval = setInterval(() => {
+                        count -= 1;
+                        setCountdown(count);
+                        if (count === 0) {
+                            clearInterval(countdownInterval);
+                            console.log("[startPractice] Countdown complete, waiting for user input");
+                            setTimeout(() => {
+                                setIsChecking(true);
+                            }, 3000);
+                        }
+                    }, 1000);
+                };
+            };
+        };
+
+        // Start the audio sequence
+        playAudioSequence();
     };
 
     const checkResult = async (targetProblem) => {
@@ -82,7 +131,7 @@ const SubtractionPractice = () => {
             setIsChecking(false);
 
             const targetAnswer = targetProblem.answer;
-            const isCorrect = userPrediction === targetAnswer && confidence >= 0.8; // Require 80% confidence
+            const isCorrect = userPrediction === targetAnswer && confidence >= 0.8;
             console.log(`[checkResult] Comparison result: ${isCorrect} (Target: ${targetAnswer}, User: ${userPrediction}, Conf: ${confidence})`);
             if (isCorrect) {
                 addProgress("SubtractionPractice", 1);
@@ -142,21 +191,24 @@ const SubtractionPractice = () => {
     }, [isChecking, currentTask]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-6">
+        <div 
+                className="min-h-screen bg-cover bg-center flex items-center justify-center p-6"
+                style={{ backgroundImage: `url(${backgroundImg})` }}
+            >
             <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-10">
-                <div className="flex flex-col items-center lg:w-1/2 bg-white rounded-2xl shadow-xl p-8 transform transition-all hover:scale-105">
-                    <div className="text-center mb-6 animate-fade-in">
-                        <h2 className="text-4xl font-bold text-indigo-700 drop-shadow-md">✨ Subtraction Practice</h2>
+                <div className="flex flex-col items-center lg:w-1/2 rounded-2xl  p-8 transform transition-all ">
+                    <div className="text-center mb-1 mt-10 ">
+                        <h2 className="text-4xl font-bold text-indigo-700 drop-shadow-md">- Subtraction Practice</h2>
                         <p className="text-lg text-gray-600 mt-2">Show the difference with your fingers!</p>
                     </div>
 
                     <button 
-                        onClick={startPractice} 
-                        disabled={isCapturing}
-                        className="w-full px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
-                    >
-                        📸 Start Practice
-                    </button>
+    onClick={startPractice} 
+    disabled={isCapturing}
+    className="w-[200px] px-8 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold text-center rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+>
+     Start Practice
+</button>
 
                     {currentTask && (
                         <div className="mt-8 animate-bounce-in">
@@ -164,14 +216,14 @@ const SubtractionPractice = () => {
                                 <img 
                                     src={numberImages[currentTask.num1]} 
                                     alt={`Number ${currentTask.num1}`} 
-                                    className="w-36 h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
+                                    className="w-[160px] h-[150px] object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
                                     onClick={() => playSound(currentTask.num1)}
                                 />
                                 <span className="text-3xl font-bold text-gray-700">-</span>
                                 <img 
                                     src={numberImages[currentTask.num2]} 
                                     alt={`Number ${currentTask.num2}`} 
-                                    className="w-36 h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
+                                    className="w-[160px] h-[150px] object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
                                     onClick={() => playSound(currentTask.num2)}
                                 />
                                 <span className="text-3xl font-bold text-gray-700">= ?</span>
@@ -185,16 +237,16 @@ const SubtractionPractice = () => {
                         </div>
                     )}
 
-                    {finalPrediction !== "" && (
+                    {/* {finalPrediction !== "" && (
                         <div className="mt-8 animate-fade-in">
                             <h2 className="text-2xl font-bold text-purple-700">
                                 You showed: <span className="text-indigo-600">{finalPrediction}</span>
                             </h2>
                         </div>
-                    )}
+                    )} */}
                 </div>
 
-                <div className="lg:w-1/2 flex justify-center">
+                <div className="lg:w-1/2 flex justify-center mt-[100px] mr-[70px]">
                     <img 
                         src="http://localhost:5000/finger_counting/feed" 
                         alt="Finger counting feed" 
