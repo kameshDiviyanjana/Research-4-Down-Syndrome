@@ -3,12 +3,11 @@
 import React, { useState, useRef,useEffect} from "react";
 import axios from "axios";
 import { encodeWAV } from "./wavEncoder";
-import bush from "../../../assets/bush-clipart-animated-6.png";
 import sun from "../../../assets/source.gif";
 import { useParams, useLocation } from "react-router-dom";
 import StartingPage from "../utile/StartingPage";
 import { AddSpeechResults, AllAddWord, Allresults, lastresults } from "../../../Api/vocabularyApi";
-import LineChart from "./linechar";
+
 
 const AllWordList = () => {
   const [recording, setRecording] = useState(false);
@@ -22,7 +21,7 @@ const AllWordList = () => {
   const userme = localStorage.getItem("userid");
   const [prediction, setPrediction] = useState(null);
   const [scoreborder, setscoreborder] = useState(true);
-  const [marks, setmarks] = useState(false);
+  const [marks, setmarks] = useState(0);
   const addspeechMutation = AddSpeechResults(); // This is the hook that triggers the mutation
   const userid = localStorage.getItem("userid"); // Get user ID from localStorage
   const { word } = useParams();
@@ -109,15 +108,7 @@ const AllWordList = () => {
 
   // 📤 Upload Audio File
   const uploadAudio = async () => {
-    // if (!audioBlob) {
-    //   console.error("❌ No audio recorded, blob is null");
-    //   alert("No audio recorded");
-    //   return;
-    // }
-
-    // console.log("Uploading audio file...");
-    // console.log("Audio Blob Details:", audioBlob);
-    // console.log("Blob Size:", audioBlob.size, "Type:", audioBlob.type);
+    
 
     const formData = new FormData();
     formData.append("file", audioBlob, "audio.wav");
@@ -131,6 +122,7 @@ const AllWordList = () => {
         }
       );
       setPrediction(response.data);
+      setmarks(response.data.confidence);
       setTaskCompleted(true);
       await addresulis(response.data);
       console.log("✅ Upload success:", response.data);
@@ -189,12 +181,19 @@ const AllWordList = () => {
       setTaskCompleted(true);
     }
   };
-  let starCount = 0;
-  if (marks >= 75) {
-    starCount = 4;
-  } else if (marks >= 50) {
+  let starCount =0 ;
+  if (marks >= 2) {
+    starCount = 2;
+  } else if (marks >= 3) {
     starCount = 3;
+  }else if (marks >= 4) {
+    starCount = 4;
   }
+else if (marks >= 5) {
+    starCount = 5;
+  }
+
+
 
   const stars = Array.from({ length: 5 }, (_, index) => (
     <span
@@ -207,14 +206,8 @@ const AllWordList = () => {
     </span>
   ));
 
-  //   const nextWord = () => {
-  //     setCompleted(true);
-  //     setPagecount(pagecount + 1);
-  //     if (getallword.data.totalCount == pagecount) {
-  //      setTaskCompleted(true)
-  //     }
-  //   };
-  console.log("🔥 Prediction:", getresults?.data);
+
+ 
 
   return (
     <div className=" bg-center bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat w-full">
@@ -224,37 +217,28 @@ const AllWordList = () => {
           {start ? (
             scoreborder && (
               <div className="flex flex-wrap justify-center space-x-4">
-                {/* {getallword?.data && (
-                <div className="text-center">
-                  <img
-                    src={getallword.data.imagewordUrl}
-                    alt={getallword.data.wordAdd}
-                    className="h-[500px] w-[700px] rounded-xl"
-                  />
-                  <h1
-                    className="font-bold text-[90px] cursor-pointer"
-                    onClick={() => spechword(getallword.data.wordAdd)}
-                  >
-                    {getallword.data.wordAdd}
-                  </h1>
-                </div>
-              )} */}
+               
                 {getallword?.data?.wordses?.map((word) => (
-                  <div key={word._id} className="text-center space-y-4">
+                  <div
+                    key={word._id}
+                    className="text-center space-y-4 p-4 rounded-2xl shadow-xl bg-gradient-to-br from-yellow-100 to-blue-100"
+                  >
                     <img
                       src={word.imagewordUrl}
                       alt={word.wordAdd}
-                      className="lg:h-[500px] lg:w-[700px] rounded-xl"
+                      className="lg:h-[500px] lg:w-[700px] rounded-xl border-8 border-white shadow-md"
                     />
                     {isActive && (
                       <h1
-                        className="font-bold text-[90px] text-center hover:text-blue-500 active:text-red-500 transition-colors cursor-pointer"
+                        className="font-extrabold text-[90px] text-center text-pink-500 hover:text-green-500 active:text-orange-500 transition-all cursor-pointer drop-shadow-lg"
                         onClick={() => spechword(word.wordAdd)}
                       >
                         {word.wordAdd}
                       </h1>
                     )}
                   </div>
+
+                 
                 ))}
               </div>
             )
@@ -271,23 +255,27 @@ const AllWordList = () => {
               {taskCompleted ? (
                 <button
                   onClick={() => {
-                    // uploadAudio();
+                    
                     stopRecording();
                     setscoreborder(false);
                     setmarks(true);
                   }}
+                  className="bg-gradient-to-r from-green-400 to-yellow-400 text-white text-2xl font-bold py-3 px-8 rounded-full shadow-lg hover:from-blue-400 hover:to-purple-400 h-[100px] active:scale-95 transition-all"
                 >
-                  Complete
+                  🎉 Complete ✅
                 </button>
               ) : (
                 <button
                   onClick={() => {
                     nextWord();
-                    //startRecording();
+                    
                   }}
+                  className="bg-gradient-to-r from-yellow-400 to-pink-400 text-white text-2xl font-bold py-3 px-8 h-[100px] rounded-full shadow-lg hover:from-green-400 hover:to-blue-400 active:scale-95 transition-all"
                 >
-                  Next
+                  🚀 Next 🎈
                 </button>
+
+                
               )}
             </>
           )}
@@ -309,54 +297,81 @@ const AllWordList = () => {
               <div>
                 <div className=" flex justify-center">
                   {prediction && (
-                    <div>
-                      <div className=" shadow-2xl text-center  w-[450px] h-[250px] py-16">
-                        <h2>Prediction Result</h2>
-                        <p>Confidence: {prediction.confidence}</p>
-                        <p>Cluster: {prediction.cluster}</p>
+                   
+                    <div className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-blue-100 to-pink-100 rounded-2xl shadow-2xl w-[450px] h-[300px]">
+                      <h2 className="text-2xl font-bold text-pink-600">
+                        🎈 Prediction Result 🎈
+                      </h2>
+                      <p className="text-lg font-semibold text-blue-700 mt-2">
+                        Confidence:{" "}
+                        <span className="text-orange-500">
+                          {prediction.confidence}
+                        </span>
+                      </p>
+                      <p className="text-lg font-semibold text-blue-700">
+                        Cluster:{" "}
+                        <span className="text-green-500">
+                          {prediction.cluster}
+                        </span>
+                      </p>
+                      <div className="flex mt-4 text-yellow-500 text-3xl">
+                        {stars}
                       </div>
-                      <div className="flex">{stars}</div>
                     </div>
                   )}
                 </div>{" "}
                 <div className=" flex flex-col justify-center">
-                  <div className=" text-center">
-                    <h1 className=" font-bold">Last Results</h1>
-                  </div>
+                  <div className=" text-center"></div>
                   <div className=" flex justify-center">
                     {getlastresults.data && (
                       <div>
                         <div className=" shadow-2xl text-center  w-[450px] h-[250px] py-16">
-                          <h2>Prediction Result</h2>
-                          <p>Confidence: {getlastresults.data.confidence}</p>
-                          <p>Cluster: {getlastresults.data.cluster}</p>
+                          <h2 className="text-2xl font-bold text-pink-600">
+                            🎈Last Results Prediction Result 🎈
+                          </h2>
+                          <p className="text-lg font-semibold text-blue-700 mt-2">
+                            Confidence:{" "}
+                            <span className="text-orange-500">
+                              {getlastresults.data.confidence}
+                            </span>
+                          </p>
+                          <p className="text-lg font-semibold text-blue-700">
+                            Cluster:{" "}
+                            <span className="text-green-500">
+                              {getlastresults.data.cluster}
+                            </span>
+                          </p>
+                       
                         </div>
-                        <div className="flex">{stars}</div>
+                        
                       </div>
                     )}
                   </div>
                 </div>
               </div>
               <div class="overflow-x-auto">
-                <table class="w-full border-collapse border bg-white border-gray-200">
-                  <thead class="bg-gray-200">
+                <table className="w-full border-collapse bg-white rounded-xl shadow-md overflow-hidden">
+                  <thead className="bg-gradient-to-r from-blue-300 to-purple-400 text-white">
                     <tr>
-                      <th class="border border-gray-300 px-4 py-2 text-left">
-                        cluster
+                      <th className="border border-gray-300 px-6 py-3 text-left text-lg font-bold">
+                        Cluster
                       </th>
-                      <th class="border border-gray-300 px-4 py-2 text-left">
-                        confidence
+                      <th className="border border-gray-300 px-6 py-3 text-left text-lg font-bold">
+                        Confidence
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {getresults?.data?.length > 0 ? (
                       getresults?.data?.map((user) => (
-                        <tr key={user._id} className="hover:bg-gray-100">
-                          <td className="border border-gray-300 px-4 py-2">
+                        <tr
+                          key={user._id}
+                          className="hover:bg-yellow-200 transition-all duration-300"
+                        >
+                          <td className="border border-gray-300 px-6 py-3 text-lg text-center text-blue-600 font-semibold">
                             {user.cluster}
                           </td>
-                          <td className="border border-gray-300 px-4 py-2">
+                          <td className="border border-gray-300 px-6 py-3 text-lg text-center text-green-600 font-semibold">
                             {user.confidence}
                           </td>
                         </tr>
@@ -364,24 +379,17 @@ const AllWordList = () => {
                     ) : (
                       <tr>
                         <td
-                          colSpan="2" // Adjusted to match the number of columns (2 columns: cluster, confidence)
-                          className="border border-gray-300 px-4 py-2 text-center text-gray-500"
+                          colSpan="2"
+                          className="border border-gray-300 px-6 py-3 text-center text-gray-500 text-lg animate-pulse"
                         >
-                          No results found
+                          🚀 No results found
                         </td>
                       </tr>
                     )}
                   </tbody>
                 </table>
-{/* 
-                <div>
-                  {getresults.data.length > 0 && (
-                    <LineChart
-                      lastResult={getresults[getresults.length - 2]}
-                      currentResult={getresults[getresults.length - 1]}
-                    />
-                  )}
-                </div> */}
+
+               
               </div>
             </div>
           </div>

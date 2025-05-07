@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import write from "../assets/write.png";
 const WritingIntro = () => {
   return (
@@ -15,7 +16,9 @@ const WritingIntro = () => {
           learning journey!
         </p>
         <button className="bg-blue-100 text-blue-600 font-semibold px-6 py-2 rounded-md hover:bg-blue-200 transition">
-          Lets Practice and Learn how to do it
+          <Link to='/write/writing-home'> 
+            Lets Practice and Learn how to do it
+          </Link>
         </button>
       </div>
 

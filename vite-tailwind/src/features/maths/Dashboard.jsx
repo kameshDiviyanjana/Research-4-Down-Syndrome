@@ -62,18 +62,21 @@ const Dashboard = () => {
                 </button>
             </div>
 
-            {/* Main Card */}
-            <div className="relative z-10 mt-16 sm:mt-20 p-6 sm:p-8 rounded-2xl  max-w-lg w-full animate-fade-in">
-                <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-center">
-                    {translations[language].welcome}
-                    <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent"> Maths Learning</span>
-                </h1>
-                <p className="text-base sm:text-lg text-gray-600 mb-6 text-center font-light">
-                    {translations[language].subtitle}
-                </p>
+          {/* Main Card */}
+<div className="relative z-10 mt-[95px] rounded-2xl shadow-xl max-w-2xl w-full animate-fade-in p-6 sm:p-8">
+    <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-3 text-center">
+        {translations[language]?.welcome}{" "}
+        <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+            Maths Learning
+        </span>
+    </h1>
+    <p className="text-base sm:text-lg text-gray-600 mb-6 text-center font-light">
+        {translations[language]?.subtitle}
+    </p>
 
-                {/* Button Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    {/* Button Grid */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-10 pr-10">
+
                     <button 
                         onClick={() => navigate(`/math/numbers?lang=${language}`)} 
                         className={buttonStyles}

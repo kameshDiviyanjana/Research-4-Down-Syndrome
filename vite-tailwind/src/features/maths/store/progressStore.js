@@ -1,13 +1,12 @@
-// src/store/progressStore.js
 import { create } from 'zustand';
 
 const useProgressStore = create((set) => ({
-  progress: [], // Initial empty array for progress tracking
+  progress: [], 
   addProgress: (practiceType, count) =>
     set((state) => ({
       progress: [
         ...state.progress,
-        { practiceType, count, timestamp: new Date().toISOString() }, // Adding timestamp for uniqueness
+        { practiceType, count, timestamp: new Date().toISOString() }, 
       ],
     })),
   resetProgress: () =>

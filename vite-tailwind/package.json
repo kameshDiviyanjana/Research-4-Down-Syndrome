@@ -30,7 +30,8 @@
     "react-webcam": "^7.2.0",
     "recorder-js": "^1.0.7",
     "sweetalert2": "^11.15.2",
-    "tailwind-merge": "^2.5.5"
+    "tailwind-merge": "^2.5.5",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
