@@ -1,133 +1,147 @@
-import React, { useRef, useState } from "react";
-import Webcam from "react-webcam";
+import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { predictGesture } from "./api";
 import SmileImage from '../../../src/assets/smile.jpg';
-import useProgressStore from '../maths/store/progressStore'; // Adjust the path as needed
-import "./PracticeAnimations.css"; // Assuming you want animations
-
-// Import number images
+import useProgressStore from '../maths/store/progressStore';
+import "./PracticeAnimations.css";
+import whatIstheAnswerAudio from '../maths/sounds/wht_answer.mp3';
+import backgroundImg from "../../../public/images/practiceBg2.jpg"
 import num0 from "../../assets/numbers/0.png";
 import num1 from "../../assets/numbers/1.png";
 import num2 from "../../assets/numbers/2.png";
 import num3 from "../../assets/numbers/3.png";
 import num4 from "../../assets/numbers/4.png";
 import num5 from "../../assets/numbers/5.png";
+import num6 from "../../assets/numbers/6.png";
+import num7 from "../../assets/numbers/7.png";
+import num8 from "../../assets/numbers/8.png";
+import num9 from "../../assets/numbers/9.png";
+import num10 from "../../assets/numbers/10.png";
 
-// Number images map
-const numberImages = { 0: num0, 1: num1, 2: num2, 3: num3, 4: num4, 5: num5 };
+const numberImages = { 
+    0: num0, 
+    1: num1, 
+    2: num2, 
+    3: num3, 
+    4: num4, 
+    5: num5,
+    6: num6,
+    7: num7,
+    8: num8,
+    9: num9,
+    10: num10
+}; 
 
-// Function to play sound
 const playSound = (number) => {
     const audio = new Audio(`/sounds/${number}.mp3`);
     audio.play().catch((error) => console.log("Audio play error:", error));
 };
 
 const NumberPractice = () => {
-    const webcamRef = useRef(null);
-    const [randomNumber, setRandomNumber] = useState(null);
-    const [capturedImages, setCapturedImages] = useState([]);
-    const [predictionResults, setPredictionResults] = useState([]);
-    const [finalPrediction, setFinalPrediction] = useState("");
+    const [currentNumber, setCurrentNumber] = useState(0); // Start with 0
+    const [isRandomMode, setIsRandomMode] = useState(false); // Track if we're in random mode
     const [countdown, setCountdown] = useState(null);
     const [isCapturing, setIsCapturing] = useState(false);
+    const [finalPrediction, setFinalPrediction] = useState("");
+    const [isChecking, setIsChecking] = useState(false);
 
-    // Zustand store hook
     const addProgress = useProgressStore((state) => state.addProgress);
 
     const startPractice = () => {
-        const newRandomNumber = Math.floor(Math.random() * 6);
-        console.log(`[startPractice] Generated newRandomNumber: ${newRandomNumber}`);
-        setRandomNumber(newRandomNumber);
-        setCapturedImages([]);
-        setPredictionResults([]);
+        let newNumber;
+        if (!isRandomMode) {
+            // Sequential mode: Use currentNumber and increment until 10
+            newNumber = currentNumber;
+            console.log(`[startPractice] Sequential mode - Current Number: ${newNumber}`);
+        } else {
+            // Random mode: Generate a random number between 0 and 10
+            newNumber = Math.floor(Math.random() * 11);
+            console.log(`[startPractice] Random mode - Generated Number: ${newNumber}`);
+        }
+
+        setCurrentNumber(newNumber);
         setFinalPrediction("");
-        setCountdown(5);
         setIsCapturing(true);
+        setIsChecking(false);
 
-        let count = 5;
-        const countdownInterval = setInterval(() => {
-            count -= 1;
+        const audio = new Audio(whatIstheAnswerAudio);
+        audio.play().catch((error) => console.log("Audio play error:", error));
+
+        audio.onended = () => {
+            let count = 5;
             setCountdown(count);
-            if (count === 0) {
-                clearInterval(countdownInterval);
-                console.log("[startPractice] Countdown complete, starting captureImages");
-                captureImages(newRandomNumber);
-            }
-        }, 1000);
+            const countdownInterval = setInterval(() => {
+                count -= 1;
+                setCountdown(count);
+                if (count === 0) {
+                    clearInterval(countdownInterval);
+                    console.log("[startPractice] Countdown complete, waiting for user input");
+                    setTimeout(() => {
+                        setIsChecking(true);
+                    }, 3000);
+                }
+            }, 1000);
+        };
     };
 
-    const captureImages = (targetNumber) => {
-        let images = [];
-        let count = 0;
-        console.log("[captureImages] Starting image capture");
-        console.log(`[captureImages] Target number: ${targetNumber}`);
-        const captureInterval = setInterval(() => {
-            if (count < 5) {
-                const imageSrc = webcamRef.current.getScreenshot();
-                images.push(imageSrc);
-                setCapturedImages((prev) => [...prev, imageSrc]);
-                count++;
-                console.log(`[captureImages] Captured image ${count}/5`);
-            } else {
-                clearInterval(captureInterval);
-                console.log("[captureImages] All images captured, processing predictions");
-                processPredictions(images, targetNumber);
-            }
-        }, 1000);
-    };
+    const checkResult = async (targetNumber) => {
+        console.log("[checkResult] Fetching finger count from API");
+        try {
+            const response = await fetch("http://localhost:5000/finger_counting/count");
+            const data = await response.json();
+            const userPrediction = data.finger_count;
+            const confidence = data.confidence;
+            console.log(`[checkResult] Fetched finger count: ${userPrediction}, Confidence: ${confidence}`);
 
-    const processPredictions = async (images, targetNumber) => {
-        console.log("[processPredictions] Starting prediction processing");
-        console.log(`[processPredictions] Target number: ${targetNumber}`);
-        let predictions = [];
-        
-        for (let i = 0; i < images.length; i++) {
-            const blob = await fetch(images[i]).then((res) => res.blob());
-            const file = new File([blob], `captured_image_${i}.jpg`, { type: "image/jpeg" });
-            const result = await predictGesture(file);
-            predictions.push(result);
-            setPredictionResults((prev) => [...prev, result]);
-            console.log(`[processPredictions] Prediction ${i + 1}: ${result}`);
-        }
+            setFinalPrediction(userPrediction);
+            setIsCapturing(false);
+            setIsChecking(false);
 
-        const finalPred = getMostFrequentPrediction(predictions);
-        console.log(`[processPredictions] Final prediction calculated: ${finalPred}`);
-        console.log(`[processPredictions] Type of finalPred: ${typeof finalPred}`);
-
-        setFinalPrediction(finalPred);
-        setIsCapturing(false);
-
-        console.log(`[processPredictions] Comparing finalPred: ${finalPred} with targetNumber: ${targetNumber}`);
-        const isCorrect = String(finalPred) === String(targetNumber);
-        console.log(`[processPredictions] Comparison result (finalPred === targetNumber): ${isCorrect}`);
-        console.log(`[processPredictions] String(finalPred): ${String(finalPred)}, String(targetNumber): ${String(targetNumber)}`);
-
-        // Update progress based on correctness
-        if (targetNumber !== null) {
+            const isCorrect = userPrediction === targetNumber && confidence >= 0.8;
+            console.log(`[checkResult] Comparison result: ${isCorrect} (Target: ${targetNumber}, User: ${userPrediction}, Conf: ${confidence})`);
             if (isCorrect) {
-                console.log("[processPredictions] Prediction is correct, adding progress: NumberPractice, count: 1");
-                addProgress("NumberPractice", 1); // Correct answer
+                addProgress("NumberPractice", 1);
                 showSuccessAlert();
+
+                // If in sequential mode and the number is 10, switch to random mode
+                if (!isRandomMode && targetNumber === 10) {
+                    setIsRandomMode(true);
+                    setCurrentNumber(null); // Reset for random mode
+                } else if (!isRandomMode) {
+                    setCurrentNumber((prev) => prev + 1); // Move to next number
+                }
             } else {
-                console.log("[processPredictions] Prediction is incorrect, adding progress: NumberPractice, count: 0");
-                addProgress("NumberPractice", 0); // Incorrect answer
-                showFailureAlert();
+                addProgress("NumberPractice", 0);
+                showFailureAlert(confidence, targetNumber, userPrediction);
             }
+        } catch (error) {
+            console.error("[checkResult] Error fetching finger count:", error);
+            setIsCapturing(false);
+            setIsChecking(false);
+            Swal.fire({
+                title: "Error",
+                text: "Failed to fetch finger count. Please try again.",
+                icon: "error",
+                showConfirmButton: false,
+                timer: 2000,
+            });
         }
     };
 
-    const getMostFrequentPrediction = (predictions) => {
-        console.log("[getMostFrequentPrediction] Calculating most frequent prediction");
-        console.log(`[getMostFrequentPrediction] All predictions: ${JSON.stringify(predictions)}`);
-        const counts = {};
-        predictions.forEach(pred => {
-            counts[pred] = (counts[pred] || 0) + 1;
-            console.log(`[getMostFrequentPrediction] Count for ${pred}: ${counts[pred]}`);
+    const showFailureAlert = (confidence, targetNumber, userPrediction) => {
+        console.log("[showFailureAlert] Displaying failure alert");
+        let message = "Try Again!";
+        if (confidence < 0.8) {
+            message = "Hold your hand steady for a higher confidence score.";
+        } else if (userPrediction !== targetNumber) {
+            message = `You showed ${userPrediction}, but the correct number is ${targetNumber}. Try again!`;
+        }
+        Swal.fire({
+            title: "❌ Incorrect!",
+            text: message,
+            icon: "error",
+            showConfirmButton: false,
+            timer: 2000,
         });
-        const mostFrequent = Object.keys(counts).reduce((a, b) => (counts[a] > counts[b] ? a : b), null) || "0";
-        console.log(`[getMostFrequentPrediction] Most frequent prediction: ${mostFrequent}`);
-        return mostFrequent;
     };
 
     const showSuccessAlert = () => {
@@ -141,47 +155,45 @@ const NumberPractice = () => {
             imageHeight: 100,
             imageAlt: 'Smile image',
             showConfirmButton: false,
-            timer: 2000
+            timer: 2000,
         });
     };
 
-    const showFailureAlert = () => {
-        console.log("[showFailureAlert] Displaying failure alert");
-        Swal.fire({
-            title: "❌ Incorrect!",
-            text: "Try Again!",
-            icon: "error",
-            showConfirmButton: false,
-            timer: 2000
-        });
-    };
+    useEffect(() => {
+        if (isChecking && currentNumber !== null) {
+            checkResult(currentNumber);
+        }
+    }, [isChecking, currentNumber]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-6">
-            {/* Main Content Container */}
-            <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-10">
-                {/* Left Section: Task Display */}
-                <div className="flex flex-col items-center lg:w-1/2 bg-white rounded-2xl shadow-xl p-8 transform transition-all hover:scale-105">
-                    <div className="text-center mb-6 animate-fade-in">
-                        <h2 className="text-4xl font-bold text-indigo-700 drop-shadow-md">✨ Number Practice</h2>
+        <div 
+        className="min-h-screen bg-cover bg-center flex items-center justify-center p-6"
+        style={{ backgroundImage: `url(${backgroundImg})` }}
+    >
+    
+            <div className=" flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-10">
+                <div className="flex flex-col items-center lg:w-1/2 rounded-2xl  p-8 transform transition-all hover:scale-105">
+                    <div className="text-center mb-2 animate-fade-in mt-[100px]">
+                        <h2 className="text-4xl font-bold text-indigo-700 drop-shadow-md"> Number Practice</h2>
                         <p className="text-lg text-gray-600 mt-2">Show the number with your fingers!</p>
                     </div>
 
                     <button 
-                        onClick={startPractice} 
-                        disabled={isCapturing}
-                        className="w-full px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
-                    >
-                        📸 Start Practice
-                    </button>
+    onClick={startPractice} 
+    disabled={isCapturing}
+    className="w-[200px] px-8 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold text-center rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+>
+    📸 Start Practice
+</button>
 
-                    {randomNumber !== null && (
-                        <div className="mt-8 animate-bounce-in">
+
+                    {currentNumber !== null && (
+                        <div className="mt-4 animate-bounce-in">
                             <img 
-                                src={numberImages[randomNumber]} 
-                                alt={`Show this number: ${randomNumber}`} 
-                                className="w-36 h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
-                                onClick={() => playSound(randomNumber)}
+                                src={numberImages[currentNumber]} 
+                                alt={`Show this number: ${currentNumber}`} 
+                                className="w-50 h-60 object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
+                                onClick={() => playSound(currentNumber)}
                             />
                         </div>
                     )}
@@ -192,28 +204,20 @@ const NumberPractice = () => {
                         </div>
                     )}
 
-                    {capturedImages.length > 0 && (
-                        <div className="mt-6 text-lg text-gray-700">
-                            Captured {capturedImages.length}/5 Images
-                        </div>
-                    )}
-
-                    {finalPrediction && (
+                    {/* {finalPrediction !== "" && (
                         <div className="mt-8 animate-fade-in">
                             <h2 className="text-2xl font-bold text-purple-700">
-                                Prediction: <span className="text-indigo-600">{finalPrediction}</span>
+                                You showed: <span className="text-indigo-600">{finalPrediction}</span>
                             </h2>
                         </div>
-                    )}
+                    )} */}
                 </div>
 
-                {/* Right Section: Webcam */}
-                <div className="lg:w-1/2 flex justify-center">
-                    <Webcam 
-                        audio={false} 
-                        ref={webcamRef} 
-                        screenshotFormat="image/jpeg" 
-                        className="w-full max-w-2xl rounded-2xl shadow-xl border-4 border-indigo-200 transform transition-all hover:border-indigo-400"
+                <div className="lg:w-1/2 flex justify-center mt-[100px] mr-[70px]">
+                    <img 
+                        src="http://localhost:5000/finger_counting/feed" 
+                        alt="Finger counting feed" 
+                        className="w-full max-w-2xl rounded-2xl transform transition-all hover:border-indigo-400"
                     />
                 </div>
             </div>
