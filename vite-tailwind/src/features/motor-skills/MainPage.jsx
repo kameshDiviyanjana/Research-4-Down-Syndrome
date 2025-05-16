@@ -3,9 +3,7 @@ import axios from "axios";
 
 function MainPage() {
   const [selectedFile, setSelectedFile] = useState(null);
-  const [predictions, setPredictions] = useState([]);
   const [uploadStatus, setUploadStatus] = useState("");
-  const [videoURL, setVideoURL] = useState("");
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -28,11 +26,8 @@ function MainPage() {
       );
 
       const { predictions: receivedPredictions, video_url } = response.data;
-      setPredictions(receivedPredictions);
-      setVideoURL(video_url);
       setUploadStatus("Processing complete!");
     } catch (error) {
-      console.error("Error uploading file:", error);
       setUploadStatus("Failed to process video.");
     }
   };
@@ -45,7 +40,7 @@ function MainPage() {
         Upload Video
       </button>
       <p>{uploadStatus}</p>
-      {/* Rest of the content from your original App.jsx */}
+    
     </div>
   );
 }

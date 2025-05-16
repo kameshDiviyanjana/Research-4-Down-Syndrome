@@ -1,12 +1,12 @@
-import React, { useRef, useState } from "react";
-import Webcam from "react-webcam";
+import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { predictGesture } from "./api";
-import useProgressStore from '../maths/store/progressStore'; // Adjust the path as needed
-import "./PracticeAnimations.css";
 import SmileImage from '../../../src/assets/smile.jpg';
+import useProgressStore from '../maths/store/progressStore';
+import "./PracticeAnimations.css";
+import minusAudio from '../maths/sounds/-.mp3'; // Added
+import whatIstheAnswerAudio from '../maths/sounds/wht_answer.mp3'; // Added
+import backgroundImg from "../../../public/images/practiceBg2.jpg"
 
-// Import number images
 import num0 from "../../assets/numbers/0.png";
 import num1 from "../../assets/numbers/1.png";
 import num2 from "../../assets/numbers/2.png";
@@ -14,26 +14,43 @@ import num3 from "../../assets/numbers/3.png";
 import num4 from "../../assets/numbers/4.png";
 import num5 from "../../assets/numbers/5.png";
 
-// Number images map
-const numberImages = { 0: num0, 1: num1, 2: num2, 3: num3, 4: num4, 5: num5 };
+import sound0 from "../maths/sounds/0.mp3"; // Added
+import sound1 from "../maths/sounds/1.mp3"; // Added
+import sound2 from "../maths/sounds/2.mp3"; // Added
+import sound3 from "../maths/sounds/3.mp3"; // Added
+import sound4 from "../maths/sounds/4.mp3"; // Added
+import sound5 from "../maths/sounds/5.mp3"; // Added
 
-// Function to play sound
+const numberImages = { 
+    0: num0, 
+    1: num1, 
+    2: num2, 
+    3: num3, 
+    4: num4, 
+    5: num5
+};
+
+const numberSounds = {
+    0: sound0,
+    1: sound1,
+    2: sound2,
+    3: sound3,
+    4: sound4, 
+    5: sound5,
+};
+
 const playSound = (number) => {
-    const audio = new Audio(`/sounds/${number}.mp3`);
+    const audio = new Audio(numberSounds[number]);
     audio.play().catch((error) => console.log("Audio play error:", error));
 };
 
 const SubtractionPractice = () => {
-    const webcamRef = useRef(null);
-    const [num1, setNum1] = useState(null);
-    const [num2, setNum2] = useState(null);
-    const [capturedImages, setCapturedImages] = useState([]);
-    const [predictionResults, setPredictionResults] = useState([]);
-    const [finalPrediction, setFinalPrediction] = useState("");
+    const [currentTask, setCurrentTask] = useState(null);
     const [countdown, setCountdown] = useState(null);
     const [isCapturing, setIsCapturing] = useState(false);
+    const [finalPrediction, setFinalPrediction] = useState("");
+    const [isChecking, setIsChecking] = useState(false);
 
-    // Zustand store hook
     const addProgress = useProgressStore((state) => state.addProgress);
 
     const startPractice = () => {
@@ -50,99 +67,91 @@ const SubtractionPractice = () => {
 
         const targetProblem = { num1: newNum1, num2: newNum2, answer: difference };
         console.log(`[startPractice] Generated targetProblem: ${JSON.stringify(targetProblem)}`);
-        setNum1(newNum1);
-        setNum2(newNum2);
-        setCapturedImages([]);
-        setPredictionResults([]);
+        setCurrentTask(targetProblem);
         setFinalPrediction("");
-        setCountdown(5);
         setIsCapturing(true);
+        setIsChecking(false);
 
-        let count = 5;
-        const countdownInterval = setInterval(() => {
-            count -= 1;
-            setCountdown(count);
+        const playAudioSequence = () => {
+            const firstNumberAudio = new Audio(numberSounds[targetProblem.num1]);
+            const minusAudioFile = new Audio(minusAudio);
+            const secondNumberAudio = new Audio(numberSounds[targetProblem.num2]);
+            const whatIsTheAnswerAudioFile = new Audio(whatIstheAnswerAudio);
 
-            if (count === 0) {
-                clearInterval(countdownInterval);
-                console.log("[startPractice] Countdown complete, starting captureImages");
-                captureImages(targetProblem);
-            }
-        }, 1000);
+            // Play first number
+            firstNumberAudio.play().catch((error) => console.log("First number audio error:", error));
+
+            // When first number ends, play "minus"
+            firstNumberAudio.onended = () => {
+                minusAudioFile.play().catch((error) => console.log("Minus audio error:", error));
+            };
+
+            // When "minus" ends, play second number
+            minusAudioFile.onended = () => {
+                secondNumberAudio.play().catch((error) => console.log("Second number audio error:", error));
+            };
+
+            // When second number ends, play "what is the answer" and start countdown
+            secondNumberAudio.onended = () => {
+                whatIsTheAnswerAudioFile.play().catch((error) => console.log("What is the answer audio error:", error));
+                whatIsTheAnswerAudioFile.onended = () => {
+                    // Start countdown after all audios have played
+                    let count = 5;
+                    setCountdown(count);
+                    const countdownInterval = setInterval(() => {
+                        count -= 1;
+                        setCountdown(count);
+                        if (count === 0) {
+                            clearInterval(countdownInterval);
+                            console.log("[startPractice] Countdown complete, waiting for user input");
+                            setTimeout(() => {
+                                setIsChecking(true);
+                            }, 3000);
+                        }
+                    }, 1000);
+                };
+            };
+        };
+
+        // Start the audio sequence
+        playAudioSequence();
     };
 
-    const captureImages = (targetProblem) => {
-        let images = [];
-        let count = 0;
-        console.log("[captureImages] Starting image capture");
-        console.log(`[captureImages] Target problem: ${JSON.stringify(targetProblem)}`);
-        const captureInterval = setInterval(() => {
-            if (count < 5) {
-                const imageSrc = webcamRef.current.getScreenshot();
-                images.push(imageSrc);
-                setCapturedImages((prev) => [...prev, imageSrc]);
-                count++;
-                console.log(`[captureImages] Captured image ${count}/5`);
-            } else {
-                clearInterval(captureInterval);
-                console.log("[captureImages] All images captured, processing predictions");
-                processPredictions(images, targetProblem);
-            }
-        }, 1000);
-    };
+    const checkResult = async (targetProblem) => {
+        console.log("[checkResult] Fetching finger count from API");
+        try {
+            const response = await fetch("http://localhost:5000/finger_counting/count");
+            const data = await response.json();
+            const userPrediction = data.finger_count;
+            const confidence = data.confidence;
+            console.log(`[checkResult] Fetched finger count: ${userPrediction}, Confidence: ${confidence}`);
 
-    const processPredictions = async (images, targetProblem) => {
-        console.log("[processPredictions] Starting prediction processing");
-        console.log(`[processPredictions] Target problem: ${JSON.stringify(targetProblem)}`);
-        let predictions = [];
+            setFinalPrediction(userPrediction);
+            setIsCapturing(false);
+            setIsChecking(false);
 
-        for (let i = 0; i < images.length; i++) {
-            const blob = await fetch(images[i]).then((res) => res.blob());
-            const file = new File([blob], `captured_image_${i}.jpg`, { type: "image/jpeg" });
-            const result = await predictGesture(file);
-            predictions.push(result);
-            setPredictionResults((prev) => [...prev, result]);
-            console.log(`[processPredictions] Prediction ${i + 1}: ${result}`);
-        }
-
-        const finalPred = getMostFrequentPrediction(predictions);
-        console.log(`[processPredictions] Final prediction calculated: ${finalPred}`);
-        console.log(`[processPredictions] Type of finalPred: ${typeof finalPred}`);
-
-        setFinalPrediction(finalPred);
-        setIsCapturing(false);
-
-        const targetAnswer = targetProblem.answer;
-        console.log(`[processPredictions] Comparing finalPred: ${finalPred} with targetAnswer: ${targetAnswer}`);
-        const isCorrect = String(finalPred) === String(targetAnswer);
-        console.log(`[processPredictions] Comparison result (finalPred === targetAnswer): ${isCorrect}`);
-        console.log(`[processPredictions] String(finalPred): ${String(finalPred)}, String(targetAnswer): ${String(targetAnswer)}`);
-
-        // Update progress based on correctness
-        if (targetProblem !== null) {
+            const targetAnswer = targetProblem.answer;
+            const isCorrect = userPrediction === targetAnswer && confidence >= 0.8;
+            console.log(`[checkResult] Comparison result: ${isCorrect} (Target: ${targetAnswer}, User: ${userPrediction}, Conf: ${confidence})`);
             if (isCorrect) {
-                console.log("[processPredictions] Prediction is correct, adding progress: SubtractionPractice, count: 1");
-                addProgress("SubtractionPractice", 1); // Correct answer
+                addProgress("SubtractionPractice", 1);
                 showSuccessAlert();
             } else {
-                console.log("[processPredictions] Prediction is incorrect, adding progress: SubtractionPractice, count: 0");
-                addProgress("SubtractionPractice", 0); // Incorrect answer
-                showFailureAlert();
+                addProgress("SubtractionPractice", 0);
+                showFailureAlert(confidence);
             }
+        } catch (error) {
+            console.error("[checkResult] Error fetching finger count:", error);
+            setIsCapturing(false);
+            setIsChecking(false);
+            Swal.fire({
+                title: "Error",
+                text: "Failed to fetch finger count. Please try again.",
+                icon: "error",
+                showConfirmButton: false,
+                timer: 2000,
+            });
         }
-    };
-
-    const getMostFrequentPrediction = (predictions) => {
-        console.log("[getMostFrequentPrediction] Calculating most frequent prediction");
-        console.log(`[getMostFrequentPrediction] All predictions: ${JSON.stringify(predictions)}`);
-        const counts = {};
-        predictions.forEach(pred => {
-            counts[pred] = (counts[pred] || 0) + 1;
-            console.log(`[getMostFrequentPrediction] Count for ${pred}: ${counts[pred]}`);
-        });
-        const mostFrequent = Object.keys(counts).reduce((a, b) => (counts[a] > counts[b] ? a : b), null) || "0";
-        console.log(`[getMostFrequentPrediction] Most frequent prediction: ${mostFrequent}`);
-        return mostFrequent;
     };
 
     const showSuccessAlert = () => {
@@ -160,52 +169,65 @@ const SubtractionPractice = () => {
         });
     };
 
-    const showFailureAlert = () => {
+    const showFailureAlert = (confidence) => {
         console.log("[showFailureAlert] Displaying failure alert");
+        let message = "Try Again!";
+        if (confidence < 0.8) {
+            message += " (Hold your hand steady for a higher confidence score)";
+        }
         Swal.fire({
             title: "❌ Incorrect!",
-            text: "Try Again!",
+            text: message,
             icon: "error",
             showConfirmButton: false,
             timer: 2000,
         });
     };
 
+    useEffect(() => {
+        if (isChecking && currentTask !== null) {
+            checkResult(currentTask);
+        }
+    }, [isChecking, currentTask]);
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-6">
-            {/* Main Content Container */}
+        <div 
+                className="min-h-screen bg-cover bg-center flex items-center justify-center p-6"
+                style={{ backgroundImage: `url(${backgroundImg})` }}
+            >
             <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-10">
-                {/* Left Section: Task Display */}
-                <div className="flex flex-col items-center lg:w-1/2 bg-white rounded-2xl shadow-xl p-8 transform transition-all hover:scale-105">
-                    <div className="text-center mb-6 animate-fade-in">
-                        <h2 className="text-4xl font-bold text-indigo-700 drop-shadow-md">✨ Subtraction Practice</h2>
+                <div className="flex flex-col items-center lg:w-1/2 rounded-2xl  p-8 transform transition-all ">
+                    <div className="text-center mb-1 mt-10 ">
+                        <h2 className="text-4xl font-bold text-indigo-700 drop-shadow-md">- Subtraction Practice</h2>
                         <p className="text-lg text-gray-600 mt-2">Show the difference with your fingers!</p>
                     </div>
 
                     <button 
-                        onClick={startPractice} 
-                        disabled={isCapturing}
-                        className="w-full px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
-                    >
-                        📸 Start Practice
-                    </button>
+    onClick={startPractice} 
+    disabled={isCapturing}
+    className="w-[200px] px-8 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold text-center rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+>
+     Start Practice
+</button>
 
-                    {num1 !== null && num2 !== null && (
-                        <div className="flex items-center mt-8 animate-bounce-in gap-6">
-                            <img 
-                                src={numberImages[num1]} 
-                                alt={`${num1}`} 
-                                className="w-36 h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200" 
-                                onClick={() => playSound(num1)} 
-                            />
-                            <span className="text-3xl font-bold text-gray-700">-</span>
-                            <img 
-                                src={numberImages[num2]} 
-                                alt={`${num2}`} 
-                                className="w-36 h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200" 
-                                onClick={() => playSound(num2)} 
-                            />
-                            <span className="text-3xl font-bold text-gray-700">= ?</span>
+                    {currentTask && (
+                        <div className="mt-8 animate-bounce-in">
+                            <div className="flex justify-center items-center gap-6">
+                                <img 
+                                    src={numberImages[currentTask.num1]} 
+                                    alt={`Number ${currentTask.num1}`} 
+                                    className="w-[160px] h-[150px] object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
+                                    onClick={() => playSound(currentTask.num1)}
+                                />
+                                <span className="text-3xl font-bold text-gray-700">-</span>
+                                <img 
+                                    src={numberImages[currentTask.num2]} 
+                                    alt={`Number ${currentTask.num2}`} 
+                                    className="w-[160px] h-[150px] object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
+                                    onClick={() => playSound(currentTask.num2)}
+                                />
+                                <span className="text-3xl font-bold text-gray-700">= ?</span>
+                            </div>
                         </div>
                     )}
 
@@ -215,27 +237,19 @@ const SubtractionPractice = () => {
                         </div>
                     )}
 
-                    {capturedImages.length > 0 && (
-                        <div className="mt-6 text-lg text-gray-700">
-                            Captured {capturedImages.length}/5 Images
-                        </div>
-                    )}
-
-                    {finalPrediction && (
+                    {/* {finalPrediction !== "" && (
                         <div className="mt-8 animate-fade-in">
                             <h2 className="text-2xl font-bold text-purple-700">
-                                Prediction: <span className="text-indigo-600">{finalPrediction}</span>
+                                You showed: <span className="text-indigo-600">{finalPrediction}</span>
                             </h2>
                         </div>
-                    )}
+                    )} */}
                 </div>
 
-                {/* Right Section: Webcam */}
-                <div className="lg:w-1/2 flex justify-center">
-                    <Webcam 
-                        audio={false} 
-                        ref={webcamRef} 
-                        screenshotFormat="image/jpeg" 
+                <div className="lg:w-1/2 flex justify-center mt-[100px] mr-[70px]">
+                    <img 
+                        src="http://localhost:5000/finger_counting/feed" 
+                        alt="Finger counting feed" 
                         className="w-full max-w-2xl rounded-2xl shadow-xl border-4 border-indigo-200 transform transition-all hover:border-indigo-400"
                     />
                 </div>

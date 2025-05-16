@@ -123,55 +123,20 @@ function SystemPage() {
 
       setPredictions(receivedPredictions);
       setUploadStatus("Processing complete!");
-      let message = response.data.message;
-      let percentage = response.data.percentage;
-      let level = response.data.level;
-      let predicted_action = response.data.predicted_action;
+
+      const matchPercentage = calculateMatchPercentage(receivedPredictions);
+      const level = getDifficultyLevel(matchPercentage);
       setDifficultyLevel(level);
 
-      // Determine color based on level
-      let levelColor;
-      let levelIcon;
-      if (level === "Easy") {
-        levelColor = "#28a745";
-        levelIcon = "👍";
-      } else if (level === "Medium") {
-        levelColor = "#ffc107";
-        levelIcon = "✊";
-      } else if (level === "Hard") {
-        levelColor = "#dc3545";
-        levelIcon = "💪";
-      }
-
-      if (level == "No level" || level == "No detection") {
-        Swal.fire({
-          title: `Oops...`,
-          html: `<b>Match Percentage:</b> ${percentage}% <br><b>Message:</b> ${message}`,
-          icon: "error",
-          confirmButtonText: "Try Again",
-          confirmButtonColor: "red",
-          timerProgressBar: true,
-        });
-        setVideoBlob(null);
-      } else {
-        Swal.fire({
-          title: `Results Processed!`,
-          html: `<b>Match Percentage:</b> ${percentage}% <br>
-          <b>Actual action is :</b> ${randomCategory} <br>
-          <b>Detected action is :</b> ${predicted_action} <br>
-          <b>System suggests next level as:</b> <span style="margin: 10px 0; font-size: 1.8rem; color: ${levelColor}">${levelIcon} ${level}</span>
-          <br><b>Message:</b> ${message}`,
-          icon: "success",
-          confirmButtonText: "OK",
-          confirmButtonColor: levelColor,
-          timerProgressBar: true,
-          customClass: {
-            popup: "level-popup",
-            confirmButton: "level-confirm-button",
-          },
-        });
-        setVideoBlob(null);
-      }
+      Swal.fire({
+        title: `Results Processed!`,
+        html: `<b>Match Percentage:</b> ${matchPercentage}% <br> <b>Difficulty Level:</b> ${level}`,
+        icon: "success",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#3085d6",
+        timerProgressBar: true,
+      });
+      setVideoBlob(null);
     } catch (error) {
       console.error("Error uploading file:", error);
       setUploadStatus("Failed to process video.");
@@ -317,7 +282,12 @@ function SystemPage() {
           <h1 className="text-7xl text-white font-extrabold font-fontstle2 mb-8 text-center mt-24 animate-bounce drop-shadow-lg">
             🎮 Play The Game 🎉
           </h1>
-          <div className="flex justify-center">
+          {/* <p>
+        Randomly Mentioned Category:{" "}
+        <strong>{randomCategory || "None selected yet"}</strong>
+      </p> */}
+
+          <div className=" flex justify-center">
             <button
               onClick={handleRandomCategory}
               className="bg-gradient-to-r from-pink-400 to-yellow-400 text-white text-2xl font-bold px-8 py-4 rounded-full hover:scale-110 transition-all shadow-lg"
@@ -346,8 +316,20 @@ function SystemPage() {
                     src={categoryVideos[randomCategory]}
                     type="video/mp4"
                   />
-                </video>
+                  {/* Fun animation around the video */}
+                  <div className="absolute top-0 left-0 w-full h-full animate-pulse"></div>
+                </div>
               </div>
+
+              
+            )}
+          </div>
+          <div>
+            {randomCategory && (
+              <div className="flex flex-col items-center mt-6 bg-gradient-to-b from-blue-100 to-white p-6 rounded-xl shadow-lg">
+                <h2 className="text-4xl font-extrabold text-blue-600 mb-4">
+                  Live Camera Preview & Recording 🎥
+                </h2>
             </div>
 
             {/* Live Camera Section */}
