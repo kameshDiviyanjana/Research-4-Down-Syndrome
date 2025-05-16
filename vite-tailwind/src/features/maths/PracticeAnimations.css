@@ -1,0 +1,182 @@
+/* .random-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    animation: pulse 1.5s infinite alternate;
+}
+
+@keyframes pulse {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.1);
+    }
+}
+
+.success-animation {
+    animation: successEffect 1s ease-in-out;
+}
+
+@keyframes successEffect {
+    0% { background-color: #d4fcb5; }
+    50% { background-color: #7cfb51; }
+    100% { background-color: #d4fcb5; }
+}
+
+.failure-animation {
+    animation: failureEffect 1s ease-in-out;
+}
+
+@keyframes failureEffect {
+    0% { background-color: #fcb5b5; }
+    50% { background-color: #fb5151; }
+    100% { background-color: #fcb5b5; }
+}
+
+button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+.sequence-practice {
+    text-align: center;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    margin: auto;
+}
+
+.sequence-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.number-img {
+    width: 70px;
+    height: 70px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.number-img:hover {
+    transform: scale(1.1);
+}
+
+.missing-placeholder {
+    width: 70px;
+    height: 70px;
+    background: #ffcc00;
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 70px;
+    border-radius: 50%;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+} */
+/* Centers the entire container */
+/* Centers the entire container */
+.sequence-learning-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-width: 1000px;
+    background-color: #f5f5f5;
+    text-align: center;
+    /* padding; */
+    padding-right: 100px;
+    margin-right: 400px;
+    
+}
+
+/* Title and subtitle styling */
+.title {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    font-weight: 100;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+/* Display both examples side by side */
+.examples-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    flex-wrap: wrap; /* Ensures responsiveness */
+    margin-top: 20px;
+    min-width: 800px;
+}
+
+/* Styles each example card */
+.example-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 85%; /* Ensures two cards fit in one row */
+    min-width: 400px;
+    text-align: center;
+}
+
+/* Ensures numbers in the example appear in a single row */
+.sequence {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+/* Number image styling */
+.number-img {
+    min-width: 180px;
+    min-height: 140px;
+    height: auto;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.number-img:hover {
+    transform: scale(1.1);
+}
+
+/* Answer section styling */
+.answer-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.answer-img {
+    width: 200px;
+    height: auto;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.answer-img:hover {
+    transform: scale(1.1);
+}
