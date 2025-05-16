@@ -9,6 +9,10 @@ import WordLearn from '../features/vocabulary/componets/wordlaern';
 import StageTwo from '../features/vocabulary/componets/StageTwo';
 import StageThree from '../features/vocabulary/componets/StageThree';
 import AllWordList from '../features/vocabulary/componets/AllWordList';
+import AlphabetView from '../features/vocabulary/componets/AlphabetView';
+import SelectCategory from '../features/vocabulary/componets/selectCategory';
+import AlphabetLearning from '../features/vocabulary/componets/Alphabet -learing';
+import Dectation from '../features/vocabulary/componets/Dectation';
 function VocabularyRoute() {
   return (
     <div>
@@ -22,6 +26,10 @@ function VocabularyRoute() {
           <Route path="stage-two" element={<StageTwo />} />
           <Route path="stage-three" element={<StageThree />} />
           <Route path="list-all" element={<AllWordList />} />
+          <Route path="aplpabte" element={<AlphabetView />} />
+          <Route path="category" element={<SelectCategory />} />
+          <Route path="alohabet-learing" element={<AlphabetLearning />} />
+          <Route path="dectation" element={<Dectation />} />
         </Routes>
       </AuthProvider>
       <Outlet />

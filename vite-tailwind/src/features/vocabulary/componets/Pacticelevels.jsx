@@ -12,7 +12,7 @@ function pacticelevel() {
        navigae("word");
     };
         const hadleclicksatgeTwopage = () => {
-          navigae("stage-two");
+          navigae("category");
         };
             const hadleclickstageThreepage = () => {
               navigae("stage-three");
