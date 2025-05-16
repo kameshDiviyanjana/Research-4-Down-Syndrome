@@ -9,10 +9,13 @@ import { useParams, useLocation } from "react-router-dom";
 import StartingPage from "../utile/StartingPage";
 import { AddSpeechResults, AllAddWord, Allresults, lastresults } from "../../../Api/vocabularyApi";
 import LineChart from "./linechar";
+import { Play, Pause } from "lucide-react";
+
 
 const AllWordList = () => {
   const [recording, setRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
+  const [audioUrl, setAudioUrl] = useState(null); // State to store the downloadable audio URL
   const [completed, setCompleted] = useState(false);
   const [taskCompleted, setTaskCompleted] = useState(false);
   const [start, setStart] = useState(false);
@@ -28,24 +31,26 @@ const AllWordList = () => {
   const { word } = useParams();
   const location = useLocation(); // Get the state
   const isActive = location.state?.isActive || false;
+    const [testautio, settestautio] = useState(true);
   //   const { data: getallword, isLoading, error } = findword(id);
-     const {
-       data: getresults,
-       isLoading: losdresultd,
-       error: errorresults,
-     } = Allresults(userid);
+  const {
+    data: getresults,
+    isLoading: losdresultd,
+    error: errorresults,
+  } = Allresults(userid);
 
-     const {
-       data: getlastresults,
-       isLoading: loadlastresultd,
-       error: errorlastresults,
-     } = lastresults(userid);
+  const {
+    data: getlastresults,
+    isLoading: loadlastresultd,
+    error: errorlastresults,
+  } = lastresults(userid);
 
   const {
     data: getallword,
     isLoading,
     error,
   } = AllAddWord(pagecount, 1, userme);
+    const [audioURL, setAudioURL] = useState(null);
 
   // 🎙 Start Recording
   const startRecording = async () => {
@@ -69,7 +74,7 @@ const AllWordList = () => {
         const audioBlob = new Blob(audioChunksRef.current, {
           type: "audio/webm",
         });
-
+            setAudioURL(URL.createObjectURL(audioBlob));
         try {
           const wavBlob = await convertToWav(audioBlob);
           console.log("WAV conversion completed, size:", wavBlob.size);
@@ -96,6 +101,8 @@ const AllWordList = () => {
           .forEach((track) => track.stop());
         setRecording(false);
         console.log("Recording stopped successfully.");
+          const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" }); // Blob from recorded data
+          convertToWav(audioBlob); 
       }, 500); // ⏳ Delay ensures all data is processed
     }
   };
@@ -104,20 +111,22 @@ const AllWordList = () => {
   const convertToWav = async (blob) => {
     const arrayBuffer = await blob.arrayBuffer();
     const audioBuffer = await new AudioContext().decodeAudioData(arrayBuffer);
+    
     return encodeWAV(audioBuffer);
   };
 
+  const convertToWavdownlad = async (blob) => {
+    const arrayBuffer = await blob.arrayBuffer();
+    const audioBuffer = await new AudioContext().decodeAudioData(arrayBuffer);
+    const wavBlob = await encodeWAV(audioBuffer); // Encode to WAV
+
+    // Create a URL for the WAV Blob
+    const audioUrl = URL.createObjectURL(wavBlob);
+    setAudioUrl(audioUrl); // Set the downloadable URL
+  };
   // 📤 Upload Audio File
   const uploadAudio = async () => {
-    // if (!audioBlob) {
-    //   console.error("❌ No audio recorded, blob is null");
-    //   alert("No audio recorded");
-    //   return;
-    // }
-
-    // console.log("Uploading audio file...");
-    // console.log("Audio Blob Details:", audioBlob);
-    // console.log("Blob Size:", audioBlob.size, "Type:", audioBlob.type);
+ 
 
     const formData = new FormData();
     formData.append("file", audioBlob, "audio.wav");
@@ -168,15 +177,7 @@ const AllWordList = () => {
     }
   }, [getresults]);
 
-  // const addresulis = (data) => {
-  //   const response = {
-  //     confidence: data.confidence,
-  //     cluster: data.cluster,
-  //     userid: userid,
-  //   };
-  //   addspeechMutation.mutate(response);
-  // };
-  // ▶ Move to Next Word
+
   const nextWord = () => {
     setCompleted(true);
 
@@ -190,19 +191,16 @@ const AllWordList = () => {
       setTaskCompleted(true);
     }
   };
-  let starCount =0 ;
+  let starCount = 0;
   if (marks >= 2) {
     starCount = 2;
   } else if (marks >= 3) {
     starCount = 3;
-  }else if (marks >= 4) {
+  } else if (marks >= 4) {
     starCount = 4;
-  }
-else if (marks >= 5) {
+  } else if (marks >= 5) {
     starCount = 5;
   }
-
-
 
   const stars = Array.from({ length: 5 }, (_, index) => (
     <span
@@ -223,6 +221,28 @@ else if (marks >= 5) {
   //     }
   //   };
   console.log("🔥 Prediction:", getresults?.data);
+    const spechword = (textword) => {
+      const utterance = new SpeechSynthesisUtterance(textword);
+      window.speechSynthesis.speak(utterance);
+    };
+
+    const  testprediction = () =>{
+      settestautio(false)
+    }
+
+     const [isPlaying, setIsPlaying] = useState(false);
+     const audioRef = useState(null);
+
+     const togglePlay = () => {
+       if (audioRef.current) {
+         if (isPlaying) {
+           audioRef.current.pause();
+         } else {
+           audioRef.current.play();
+         }
+         setIsPlaying(!isPlaying);
+       }
+     };
 
   return (
     <div className=" bg-center bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat w-full">
@@ -232,57 +252,63 @@ else if (marks >= 5) {
           {start ? (
             scoreborder && (
               <div className="flex flex-wrap justify-center space-x-4">
-                {/* {getallword?.data && (
-                <div className="text-center">
-                  <img
-                    src={getallword.data.imagewordUrl}
-                    alt={getallword.data.wordAdd}
-                    className="h-[500px] w-[700px] rounded-xl"
-                  />
-                  <h1
-                    className="font-bold text-[90px] cursor-pointer"
-                    onClick={() => spechword(getallword.data.wordAdd)}
-                  >
-                    {getallword.data.wordAdd}
-                  </h1>
-                </div>
-              )} */}
-                {getallword?.data?.wordses?.map((word) => (
-                  <div
-                    key={word._id}
-                    className="text-center space-y-4 p-4 rounded-2xl shadow-xl bg-gradient-to-br from-yellow-100 to-blue-100"
-                  >
-                    <img
-                      src={word.imagewordUrl}
-                      alt={word.wordAdd}
-                      className="lg:h-[500px] lg:w-[700px] rounded-xl border-8 border-white shadow-md"
-                    />
-                    {isActive && (
-                      <h1
-                        className="font-extrabold text-[90px] text-center text-pink-500 hover:text-green-500 active:text-orange-500 transition-all cursor-pointer drop-shadow-lg"
-                        onClick={() => spechword(word.wordAdd)}
+                {testautio ? (
+                  <>
+                    {getallword?.data?.wordses?.map((word) => (
+                      <div
+                        key={word._id}
+                        className="text-center space-y-4 p-4 rounded-2xl shadow-xl bg-gradient-to-br from-yellow-100 to-blue-100"
                       >
-                        {word.wordAdd}
-                      </h1>
-                    )}
-                  </div>
+                        <img
+                          src={word.imagewordUrl}
+                          alt={word.wordAdd}
+                          className="lg:h-[500px] lg:w-[700px] rounded-xl border-8 border-white shadow-md"
+                        />
+                        {isActive && (
+                          <h1
+                            className="font-extrabold text-[90px] text-center text-pink-500 hover:text-green-500 active:text-orange-500 transition-all cursor-pointer drop-shadow-lg"
+                            onClick={() => spechword(word.wordAdd)}
+                          >
+                            {word.wordAdd}
+                          </h1>
+                        )}
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    {/* {audioURL && (
+                      <audio controls src={audioURL} className="mt-3 w-full" />
+                    )} */}
 
-                  // <div key={word._id} className="text-center space-y-4">
-                  //   <img
-                  //     src={word.imagewordUrl}
-                  //     alt={word.wordAdd}
-                  //     className="lg:h-[500px] lg:w-[700px] rounded-xl"
-                  //   />
-                  //   {isActive && (
-                  //     <h1
-                  //       className="font-bold text-[90px] text-center hover:text-blue-500 active:text-red-500 transition-colors cursor-pointer"
-                  //       onClick={() => spechword(word.wordAdd)}
-                  //     >
-                  //       {word.wordAdd}
-                  //     </h1>
-                  //   )}
-                  // </div>
-                ))}
+                    {audioURL && (
+                      <div className="flex items-center gap-4 p-4 bg-blue-100 rounded-2xl shadow-lg w-full max-w-md mx-auto">
+                        <button
+                          onClick={togglePlay}
+                          className="p-4 bg-green-500 text-white rounded-full shadow-md hover:bg-green-600 transition"
+                        >
+                          {isPlaying ? <Pause size={28} /> : <Play size={28} />}
+                        </button>
+                        <audio
+                          ref={audioRef}
+                          src={audioURL}
+                          onEnded={() => setIsPlaying(false)}
+                        />
+                        <p className="text-lg font-semibold text-gray-700">
+                          Tap to Play!
+                        </p>
+                      </div>
+                    )}
+                    <button
+                      onClick={() => {
+                        uploadAudio();
+                      }}
+                      className="bg-gradient-to-r from-green-400 to-yellow-400 text-white text-2xl font-bold py-3 px-8 rounded-full shadow-lg hover:from-blue-400 hover:to-purple-400 h-[100px] active:scale-95 transition-all"
+                    >
+                      🎉 Complete ✅
+                    </button>
+                  </>
+                )}
               </div>
             )
           ) : (
@@ -310,22 +336,15 @@ else if (marks >= 5) {
               ) : (
                 <button
                   onClick={() => {
-                    nextWord();
+                    // nextWord();
+                    stopRecording();
+                    testprediction();
                     //startRecording();
                   }}
                   className="bg-gradient-to-r from-yellow-400 to-pink-400 text-white text-2xl font-bold py-3 px-8 h-[100px] rounded-full shadow-lg hover:from-green-400 hover:to-blue-400 active:scale-95 transition-all"
                 >
                   🚀 Next 🎈
                 </button>
-
-                // <button
-                //   onClick={() => {
-                //     nextWord();
-                //     //startRecording();
-                //   }}
-                // >
-                //   Next
-                // </button>
               )}
             </>
           )}
@@ -347,14 +366,6 @@ else if (marks >= 5) {
               <div>
                 <div className=" flex justify-center">
                   {prediction && (
-                    // <div>
-                    //   <div className=" shadow-2xl text-center  w-[450px] h-[250px] py-16">
-                    //     <h2>Prediction Result</h2>
-                    //     <p>Confidence: {prediction.confidence}</p>
-                    //     <p>Cluster: {prediction.cluster}</p>
-                    //   </div>
-                    //   <div className="flex">{stars}</div>
-                    // </div>
                     <div className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-blue-100 to-pink-100 rounded-2xl shadow-2xl w-[450px] h-[300px]">
                       <h2 className="text-2xl font-bold text-pink-600">
                         🎈 Prediction Result 🎈
@@ -398,19 +409,23 @@ else if (marks >= 5) {
                               {getlastresults.data.cluster}
                             </span>
                           </p>
-                          {/* <div className="flex mt-4 text-yellow-500 text-3xl">
-                            {stars}
-                          </div> */}
-                          {/* <h2>Prediction Result</h2>
-                          <p>Confidence: {getlastresults.data.confidence}</p>
-                          <p>Cluster: {getlastresults.data.cluster}</p> */}
                         </div>
-                        {/* <div className="flex">{stars}</div> */}
                       </div>
                     )}
                   </div>
                 </div>
               </div>
+              {audioUrl && (
+                <div className="flex justify-center mt-10">
+                  <a
+                    href={audioUrl}
+                    download="recorded-audio.wav"
+                    className="bg-gradient-to-r from-green-400 to-yellow-400 text-white text-2xl font-bold py-3 px-8 rounded-full shadow-lg"
+                  >
+                    Download Audio
+                  </a>
+                </div>
+              )}
               <div class="overflow-x-auto">
                 <table className="w-full border-collapse bg-white rounded-xl shadow-md overflow-hidden">
                   <thead className="bg-gradient-to-r from-blue-300 to-purple-400 text-white">
@@ -431,7 +446,7 @@ else if (marks >= 5) {
                           className="hover:bg-yellow-200 transition-all duration-300"
                         >
                           <td className="border border-gray-300 px-6 py-3 text-lg text-center text-blue-600 font-semibold">
-                            {user.cluster}
+                            {user.cluster == 1 ? "To Much Low ": user.cluster == 2 ? "Low" : user.cluster == 3 ? "Medium" : user.cluster == 4 ? "High" : "To Much High"}
                           </td>
                           <td className="border border-gray-300 px-6 py-3 text-lg text-center text-green-600 font-semibold">
                             {user.confidence}
@@ -450,51 +465,6 @@ else if (marks >= 5) {
                     )}
                   </tbody>
                 </table>
-
-                {/* <table class="w-full border-collapse border bg-white border-gray-200">
-                  <thead class="bg-gray-200">
-                    <tr>
-                      <th class="border border-gray-300 px-4 py-2 text-left">
-                        cluster
-                      </th>
-                      <th class="border border-gray-300 px-4 py-2 text-left">
-                        confidence
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {getresults?.data?.length > 0 ? (
-                      getresults?.data?.map((user) => (
-                        <tr key={user._id} className="hover:bg-gray-100">
-                          <td className="border border-gray-300 px-4 py-2">
-                            {user.cluster}
-                          </td>
-                          <td className="border border-gray-300 px-4 py-2">
-                            {user.confidence}
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan="2" // Adjusted to match the number of columns (2 columns: cluster, confidence)
-                          className="border border-gray-300 px-4 py-2 text-center text-gray-500"
-                        >
-                          No results found
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table> */}
-                {/* 
-                <div>
-                  {getresults.data.length > 0 && (
-                    <LineChart
-                      lastResult={getresults[getresults.length - 2]}
-                      currentResult={getresults[getresults.length - 1]}
-                    />
-                  )}
-                </div> */}
               </div>
             </div>
           </div>
