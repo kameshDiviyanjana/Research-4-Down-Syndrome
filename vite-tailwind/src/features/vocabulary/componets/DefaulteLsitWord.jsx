@@ -11,6 +11,7 @@ import Lory from "../../../assets/Lorry.avif";
 import Train from "../../../assets/train.jpeg";
 import Bus from "../../../assets/bus.jpeg";
 import Van from "../../../assets/van.jpeg";
+import bg1 from "../../../../public/images/bg3.jpg";
 
 const imageMapping = {
   Car: car,
@@ -34,7 +35,18 @@ function DefaulteLsitWord() {
   const imagePath = imageMapping[currentVehicle?.word] || "/default.jpg";
 
   return (
-    <div className="bg-[url('https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg')] bg-cover bg-no-repeat bg-center lg:h-[700px] w-full">
+    <div
+      className="
+      bg-cover bg-no-repeat bg-center w-ful
+      justify-center items-center text-center p-6"
+      style={{
+        backgroundImage: `url(${bg1})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        zIndex: -1,
+        height: "900px",
+      }}
+    >
       <div className="py-12 px-8">
         {/* Sun & Bush Images */}
         <div className="flex justify-between items-start">

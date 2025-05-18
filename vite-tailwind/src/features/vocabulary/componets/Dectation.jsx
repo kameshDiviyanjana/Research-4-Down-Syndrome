@@ -251,6 +251,8 @@
 import React, { useState, useEffect } from "react";
 import { FillInTheBlank } from "./FillInTheBlank ";
 import { AllAddWord } from "../../../Api/vocabularyApi";
+import bg1 from "../../../../public/images/bg3.jpg";
+import Modal from "../../../atomes/Modal";
 
 function Dectation() {
   const userme = localStorage.getItem("userid");
@@ -258,7 +260,10 @@ function Dectation() {
   const [selectedLetters, setSelectedLetters] = useState([]);
   const [spokenText, setSpokenText] = useState("");
   const [isListening, setIsListening] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
   const {
@@ -272,8 +277,10 @@ function Dectation() {
   const blankLetters = blankIndexes.map((i) => word[i]);
 
   const isComplete = blankLetters.every((letter) =>
-    selectedLetters.includes(letter)
+    selectedLetters.includes(letter),
+    
   );
+  
   const correctGuesses = blankLetters.filter((letter) =>
     selectedLetters.includes(letter)
   );
@@ -337,14 +344,27 @@ function Dectation() {
     setSelectedLetters([]);
     setSpokenText("");
   };
+  useEffect(() => {
+    if (isComplete) {
+      openModal();
+    }
+  }, [isComplete]);
+
 
   return (
     <div
-      className="bg-[url('https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg')] 
-      bg-cover bg-no-repeat bg-center w-full min-h-screen flex flex-col
+      className="
+      bg-cover bg-no-repeat bg-center w-ful
       justify-center items-center text-center p-6"
+      style={{
+        backgroundImage: `url(${bg1})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        zIndex: -1,
+        height: "900px",
+      }}
     >
-      {isComplete ? (
+      <Modal open={isModalOpen} onClose={closeModal}>
         <div className="mt-6 w-full h-[300px] max-w-md mx-auto flex flex-col items-center justify-center p-4 bg-yellow-50 rounded-xl shadow-lg border-2 border-yellow-300">
           <div className="text-3xl text-blue-600 font-extrabold mb-2">
             🧠 Score: {score}%
@@ -359,82 +379,82 @@ function Dectation() {
             ⭐ Great Job! ⭐
           </div>
         </div>
-      ) : (
-        <>
-          <div className="flex flex-col items-center gap-4 p-6">
-            <button
-              onClick={startListening}
-              className="px-6 py-2 rounded bg-purple-600 text-white font-bold hover:bg-purple-700 transition"
-            >
-              🎤 Speak Letters
-            </button>
+      </Modal>
 
-            <button
-              onClick={speakWord}
-              className="px-6 py-2 rounded bg-green-600 text-white font-bold hover:bg-green-700 transition"
-            >
-              🔊 Hear Word
-            </button>
+      <div className="flex flex-col items-center gap-4 p-6">
+        <button
+          onClick={startListening}
+          className="px-6 py-2 rounded bg-purple-600 text-white font-bold hover:bg-purple-700 transition"
+        >
+          🎤 Speak Letters
+        </button>
 
-            {spokenText && (
-              <div className="text-lg text-gray-800">
-                You said: <span className="font-semibold">{spokenText}</span>
-              </div>
-            )}
+        <button
+          onClick={speakWord}
+          className="px-6 py-2 rounded bg-green-600 text-white font-bold hover:bg-green-700 transition"
+        >
+          🔊 Hear Word
+        </button>
 
-            <div className="flex flex-wrap justify-center gap-2 mt-4">
-              {letters.map((letter) => (
-                <span
-                  key={letter}
-                  className={`w-12 h-12 flex items-center justify-center rounded-full shadow text-lg font-bold cursor-pointer transition ${
-                    selectedLetters.includes(letter)
-                      ? "bg-green-400 text-white"
-                      : "bg-blue-200 text-blue-800 hover:bg-blue-400 hover:text-white"
-                  }`}
-                >
-                  {letter}
-                </span>
-              ))}
-            </div>
+        {spokenText && (
+          <div className="text-lg text-gray-800">
+            You said: <span className="font-semibold">{spokenText}</span>
           </div>
+        )}
 
-          <div className="flex justify-center items-center gap-4 my-6">
-            <button
-              className="text-4xl bg-pink-200 hover:bg-pink-300 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
-              onClick={moveBack}
-              dangerouslySetInnerHTML={{ __html: "&lt;" }}
+        <div className="flex flex-wrap justify-center gap-2 mt-4">
+          {letters.map((letter) => (
+            <span
+              key={letter}
+              className={`w-12 h-12 flex items-center justify-center rounded-full shadow text-lg font-bold cursor-pointer transition ${
+                selectedLetters.includes(letter)
+                  ? "bg-green-400 text-white"
+                  : "bg-blue-200 text-blue-800 hover:bg-blue-400 hover:text-white"
+              }`}
+            >
+              {letter}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className=" flex flex-wrap justify-center  gap-3">
+        <div className="flex justify-center items-center gap-4 my-6">
+          <button
+            className="text-4xl bg-pink-200 hover:bg-pink-300 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
+            onClick={moveBack}
+            dangerouslySetInnerHTML={{ __html: "&lt;" }}
+          />
+        </div>
+
+        {wordObj && (
+          <div className="flex flex-col md:flex-row items-center gap-10 bg-yellow-100 p-6 rounded-3xl shadow-xl border-4 border-yellow-300 my-4">
+            <img
+              src={wordObj.imagewordUrl}
+              alt={wordObj.wordAdd}
+              className="w-64 h-64 object-cover rounded-3xl border-4 border-pink-400"
             />
-          </div>
-
-          {wordObj && (
-            <div className="flex flex-col md:flex-row items-center gap-10 bg-yellow-100 p-6 rounded-3xl shadow-xl border-4 border-yellow-300 my-4">
-              <img
-                src={wordObj.imagewordUrl}
-                alt={wordObj.wordAdd}
-                className="w-64 h-64 object-cover rounded-3xl border-4 border-pink-400"
+            <div className="text-center md:text-left">
+              <h1 className="text-4xl font-bold text-pink-600 mb-4 font-serif">
+                Can You Guess the Word?
+              </h1>
+              <FillInTheBlank
+                word={word}
+                blankIndexes={blankIndexes}
+                selectedLetters={selectedLetters}
               />
-              <div className="text-center md:text-left">
-                <h1 className="text-4xl font-bold text-pink-600 mb-4 font-serif">
-                  Can You Guess the Word?
-                </h1>
-                <FillInTheBlank
-                  word={word}
-                  blankIndexes={blankIndexes}
-                  selectedLetters={selectedLetters}
-                />
-              </div>
             </div>
-          )}
-
-          <div className="flex justify-center items-center gap-4 my-6">
-            <button
-              className="text-4xl bg-pink-200 hover:bg-pink-300 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
-              onClick={moveForward}
-              dangerouslySetInnerHTML={{ __html: "&gt;" }}
-            />
           </div>
-        </>
-      )}
+        )}
+
+        <div className="flex justify-center items-center gap-4 my-6">
+          <button
+            className="text-4xl bg-pink-200 hover:bg-pink-300 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
+            onClick={moveForward}
+            dangerouslySetInnerHTML={{ __html: "&gt;" }}
+          />
+        </div>
+      </div>
     </div>
   );
 }

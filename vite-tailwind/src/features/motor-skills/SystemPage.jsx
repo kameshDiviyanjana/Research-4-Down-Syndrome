@@ -5,6 +5,8 @@ import Swal from "sweetalert2";
 import { useState, useRef, useEffect } from "react";
 import Modal from "../../atomes/Modal";
 import perload from "../../assets/Math_-_Idil_Keysan_-_Wikimedia_Giphy_stickers_2019.gif";
+import bg1 from "../../../public/images/bg3.jpg";
+
 function SystemPage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [predictions, setPredictions] = useState([]);
@@ -26,8 +28,10 @@ function SystemPage() {
 
   const categories = ["catch", "walk", "stand"];
   const categoryVideos = {
-    catch: "/videos/catch.mp4",
-    walk: "/videos/walk.mp4",
+    // catch: "/videos/catch.mp4",
+    catch: "/videos/catch2.mp4",
+    // walk: "/videos/walk.mp4",
+    walk: "/videos/walk2.mp4",
     stand: "/videos/jump.mp4",
   };
 
@@ -307,21 +311,33 @@ function SystemPage() {
 
   return (
     <div
-      style={{ padding: "20px" }}
-      className="bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat bg-center h-[700px] w-full overflow-y-auto"
+      // style={{ padding: "20px" }}
+      // className="bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat bg-center h-[700px] w-full overflow-y-auto"
+      className="
+      bg-cover bg-no-repeat bg-center w-ful
+      justify-center items-center text-center p-6"
+      style={{
+        backgroundImage: `url(${bg1})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        zIndex: -1,
+        height: "900px",
+      }}
     >
       {radamselect && (
         <>
-          <h1 className="text-7xl text-white font-extrabold font-fontstle2 mb-8 text-center mt-24 animate-bounce drop-shadow-lg">
-            🎮 Play The Game 🎉
-          </h1>
-          <div className="flex justify-center">
-            <button
-              onClick={handleRandomCategory}
-              className="bg-gradient-to-r from-pink-400 to-yellow-400 text-white text-2xl font-bold px-8 py-4 rounded-full hover:scale-110 transition-all shadow-lg"
-            >
-              🎲 Generate Random Category
-            </button>
+          <div className=" pt-40">
+            <h1 className="text-7xl text-white font-extrabold font-fontstle2 mb-8 text-center mt-24 animate-bounce drop-shadow-lg">
+              🎮 Play The Game 🎉
+            </h1>
+            <div className="flex justify-center">
+              <button
+                onClick={handleRandomCategory}
+                className="bg-gradient-to-r from-pink-400 to-yellow-400 text-white text-2xl font-bold px-8 py-4 rounded-full hover:scale-110 transition-all shadow-lg"
+              >
+                🎲 Generate Random Category
+              </button>
+            </div>
           </div>
         </>
       )}
@@ -338,7 +354,7 @@ function SystemPage() {
                 <video
                   controls
                   autoPlay
-                  className="w-full max-w-2xl rounded-3xl shadow-2xl border-4 border-pink-400 hover:border-yellow-400 transition-all duration-500"
+                  className="w-full h-[550px] max-w-2xl rounded-3xl shadow-2xl border-4 border-pink-400 hover:border-yellow-400 transition-all duration-500"
                 >
                   <source
                     src={categoryVideos[randomCategory]}

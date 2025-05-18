@@ -9,6 +9,7 @@ import StartingPage from "../utile/StartingPage";
 import { AddSpeechResults, AllAddWord, Allresults, lastresults } from "../../../Api/vocabularyApi";
 import LineChart from "./linechar";
 import { Play, Pause } from "lucide-react";
+import bg1 from "../../../../public/images/bg3.jpg";
 
 
 const AllWordList = () => {
@@ -244,7 +245,18 @@ const AllWordList = () => {
      };
 
   return (
-    <div className=" bg-center bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat w-full">
+    <div
+      className="
+      bg-cover bg-no-repeat bg-center w-ful
+      justify-center items-center text-center p-6"
+      style={{
+        backgroundImage: `url(${bg1})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        zIndex: -1,
+        height: "900px",
+      }}
+    >
       <div className="py-10 px-11">
         <div className="flex justify-between">
           <img src={sun} alt="sun" className="h-48" />
@@ -323,7 +335,6 @@ const AllWordList = () => {
               {taskCompleted ? (
                 <button
                   onClick={() => {
-                    
                     stopRecording();
                     setscoreborder(false);
                     setmarks(true);
@@ -445,7 +456,15 @@ const AllWordList = () => {
                           className="hover:bg-yellow-200 transition-all duration-300"
                         >
                           <td className="border border-gray-300 px-6 py-3 text-lg text-center text-blue-600 font-semibold">
-                            {user.cluster == 1 ? "To Much Low ": user.cluster == 2 ? "Low" : user.cluster == 3 ? "Medium" : user.cluster == 4 ? "High" : "To Much High"}
+                            {user.cluster == 1
+                              ? "To Much Low "
+                              : user.cluster == 2
+                              ? "Low"
+                              : user.cluster == 3
+                              ? "Medium"
+                              : user.cluster == 4
+                              ? "High"
+                              : "To Much High"}
                           </td>
                           <td className="border border-gray-300 px-6 py-3 text-lg text-center text-green-600 font-semibold">
                             {user.confidence}

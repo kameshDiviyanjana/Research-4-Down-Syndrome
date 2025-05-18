@@ -3,6 +3,8 @@ import Webcam from "react-webcam";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import bg1 from "../../../public/images/bg3.jpg";
+
 
 function NextTaskPage() {
   const location = useLocation();
@@ -264,8 +266,17 @@ function NextTaskPage() {
 
   return (
     <div
-      style={{ padding: "20px" }}
-      className="bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat bg-center min-h-screen w-full overflow-y-auto"
+      // style={{ padding: "20px" }}
+      className="
+      bg-cover bg-no-repeat bg-center w-ful
+      justify-center items-center text-center p-6"
+      style={{
+        backgroundImage: `url(${bg1})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        zIndex: -1,
+        height: "900px",
+      }}
     >
       <div className="bg-white py-16 px-8 shadow-2xl rounded-xl">
         <div className="flex flex-row justify-center gap-8">

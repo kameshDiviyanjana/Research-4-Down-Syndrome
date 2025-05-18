@@ -6,6 +6,8 @@ import { AddSpeechResults } from "../../../Api/vocabularyApi";
 import Swal from "sweetalert2";
 import perload from "../../../assets/scientist-holding-beaker-testing-tube-animation.gif";
 import happygif from "../../../assets/happygif.gif";
+import bg1 from "../../../../public/images/bg3.jpg";
+
 const AlphabetSelector = () => {
   const navigate = useNavigate();
   const [recording, setRecording] = useState(false);
@@ -252,7 +254,18 @@ setclarifyResults(false)
   }
 
   return (
-    <div className=" bg-center bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat w-full">
+    <div
+      className="
+      bg-cover bg-no-repeat bg-center w-ful
+      justify-center items-center text-center p-6"
+      style={{
+        backgroundImage: `url(${bg1})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        zIndex: -1,
+        height: "900px",
+      }}
+    >
       <div className="py-10 px-11">
         <div className="py-10 px-11">
           {clarifyResults ? (

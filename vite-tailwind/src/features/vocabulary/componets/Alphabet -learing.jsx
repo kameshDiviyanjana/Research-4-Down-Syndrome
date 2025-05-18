@@ -4,6 +4,8 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { encodeWAV } from "./wavEncoder";
 import Swal from "sweetalert2";
+import bg1 from "../../../../public/images/bg3.jpg";
+
 
 // Function to pronounce the letter using Web Speech API
 const speakWord = (text) => {
@@ -122,17 +124,16 @@ const AlphabetLearning = () => {
       } else {
         setMessage(`❌ Wrong! You said ${spokenLetter}. Try again.`);
         setcalculateWrog((prev) => prev + 1);
-        if (calculateWrog > 2) {
-          settraingword(true);
-
-          speakWord(
-            `Oops! That wasn't quite right. Let's listen to the word sound again and try together. you can seen picter of the word. The letter sound is: ${alphabet[currentIndex]}, ${alphabet[currentIndex]}, ${alphabet[currentIndex]}. You can do it!`
-          );
-        } else {
-          speakWord(
-            `Oops! You spell Wrong. you said ${spokenLetter} .Let's try again together. The letter sound is: ${alphabet[currentIndex]}, ${alphabet[currentIndex]}, ${alphabet[currentIndex]}. You can do it!`
-          );
-        }
+    const MAX_ATTEMPTS = 3;
+    if (calculateWrog >= MAX_ATTEMPTS) {
+      speakWord(
+        `Oops! That wasn't quite right. Let's listen to the word sound again and try together. you can seen picter of the word. The letter sound is: ${alphabet[currentIndex]}, ${alphabet[currentIndex]}, ${alphabet[currentIndex]}. You can do it!`
+      );
+    } else {
+      speakWord(
+        `Oops! You spell Wrong. you said ${spokenLetter} .Let's try again together. The letter sound is: ${alphabet[currentIndex]}, ${alphabet[currentIndex]}, ${alphabet[currentIndex]}. You can do it!`
+      );
+    }
 
         setAnswerStatus("incorrect"); // Set to incorrect
       }
@@ -175,9 +176,13 @@ const AlphabetLearning = () => {
 
       mediaRecorderRef.current.onstop = async () => {
         console.log("Recording stopped, processing audio...");
+        // const audioBlob = new Blob(audioChunksRef.current, {
+        //   type: "audio/webm",
+        // });
         const audioBlob = new Blob(audioChunksRef.current, {
           type: "audio/webm",
         });
+
         setAudioUrl(URL.createObjectURL(audioBlob)); // Save the URL for playback
         try {
           const wavBlob = await convertToWav(audioBlob);
@@ -195,66 +200,7 @@ const AlphabetLearning = () => {
     }
   };
 
-  // const startRecording = async () => {
-  //   try {
-  //     const stream = await navigator.mediaDevices.getUserMedia({
-  //       audio: true,
-  //     });
-  //     mediaRecorderRef.current = new MediaRecorder(stream, {
-  //       mimeType: "audio/webm",
-  //     });
 
-  //     audioChunksRef.current = [];
-
-  //     mediaRecorderRef.current.ondataavailable = (event) => {
-  //       console.log("Data available, size:", event.data.size);
-  //       if (event.data.size > 0) {
-  //         audioChunksRef.current.push(event.data);
-  //       }
-  //     };
-
-  //     mediaRecorderRef.current.onstop = async () => {
-  //       console.log("Recording stopped, processing audio...");
-  //       const audioBlob = new Blob(audioChunksRef.current, {
-  //         type: "audio/webm",
-  //       });
-  //       setAudioURL(URL.createObjectURL(audioBlob));
-  //       try {
-  //         const wavBlob = await convertToWav(audioBlob);
-  //         console.log("WAV conversion completed, size:", wavBlob.size);
-  //         setAudioBlob(wavBlob);
-  //       } catch (error) {
-  //         console.error("Error converting to WAV:", error);
-  //       }
-  //     };
-
-  //     mediaRecorderRef.current.start();
-  //     setRecording(true);
-  //   } catch (error) {
-  //     console.error("Error accessing microphone:", error);
-  //   }
-  // };
-
-  // ⏹ Stop Recording
-//   const stopRecording = () => {
-//     setfinished(true);
-//     if (mediaRecorderRef.current && recording) {
-//       setTimeout(() => {
-//         mediaRecorderRef.current.stop();
-//         mediaRecorderRef.current.stream
-//           .getTracks()
-//           .forEach((track) => track.stop());
-//         setRecording(false);
-//         console.log("Recording stopped successfully.");
-//         const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" }); // Blob from recorded data
-//         convertToWav(audioBlob);
-
-// if (audioBlob) {
-//   uploadAudio(); // Upload the audio after stopping
-// }
-//       }, 500); // ⏳ Delay ensures all data is processed
-//     }
-//   };
 
 const stopRecording = () => {
   setfinished(true);
@@ -267,7 +213,11 @@ const stopRecording = () => {
       setRecording(false);
       console.log("Recording stopped successfully.");
 
-      const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" }); // Blob from recorded data
+      // const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" }); // Blob from recorded data
+      const audioBlob = new Blob(audioChunksRef.current, {
+        type: "audio/webm",
+      });
+
       convertToWav(audioBlob);
 
       if (audioBlob) {
@@ -299,6 +249,17 @@ useEffect(() => {
 
   //   return encodeWAV(audioBuffer);
   // };
+  // const convertToWav = async (blob) => {
+  //   try {
+  //     const arrayBuffer = await blob.arrayBuffer();
+  //     const audioBuffer = await new AudioContext().decodeAudioData(arrayBuffer);
+
+  //     return encodeWAV(audioBuffer); // Ensure this method is working
+  //   } catch (error) {
+  //     console.error("Error converting to WAV:", error);
+  //     throw error;
+  //   }
+  // };
   const convertToWav = async (blob) => {
     try {
       const arrayBuffer = await blob.arrayBuffer();
@@ -306,10 +267,11 @@ useEffect(() => {
 
       return encodeWAV(audioBuffer); // Ensure this method is working
     } catch (error) {
-      console.error("Error converting to WAV:", error);
-      throw error;
+      console.error("Error during WAV conversion:", error);
+      throw error; // Rethrow for upper-level catch
     }
   };
+
 
   const LeaingCaneter = () => {
     navigate("/vocabulary/stage-two");
@@ -372,76 +334,7 @@ useEffect(() => {
        timerProgressBar: true,
      });
  }
-  // const uploadAudio = async () => {
-  //   if (!audioBlob) {
-  //     console.error("❌ No audio blob available!");
-  //     return;
-  //   }
 
-  //   const formData = new FormData();
-  //   formData.append("file", audioBlob, "audio.wav");
-  //   setclarifyResults(false);
-
-  //   try {
-  //     const response = await axios.post(
-  //       "http://127.0.0.1:5000/audio/predict",
-  //       formData,
-  //       {
-  //         headers: { "Content-Type": "multipart/form-data" },
-  //       }
-  //     );
-  //     setPrediction(response.data);
-  //     setmarks(response.data.confidence);
-
-  //    Swal.fire({
-  //      title: `Results Processed!`,
-  //      html: `
-  //       <b>Cluster:</b> ${response.data.cluster} <br>
-  //       <b>Confidence:</b> ${response.data.confidence}% <br>
-  //     `,
-  //      icon: "success",
-  //      confirmButtonText: "OK",
-  //      confirmButtonColor: levelColor,
-  //      timerProgressBar: true,
-  //      customClass: {
-  //        popup: "level-popup",
-  //        confirmButton: "level-confirm-button",
-  //      },
-  //    });
-
-  //     setTaskCompleted(true);
-  //     await addresulis(response.data);
-  //     console.log("✅ Upload success:", response.data);
-  //     setloads(true);
-  //     setAudioBlob(null); // Clear the audio blob after upload
-  //   } catch (error) {
-  //     console.error("❌ Error uploading file:", error);
-  //   }
-  // };
-
-  // // 📤 Upload Audio File
-  // const uploadAudio = async () => {
-  //   const formData = new FormData();
-  //   formData.append("file", audioBlob, "audio.wav");
-  //   setclarifyResults(false);
-  //   try {
-  //     const response = await axios.post(
-  //       "http://127.0.0.1:5000/audio/predict",
-  //       formData,
-  //       {
-  //         headers: { "Content-Type": "multipart/form-data" },
-  //       }
-  //     );
-  //     setPrediction(response.data);
-  //     setmarks(response.data.confidence);
-  //     setTaskCompleted(true);
-  //     await addresulis(response.data);
-  //     console.log("✅ Upload success:", response.data);
-  //     setloads(true);
-  //   } catch (error) {
-  //     console.error("❌ Error uploading file:", error);
-  //   }
-  // };
   const addresulis = (data) => {
     if (!data?.confidence || !data?.cluster) {
       alert("❌ Missing required fields: confidence or cluster");
@@ -467,9 +360,16 @@ useEffect(() => {
 
   return (
     <div
-      className="bg-[url('https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg')] 
-                 bg-cover bg-no-repeat bg-center w-full h-screen flex flex-col 
-                 items-center justify-center text-center p-6"
+      className="
+      bg-cover bg-no-repeat bg-center w-ful flex flex-col
+      justify-center items-center text-center p-6"
+      style={{
+        backgroundImage: `url(${bg1})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        zIndex: -1,
+        height: "900px",
+      }}
     >
       {/* Display Letter with Dynamic Background */}
       <div className=" flex flex-row gap-3">
@@ -523,30 +423,40 @@ useEffect(() => {
       </div>
 
       {/* Message Display */}
-      <p className="mt-4 text-2xl font-semibold text-white">{message}</p>
+      <p className="mt-4 text-2xl font-semibold ">{message}</p>
 
       {/* Button to Show Next Letter */}
-      <button
-        onClick={handleNextLetter}
-        className="mt-8 bg-gradient-to-r from-yellow-400 to-orange-500 text-white 
+      <div className=" flex flex-wrap gap-5">
+        <button
+          onClick={handleNextLetter}
+          className="mt-8 bg-gradient-to-r from-yellow-400 to-orange-500 text-white 
                    font-bold text-2xl px-8 py-4 rounded-full shadow-xl 
                    hover:scale-105 active:scale-95 transition-all duration-300 border-4 border-white"
-      >
-        🎵 Next Letter ➡️
-      </button>
+        >
+          🎵 Next Letter ➡️
+        </button>
 
-      {/* Button for Voice Input */}
-      <button
-        onClick={() => {
-          handleVoiceInput();
-          startRecording();
-        }}
-        className="mt-4 bg-gradient-to-r from-green-400 to-blue-500 text-white 
+        {/* Button for Voice Input */}
+        <button
+          onClick={() => {
+            handleVoiceInput();
+            startRecording();
+          }}
+          className="mt-4 bg-gradient-to-r from-green-400 to-blue-500 text-white 
                    font-bold text-2xl px-8 py-4 rounded-full shadow-xl 
                    hover:scale-105 active:scale-95 transition-all duration-300 border-4 border-white"
-      >
-        🎤 Listen to Me
-      </button>
+        >
+          🎤 Listen to Me
+        </button>
+        <button
+          onClick={() => speakWord(alphabet[currentIndex])}
+          className="mt-8 bg-gradient-to-r  from-pink-500 to-orange-500 text-white 
+                   font-bold text-2xl px-8 py-4 rounded-full shadow-xl 
+                   hover:scale-105 active:scale-95 transition-all duration-300 border-4 border-white"
+        >
+          🔁 Replay Letter Sound
+        </button>
+      </div>
 
       <div className=" flex">
         {/* <button
@@ -560,9 +470,8 @@ useEffect(() => {
 
         <button
           onClick={() => {
-           
             stopRecording();
-          //  uploadAudio();
+            //  uploadAudio();
           }}
           className="mt-8 bg-gradient-to-r  from-pink-500 to-orange-500 text-white 
                    font-bold text-2xl px-8 py-4 rounded-full shadow-xl 
