@@ -3,6 +3,7 @@ import backgroundMusic from "../../assets/ZestSound.mp3";
 import Button from '../../atomes/Button';
 import { useNavigate } from 'react-router-dom';
 import Pacticelevel from './componets/Pacticelevels'
+import  classromme  from "../../assets/classromme.jpg";
 function Vocabulary() {
  const navigae = useNavigate();
  const [levelview, setlevelview] = useState(false);
@@ -41,11 +42,20 @@ function Vocabulary() {
     
   return (
     <>
-      <div className="bg-[url(https://img.freepik.com/premium-vector/cartoon-collection-animal-with-blank-sign_29190-3277.jpg)] bg-cover  bg-no-repeat bg-center  h-[700px] w-full ">
+      <div
+        className="
+      bg-cover bg-no-repeat bg-center w-ful
+      justify-center items-center text-center p-6"
+        style={{
+          backgroundImage: `url(${classromme})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          zIndex: -1,
+          height: "800px",
+        }}
+      >
         {levelview ? (
-        
-            <Pacticelevel />
-          
+          <Pacticelevel />
         ) : (
           <div className=" py-48 md:py-56 max-lg:py-60">
             <h1 className="text-7xl text-center  lg:text-[120px] font-fontstle2 h-[100px] lg:h-[250px] ">

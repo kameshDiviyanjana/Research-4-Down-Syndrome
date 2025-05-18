@@ -5,6 +5,8 @@ import sun from "../../../assets/source.gif";
 import { AllAddWord } from "../../../Api/vocabularyApi";
 import StartingPage from "../utile/StartingPage";
 import { encodeWAV } from "./wavEncoder";
+import bg1 from "../../../../public/images/bg3.jpg";
+
 
 function Listword() {
   const [pagecount, setPagecount] = useState(1);
@@ -137,7 +139,18 @@ function Listword() {
     setStart(false);
   };
   return (
-    <div className="bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat bg-center lg:h-[700px] w-full">
+    <div
+      className="
+      bg-cover bg-no-repeat bg-center w-ful
+      justify-center items-center text-center p-6"
+      style={{
+        backgroundImage: `url(${bg1})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        zIndex: -1,
+        height: "900px",
+      }}
+    >
       <div className="py-10 px-11">
         <div className="flex justify-between">
           {/* Left Images */}
@@ -189,10 +202,10 @@ function Listword() {
                 <button
                   className="max-lg:hidden"
                   onClick={() => {
-                  //  sendAudioToBackend();
-                     nextWord();
-                  
-                     uploadAudio();
+                    //  sendAudioToBackend();
+                    nextWord();
+
+                    uploadAudio();
                     stopRecording();
                   }}
                 >
