@@ -1,8 +1,8 @@
-import LearningScreen from "./src/LearningScreen";
+import App from "./src/App";
 
 
 export default function WritingHome() {
   return (
-    <LearningScreen/>
+    <App/>
   )
 }

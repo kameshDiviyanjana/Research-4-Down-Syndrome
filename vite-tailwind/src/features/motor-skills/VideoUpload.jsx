@@ -2,6 +2,8 @@ import React, { useState ,useRef} from "react";
 import bush from "../../assets/bush-clipart-animated-6.png";
 import sun from "../../assets/source.gif";
 import StartingPage from "../vocabulary/utile/StartingPage";
+import bg1 from "../../../public/images/bg3.jpg";
+
 function VideoUpload() {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [videoPreview, setVideoPreview] = useState("");
@@ -127,7 +129,18 @@ function VideoUpload() {
     setcompare(true);
   };
   return (
-    <div className="bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat bg-center h-[700px] w-full overflow-y-auto">
+    <div
+      className="
+      bg-cover bg-no-repeat bg-center w-ful
+      justify-center items-center text-center p-6"
+      style={{
+        backgroundImage: `url(${bg1})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        zIndex: -1,
+        height: "900px",
+      }}
+    >
       <div className="video-upload">
         <div className=" flex justify-between">
           <div className="mb-0">
@@ -142,7 +155,6 @@ function VideoUpload() {
             <StartingPage setstart={startPactices} />
           ) : (
             <div>
-              
               <form onSubmit={handleFormSubmit}>
                 <input
                   type="file"
@@ -196,7 +208,6 @@ function VideoUpload() {
                     ></video>
                   </div>
 
-                  
                   {recordedVideoURL && (
                     <div>
                       <h3 className="text-lg font-semibold mb-2">

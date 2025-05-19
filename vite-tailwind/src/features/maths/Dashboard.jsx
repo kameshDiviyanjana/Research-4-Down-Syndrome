@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Canvas } from "@react-three/fiber";
 import backgroundImage from "../../assets/dashboard-bg.jpg";
 import FishModel from "../maths/models/FishModel";
+// import TurtleModel from "../models/TurtleModel";
 import bgMusic from '../../assets/bgmusic.mp3';
 import ClownfishModel from "./models/ClownfishModel";
+// import CrabModel from "./models/CrabModel";
 import TropicalFishSchoolModel from "./models/TropicalFishSchoolModel";
 import useLanguageStore from "../maths/store/languageStore"; // Import Zustand store
 

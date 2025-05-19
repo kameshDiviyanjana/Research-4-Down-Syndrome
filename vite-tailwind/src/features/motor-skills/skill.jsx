@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { FaRegStar } from "react-icons/fa";
+import bg1 from "../../../public/images/bg3.jpg";
+
 
 import backgroundMusic from "../../assets/ZestSound.mp3";
 import vedieogross from "../../assets/video/skiping.mp4";
@@ -20,7 +22,18 @@ function Grossmotorskill() {
     navigate("/grossmotor/system");
   }
   return (
-    <div className="bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat bg-center h-[700px] w-full overflow-y-auto">
+    <div
+      className="
+      bg-cover bg-no-repeat bg-center w-ful
+      justify-center items-center text-center p-6"
+      style={{
+        backgroundImage: `url(${bg1})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        zIndex: -1,
+        height: "900px",
+      }}
+    >
       <div className="ml-20 mr-20 py-10 px-11 overflow-y-auto">
         <div className="flex flex-col justify-end items-end space-y-1">
           <div>
@@ -46,7 +59,6 @@ function Grossmotorskill() {
               muted
               onClick={Pacticesvideo}
             >
-              
               <source src={vedieogross} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
@@ -63,8 +75,6 @@ function Grossmotorskill() {
             </button>
           </div>
         </div>
-
-        
       </div>
     </div>
   );
