@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AiOutlineQuestionCircle } from "react-icons/ai";
 import bg1 from "../../../public/images/bg3.jpg";
+import useLanguageStore from "../maths/store/languageStore"; // Import Zustand store
 
 // Import number images
 import num0 from "../../assets/numbers/0.png";
@@ -14,19 +15,13 @@ import num6 from "../../assets/numbers/6.png";
 import num7 from "../../assets/numbers/7.png";
 import num8 from "../../assets/numbers/8.png";
 import num9 from "../../assets/numbers/9.png";
+import num10 from "../../assets/numbers/10.png";
+
 
 // Number data for images
 const numberImages = {
-  0: num0,
-  1: num1,
-  2: num2,
-  3: num3,
-  4: num4,
-  5: num5,
-  6: num6,
-  7: num7,
-  8: num8,
-  9: num9,
+  0: num0, 1: num1, 2: num2, 3: num3, 4: num4,
+  5: num5, 6: num6, 7: num7, 8: num8, 9: num9, 10:num10
 };
 
 // Import sounds
@@ -40,44 +35,68 @@ import sound6 from "../maths/sounds/6.mp3";
 import sound7 from "../maths/sounds/7.mp3";
 import sound8 from "../maths/sounds/8.mp3";
 import sound9 from "../maths/sounds/9.mp3";
-
+import sound10 from "../maths/sounds/10.m4a";
 // Map numbers to sounds dynamically
 const numberSounds = {
-  0: sound0,
-  1: sound1,
-  2: sound2,
-  3: sound3,
-  4: sound4,
-  5: sound5,
-  6: sound6,
-  7: sound7,
-  8: sound8,
-  9: sound9,
+  0: sound0, 1: sound1, 2: sound2, 3: sound3, 4: sound4,
+  5: sound5, 6: sound6, 7: sound7, 8: sound8, 9: sound9,10:sound10
 };
 
 // Function to generate a simple consecutive sequence example (max 9)
 const generateRandomExample = (exampleCount) => {
-  const rangeStart = exampleCount <= 5 ? 0 : 5;
-  const rangeEnd = exampleCount <= 5 ? 5 : 10;
+  // Normalize exampleCount to cycle every 20 examples
+  const normalizedCount = ((exampleCount - 1) % 20) + 1;
 
-  const numbers = Array.from(
-    { length: rangeEnd - rangeStart },
-    (_, i) => i + rangeStart
-  );
+  // Define base sequences for 0–5 (ascending order)
+  const baseSequences05 = [
+    { sequence: [0, null, 2], answer: 1 }, // 0, 1, 2
+    { sequence: [1, null, 3], answer: 2 }, // 1, 2, 3
+    { sequence: [2, null, 4], answer: 3 }, // 2, 3, 4
+    { sequence: [3, null, 5], answer: 4 }, // 3, 4, 5
+    { sequence: [4, null, 5], answer: 5 }, // 4, 5
+  ];
 
-  // Shuffle the numbers
-  const shuffled = numbers.sort(() => Math.random() - 0.5);
+  // Define reverse sequences for 0–5
+  const reverseSequences05 = [
+    { sequence: [4, null, 2], answer: 3 }, // Reverse of [2, 3, 4]
+    { sequence: [5, null, 3], answer: 4 }, // Reverse of [3, 4, 5]
+    { sequence: [4, null, 2], answer: 3 }, // Reverse of [2, 3, 4]
+    { sequence: [3, null, 1], answer: 2 }, // Reverse of [1, 2, 3]
+    { sequence: [2, null, 0], answer: 1 }, // Reverse of [0, 1, 2]
+  ];
 
-  // Pick up to 4 numbers
-  const length = Math.floor(Math.random() * 2) + 3; // 3 or 4
-  const sequence = shuffled.slice(0, length);
+  // Define base sequences for 6–10 (ascending order)
+  const baseSequences610 = [
+    { sequence: [6, null, 8], answer: 7 }, // 6, 7, 8
+    { sequence: [7, null, 9], answer: 8 }, // 7, 8, 9
+    { sequence: [8, null, 10], answer: 9 }, // 8, 9, 10
+    { sequence: [9, null, 10], answer: 10 }, // 9, 10
+    { sequence: [8, null, 10], answer: 9 }, // 8, 9, 10
+  ];
 
-  // Randomly hide one number
-  const answerIndex = Math.floor(Math.random() * sequence.length);
-  const answer = sequence[answerIndex];
-  sequence[answerIndex] = null;
+  // Define reverse sequences for 6–10
+  const reverseSequences610 = [
+    { sequence: [9, null, 7], answer: 8 }, // Reverse of [7, 8, 9]
+    { sequence: [10, null, 8], answer: 9 }, // Reverse of [8, 9, 10]
+    { sequence: [9, null, 7], answer: 8 }, // Reverse of [7, 8, 9]
+    { sequence: [8, null, 6], answer: 7 }, // Reverse of [6, 7, 8]
+    { sequence: [10, null, 8], answer: 9 }, // Reverse of [8, 9, 10]
+  ];
 
-  return { sequence, answer };
+  // Determine which sequence to use based on normalizedCount
+  if (normalizedCount <= 5) {
+    // First 5: Ascending 0–5
+    return { ...baseSequences05[normalizedCount - 1] };
+  } else if (normalizedCount <= 10) {
+    // Next 5: Reverse 0–5
+    return { ...reverseSequences05[normalizedCount - 6] };
+  } else if (normalizedCount <= 15) {
+    // Next 5: Ascending 6–10
+    return { ...baseSequences610[normalizedCount - 11] };
+  } else {
+    // Last 5: Reverse 6–10
+    return { ...reverseSequences610[normalizedCount - 16] };
+  }
 };
 
 // Translations for English and Sinhala
@@ -118,7 +137,7 @@ const translations = {
       hide: "උපදෙස් සඟවන්න",
     },
     content: [
-      "1. එකට වාඩි වන්න: ඔබේ දරුවා සමඟ සන්සුන්, සුවපහසු ස්ථානයක වාඩි වී අනුක්‍රම කෙරෙහි අවධානය යොමු කරන්න.",
+      "1. එකට වාඩි වන්න: ඔබේ දරුවා සමඟ සන්සුන්, සුවපහසු ස personally ථානයක වාඩි වී අනුක්‍රම කෙරෙහි අවධානය යොමු කරන්න.",
       "2. අනුක්‍රමය පෙන්වන්න: තිරයේ ඇති ඉලක්කම් දෙස බලන්න. රටාව පියවරෙන් පියවර පෙන්වන්න.",
       "3. තට්ටු කර ඇසීමට: එක් එක් ඉලක්කම ක්ලික් කර එහි ශබ්දය ඇසෙන්න. ඔබේ දරුවාට හොඳින් ඇසීමට ධෛර්යමත් කරන්න.",
       "4. එකට කියන්න: ශබ්ද ඇසූ පසු ඔබේ දරුවා සමඟ ඉලක්කම් ශබ්ද නඟා කියන්න. සතුටු හඬකින් භාවිතා කරන්න!",
@@ -135,12 +154,7 @@ const SequenceLearning = () => {
   const [example, setExample] = useState(generateRandomExample(exampleCount));
   const [showInstructions, setShowInstructions] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Extract language from query parameter
-  const queryParams = new URLSearchParams(location.search);
-  const initialLang = queryParams.get("lang") === "si" ? "si" : "en";
-  const [language, setLanguage] = useState(initialLang);
+  const { language, toggleLanguage } = useLanguageStore(); // Use Zustand store
 
   const playSound = (number) => {
     const sound = numberSounds[number];
@@ -160,10 +174,6 @@ const SequenceLearning = () => {
     });
   };
 
-  const toggleLanguage = () => {
-    setLanguage((prevLang) => (prevLang === "en" ? "si" : "en"));
-  };
-
   const toggleInstructions = () => {
     setShowInstructions((prev) => !prev);
   };
@@ -171,9 +181,7 @@ const SequenceLearning = () => {
   return (
     <div className="min-h-screen w-screen relative flex flex-col items-center justify-center p-8 text-center">
       <div
-        className={`absolute inset-0 ${
-          showInstructions ? "backdrop-blur-sm" : ""
-        }`}
+        className={`absolute inset-0 ${showInstructions ? "backdrop-blur-sm" : ""}`}
         style={{
           backgroundImage: `url(${bg1})`,
           backgroundSize: "cover",
@@ -186,7 +194,7 @@ const SequenceLearning = () => {
       {/* Go to Practice Button in Top-Right Corner */}
       <div className="absolute top-4 right-8">
         <button
-          onClick={() => navigate(`/math/sequence/practice?lang=${language}`)}
+          onClick={() => navigate("/math/sequence/practice")}
           className="bg-indigo-500 text-white text-lg font-semibold px-6 py-3 rounded-full shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
         >
           📝 {translations[language].practiceButton}
@@ -202,7 +210,7 @@ const SequenceLearning = () => {
         </button>
       </div>
 
-      <div className="mt-[20px] ml-[0px]">
+      <div className="mt-[20px] ml-[10px]">
         {/* Header */}
         <div className="w-full max-w-3xl">
           <h1 className="text-4xl font-bold text-indigo-700 mb-2 drop-shadow-lg">
@@ -210,8 +218,8 @@ const SequenceLearning = () => {
           </h1>
         </div>
 
-        {/* Example Container */}
-        <div className="w-full max-w-md p-6 rounded-xl shadow-none">
+       
+        <div className="w-full max-w-md p-6 rounded-xl shadow-none ml-[80px]">
           {/* Example Header */}
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-blue-800 drop-shadow-md">
@@ -236,15 +244,15 @@ const SequenceLearning = () => {
                   className="w-[200px] h-40 cursor-pointer hover:scale-110 transition"
                   onClick={() => playSound(num)}
                 />
-              ) : (
-                <div
-                  key={index}
-                  className="w-40 h-40 flex justify-center items-center border-gray-300 rounded-full"
-                >
-                  <AiOutlineQuestionCircle className="w-24 h-24 text-purple-600" />
-                </div>
-              )
-            )}
+                ) : (
+                  <div
+                    key={index}
+                    className="w-40 h-40 flex justify-center items-center border-gray-300 rounded-full"
+                  >
+                    <AiOutlineQuestionCircle className="w-24 h-24 text-purple-600" />
+                  </div>
+                )
+              )}
 
             <div className="text-3xl text-purple-600 font-bold my-4"></div>
             <h3 className="text-lg font-semibold text-purple-600 drop-shadow-md">
@@ -269,7 +277,7 @@ const SequenceLearning = () => {
           <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6 m-4 relative">
             <button
               onClick={toggleInstructions}
-              className="absolute top-2 right-2 text-gray-600 hovered:text-gray-800 text-2xl"
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-2xl"
             >
               ×
             </button>
@@ -286,9 +294,7 @@ const SequenceLearning = () => {
             </div>
             <ul className="list-disc list-inside text-gray-700 text-lg max-h-[60vh] overflow-y-auto">
               {translations[language].content.map((item, index) => (
-                <li key={index} className="mb-2">
-                  {item}
-                </li>
+                <li key={index} className="mb-2">{item}</li>
               ))}
             </ul>
           </div>

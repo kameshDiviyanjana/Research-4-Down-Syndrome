@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import SmileImage from '../../../src/assets/smile.jpg';
 import useProgressStore from '../maths/store/progressStore';
+import useLanguageStore from '../maths/store/languageStore';
+import { showSuccessAlert, showFailureAlert } from '../maths/ResponseModal'; 
 import "./PracticeAnimations.css";
-import whatIstheAnswerAudio from '../maths/sounds/wht_answer.mp3';
-import backgroundImg from "../../../public/images/practiceBg2.jpg"
+import backgroundImg from "../../../public/images/practiceBg2.jpg";
+
+// Images
+import SmileImage from '../../../src/assets/smile.jpg';
 import num0 from "../../assets/numbers/0.png";
 import num1 from "../../assets/numbers/1.png";
 import num2 from "../../assets/numbers/2.png";
@@ -17,212 +20,216 @@ import num8 from "../../assets/numbers/8.png";
 import num9 from "../../assets/numbers/9.png";
 import num10 from "../../assets/numbers/10.png";
 
-const numberImages = { 
-    0: num0, 
-    1: num1, 
-    2: num2, 
-    3: num3, 
-    4: num4, 
-    5: num5,
-    6: num6,
-    7: num7,
-    8: num8,
-    9: num9,
-    10: num10
-}; 
+// Sinhala sounds
+import S1Finger from '../maths/sounds/S1Finger.m4a';
+import S2Finger from '../maths/sounds/S2Finger.m4a';
+import S3Finger from '../maths/sounds/S3Finger.m4a';
+import S4Finger from '../maths/sounds/S4Finger.m4a';
+import S5Finger from '../maths/sounds/S5Finger.m4a';
+import S6Finger from '../maths/sounds/S6Finger.m4a';
+import S7Finger from '../maths/sounds/S7Finger.m4a';
+import S8Finger from '../maths/sounds/S8Finger.m4a';
+import S9Finger from '../maths/sounds/S9Finger.m4a';
+import S10Finger from '../maths/sounds/S10Finger.m4a';
 
-const playSound = (number) => {
-    const audio = new Audio(`/sounds/${number}.mp3`);
-    audio.play().catch((error) => console.log("Audio play error:", error));
+// English sounds
+import R1Finger from '../maths/sounds/R1Finger.m4a';
+import R2Finger from '../maths/sounds/R2Finger.m4a';
+import R3Finger from '../maths/sounds/R3Finger.m4a';
+import R4Finger from '../maths/sounds/R4Finger.m4a';
+import R5Finger from '../maths/sounds/R5Finger.m4a';
+import R6Finger from '../maths/sounds/R6Finger.m4a';
+import R7Finger from '../maths/sounds/R7Finger.m4a';
+import R8Finger from '../maths/sounds/R8Finger.m4a';
+import R9Finger from '../maths/sounds/R9Finger.m4a';
+import R10Finger from '../maths/sounds/R10Finger.m4a';
+
+const numberImages = { 
+  0: num0, 1: num1, 2: num2, 3: num3, 4: num4, 5: num5,
+  6: num6, 7: num7, 8: num8, 9: num9, 10: num10
+};
+
+const translations = {
+  en: {
+    title: "Number Practice",
+    instructions: "Show the number with your fingers!",
+    startButton: "Start Practice",
+    countdown: "Starting in: {count}s",
+    successTitle: "Correct Answer!",
+    successText: "Well Done!",
+    failureTitle: "Incorrect!",
+    failureText: "Try Again!",
+    failureLowConfidence: "Hold your hand steady for a higher confidence score.",
+    failureWrongNumber: "You showed {userPrediction}, but the correct number is {targetNumber}. Try again!",
+    errorTitle: "Error",
+    errorText: "Failed to fetch finger count. Please try again.",
+  },
+  si: {
+    title: "ඉලක්කම් පුහුණුව",
+    instructions: "ඉලක්කම ඔබේ ඇඟිලිවලින් පෙන්වන්න!",
+    startButton: "පුහුණුව ආරම්භ කරන්න",
+    countdown: "ආරම්භ වන්නේ: {count} තත්පරයකින්",
+    successTitle: "නිවැරදි පිළිතුර!",
+    successText: "හොඳින් කළා!",
+    failureTitle: "වැරදියි!",
+    failureText: "නැවත උත්සාහ කරන්න!",
+    failureLowConfidence: "වැඩි විශ්වාස ප්‍රමාණයක් සඳහා ඔබේ අත ස්ථිරව තබා ගන්න。",
+    failureWrongNumber: "ඔබ පෙන්වූයේ {userPrediction}, නමුත් නිවැරදි ඉලක්කම {targetNumber}. නැවත උත්සාහ කරන්න!",
+    errorTitle: "දෝෂය",
+    errorText: "ඇඟිලි ගණන ලබා ගැනීමට අපොහොසත් විය. කරුණාකර නැවත උත්සාහ කරන්න。",
+  },
+};
+
+const sinhalaSounds = {
+  1: S1Finger, 2: S2Finger, 3: S3Finger, 4: S4Finger, 5: S5Finger,
+  6: S6Finger, 7: S7Finger, 8: S8Finger, 9: S9Finger, 10: S10Finger,
+};
+
+const englishSounds = {
+  1: R1Finger, 2: R2Finger, 3: R3Finger, 4: R4Finger, 5: R5Finger,
+  6: R6Finger, 7: R7Finger, 8: R8Finger, 9: R9Finger, 10: R10Finger,
+};
+
+const playSound = (number, language) => {
+  const soundMap = language === 'si' ? sinhalaSounds : englishSounds;
+  const audioFile = soundMap[number];
+
+  if (audioFile) {
+    const audio = new Audio(audioFile);
+    audio.play().catch((error) => {
+      console.error(`[playSound] Error playing sound for number ${number}:`, error);
+    });
+  }
 };
 
 const NumberPractice = () => {
-    const [currentNumber, setCurrentNumber] = useState(0); // Start with 0
-    const [isRandomMode, setIsRandomMode] = useState(false); // Track if we're in random mode
-    const [countdown, setCountdown] = useState(null);
-    const [isCapturing, setIsCapturing] = useState(false);
-    const [finalPrediction, setFinalPrediction] = useState("");
-    const [isChecking, setIsChecking] = useState(false);
+  const [currentNumber, setCurrentNumber] = useState(0);
+  const [isRandomMode, setIsRandomMode] = useState(false);
+  const [countdown, setCountdown] = useState(null);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [finalPrediction, setFinalPrediction] = useState("");
+  const [isChecking, setIsChecking] = useState(false);
+  const { language } = useLanguageStore();
+  const addProgress = useProgressStore((state) => state.addProgress);
 
-    const addProgress = useProgressStore((state) => state.addProgress);
+  const startPractice = () => {
+    const newNumber = isRandomMode ? Math.floor(Math.random() * 11) : currentNumber;
+    setCurrentNumber(newNumber);
+    setFinalPrediction("");
+    setIsCapturing(true);
+    setIsChecking(false);
 
-    const startPractice = () => {
-        let newNumber;
-        if (!isRandomMode) {
-            // Sequential mode: Use currentNumber and increment until 10
-            newNumber = currentNumber;
-            console.log(`[startPractice] Sequential mode - Current Number: ${newNumber}`);
-        } else {
-            // Random mode: Generate a random number between 0 and 10
-            newNumber = Math.floor(Math.random() * 11);
-            console.log(`[startPractice] Random mode - Generated Number: ${newNumber}`);
+    playSound(newNumber, language);
+
+    let count = 5;
+    setCountdown(count);
+    const countdownInterval = setInterval(() => {
+      count -= 1;
+      setCountdown(count);
+      if (count === 0) {
+        clearInterval(countdownInterval);
+        setTimeout(() => setIsChecking(true), 3000);
+      }
+    }, 1000);
+  };
+
+  const checkResult = async (targetNumber) => {
+    try {
+      const response = await fetch("http://localhost:5000/finger_counting/count");
+      const data = await response.json();
+      const userPrediction = data.finger_count;
+      const confidence = data.confidence;
+
+      setFinalPrediction(userPrediction);
+      setIsCapturing(false);
+      setIsChecking(false);
+
+      const isCorrect = userPrediction === targetNumber && confidence >= 0.8;
+      if (isCorrect) {
+        addProgress("NumberPractice", 1);
+        showSuccessAlert(translations, language);
+        if (!isRandomMode && targetNumber === 10) {
+          setIsRandomMode(true);
+          setCurrentNumber(null);
+        } else if (!isRandomMode) {
+          setCurrentNumber((prev) => prev + 1);
         }
+      } else {
+        addProgress("NumberPractice", 0);
+        showFailureAlert(translations, language, confidence, targetNumber, userPrediction);
+      }
+    } catch (error) {
+      console.error("[checkResult] Error fetching finger count:", error);
+      setIsCapturing(false);
+      setIsChecking(false);
+      Swal.fire({
+        title: translations[language].errorTitle,
+        text: translations[language].errorText,
+        icon: "error",
+        showConfirmButton: false,
+        timer: 2000,
+      });
+    }
+  };
 
-        setCurrentNumber(newNumber);
-        setFinalPrediction("");
-        setIsCapturing(true);
-        setIsChecking(false);
+  useEffect(() => {
+    if (isChecking && currentNumber !== null) {
+      checkResult(currentNumber);
+    }
+  }, [isChecking, currentNumber]);
 
-        const audio = new Audio(whatIstheAnswerAudio);
-        audio.play().catch((error) => console.log("Audio play error:", error));
-
-        audio.onended = () => {
-            let count = 5;
-            setCountdown(count);
-            const countdownInterval = setInterval(() => {
-                count -= 1;
-                setCountdown(count);
-                if (count === 0) {
-                    clearInterval(countdownInterval);
-                    console.log("[startPractice] Countdown complete, waiting for user input");
-                    setTimeout(() => {
-                        setIsChecking(true);
-                    }, 3000);
-                }
-            }, 1000);
-        };
-    };
-
-    const checkResult = async (targetNumber) => {
-        console.log("[checkResult] Fetching finger count from API");
-        try {
-            const response = await fetch("http://localhost:5000/finger_counting/count");
-            const data = await response.json();
-            const userPrediction = data.finger_count;
-            const confidence = data.confidence;
-            console.log(`[checkResult] Fetched finger count: ${userPrediction}, Confidence: ${confidence}`);
-
-            setFinalPrediction(userPrediction);
-            setIsCapturing(false);
-            setIsChecking(false);
-
-            const isCorrect = userPrediction === targetNumber && confidence >= 0.8;
-            console.log(`[checkResult] Comparison result: ${isCorrect} (Target: ${targetNumber}, User: ${userPrediction}, Conf: ${confidence})`);
-            if (isCorrect) {
-                addProgress("NumberPractice", 1);
-                showSuccessAlert();
-
-                // If in sequential mode and the number is 10, switch to random mode
-                if (!isRandomMode && targetNumber === 10) {
-                    setIsRandomMode(true);
-                    setCurrentNumber(null); // Reset for random mode
-                } else if (!isRandomMode) {
-                    setCurrentNumber((prev) => prev + 1); // Move to next number
-                }
-            } else {
-                addProgress("NumberPractice", 0);
-                showFailureAlert(confidence, targetNumber, userPrediction);
-            }
-        } catch (error) {
-            console.error("[checkResult] Error fetching finger count:", error);
-            setIsCapturing(false);
-            setIsChecking(false);
-            Swal.fire({
-                title: "Error",
-                text: "Failed to fetch finger count. Please try again.",
-                icon: "error",
-                showConfirmButton: false,
-                timer: 2000,
-            });
-        }
-    };
-
-    const showFailureAlert = (confidence, targetNumber, userPrediction) => {
-        console.log("[showFailureAlert] Displaying failure alert");
-        let message = "Try Again!";
-        if (confidence < 0.8) {
-            message = "Hold your hand steady for a higher confidence score.";
-        } else if (userPrediction !== targetNumber) {
-            message = `You showed ${userPrediction}, but the correct number is ${targetNumber}. Try again!`;
-        }
-        Swal.fire({
-            title: "❌ Incorrect!",
-            text: message,
-            icon: "error",
-            showConfirmButton: false,
-            timer: 2000,
-        });
-    };
-
-    const showSuccessAlert = () => {
-        console.log("[showSuccessAlert] Displaying success alert");
-        Swal.fire({
-            title: "🎉 Correct Answer!",
-            text: "✅ Well Done!",
-            icon: "success",
-            imageUrl: SmileImage,
-            imageWidth: 100,
-            imageHeight: 100,
-            imageAlt: 'Smile image',
-            showConfirmButton: false,
-            timer: 2000,
-        });
-    };
-
-    useEffect(() => {
-        if (isChecking && currentNumber !== null) {
-            checkResult(currentNumber);
-        }
-    }, [isChecking, currentNumber]);
-
-    return (
-        <div 
-        className="min-h-screen bg-cover bg-center flex items-center justify-center p-6"
-        style={{ backgroundImage: `url(${backgroundImg})` }}
+  return (
+    <div 
+      className="min-h-screen bg-cover bg-center flex items-center justify-center p-6"
+      style={{ backgroundImage: `url(${backgroundImg})` }}
     >
-    
-            <div className=" flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-10">
-                <div className="flex flex-col items-center lg:w-1/2 rounded-2xl  p-8 transform transition-all hover:scale-105">
-                    <div className="text-center mb-2 animate-fade-in mt-[100px]">
-                        <h2 className="text-4xl font-bold text-indigo-700 drop-shadow-md"> Number Practice</h2>
-                        <p className="text-lg text-gray-600 mt-2">Show the number with your fingers!</p>
-                    </div>
+      <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-10 mt-5">
+        <div className="flex flex-col items-center lg:w-1/2 rounded-2xl p-8">
+          <div className="text-center mb-2 animate-fade-in mt-[100px]">
+            <h2 className="text-2xl font-bold text-indigo-700">
+              {translations[language].title}
+            </h2>
+            <p className="text-lg text-gray-600 mt-2">
+              {translations[language].instructions}
+            </p>
+          </div>
 
-                    <button 
-    onClick={startPractice} 
-    disabled={isCapturing}
-    className="w-[200px] px-8 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold text-center rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
->
-    📸 Start Practice
-</button>
+          <button 
+            onClick={startPractice} 
+            disabled={isCapturing}
+            className="w-[250px] px-8 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-lg hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 transition-all"
+          >
+            {translations[language].startButton}
+          </button>
 
-
-                    {currentNumber !== null && (
-                        <div className="mt-4 animate-bounce-in">
-                            <img 
-                                src={numberImages[currentNumber]} 
-                                alt={`Show this number: ${currentNumber}`} 
-                                className="w-50 h-60 object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
-                                onClick={() => playSound(currentNumber)}
-                            />
-                        </div>
-                    )}
-
-                    {countdown !== null && countdown > 0 && (
-                        <div className="mt-6 text-2xl font-semibold text-indigo-600 animate-pulse">
-                            Starting in: {countdown}s
-                        </div>
-                    )}
-
-                    {/* {finalPrediction !== "" && (
-                        <div className="mt-8 animate-fade-in">
-                            <h2 className="text-2xl font-bold text-purple-700">
-                                You showed: <span className="text-indigo-600">{finalPrediction}</span>
-                            </h2>
-                        </div>
-                    )} */}
-                </div>
-
-                <div className="lg:w-1/2 flex justify-center mt-[100px] mr-[70px]">
-                    <img 
-                        src="http://localhost:5000/finger_counting/feed" 
-                        alt="Finger counting feed" 
-                        className="w-full max-w-2xl rounded-2xl transform transition-all hover:border-indigo-400"
-                    />
-                </div>
+          {currentNumber !== null && (
+            <div className="mt-4 animate-bounce-in">
+              <img 
+                src={numberImages[currentNumber]} 
+                alt={`Show this number: ${currentNumber}`} 
+                className="w-50 h-60 object-contain cursor-pointer"
+                onClick={() => playSound(currentNumber, language)}
+              />
             </div>
+          )}
+
+          {countdown !== null && countdown > 0 && (
+            <div className="mt-4 text-xl font-semibold text-indigo-600 animate-pulse">
+              {translations[language].countdown.replace("{count}", countdown)}
+            </div>
+          )}
         </div>
-    );
+
+        <div className="lg:w-1/2 flex justify-center mt-[100px] mr-[70px]">
+          <img 
+            src="http://localhost:5000/finger_counting/feed" 
+            alt="Finger counting feed" 
+            className="w-full max-w-2xl rounded-2xl shadow-xl border-4 border-indigo-200 hover:border-indigo-400"
+          />
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default NumberPractice;
