@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import useProgressStore from '../maths/store/progressStore';
@@ -99,7 +98,7 @@ const translations = {
     failureLowConfidence: "නැවත උත්සාහ කරන්න! (වැඩි විශ්වාස ප්‍රමාණයක් සඳහා ඔබේ අත ස්ථිරව තබා ගන්න)",
     failureWrongNumber: "ඔබ පෙන්වූයේ {userPrediction}, නමුත් නිවැරදි ඉලක්කම වූයේ {targetNumber}.",
     errorTitle: "දෝෂය",
-    errorText: "ඇඟිලි ගණන ලබා ගැනීමට අපොහොසත් විය. කරුණාකර නැවත උත්සාහ කරන්න.",
+    errorText: "ඇඟිලි ගණන ලබා ගැනීමට අපොහොසත් විය. කරුණාකර නැවත උත්සාහ කරන්න。",
   },
 };
 
@@ -249,7 +248,7 @@ const AdditionPractice = () => {
       setIsCorrect(isAnswerCorrect);
       console.log(`[checkResult] Comparison result: ${isAnswerCorrect} (Target: ${targetAnswer}, User: ${userPrediction}, Conf: ${confidence})`);
 
-      addProgress("AdditionPractice", isAnswerCorrect ? 1 : 0);
+      addProgress("Addition", isAnswerCorrect); // Updated to use "Addition" as subSkill and boolean for score
       if (isAnswerCorrect) {
         setTaskCount(taskCount + 1);
         showSuccessAlert(translations, language);
@@ -281,7 +280,6 @@ const AdditionPractice = () => {
       className="relative min-h-screen bg-cover bg-center flex items-center justify-center p-6"
       style={{ backgroundImage: `url(${backgroundImg})` }}
     >
-      {/* 🔙 Back to Dashboard Button */}
       <button
         onClick={goToDashboard}
         className="absolute top-4 left-4 bg-indigo-500 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-600 transition z-50"

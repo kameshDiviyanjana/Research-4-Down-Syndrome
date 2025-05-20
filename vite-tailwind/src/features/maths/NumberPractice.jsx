@@ -102,18 +102,17 @@ const playSound = (number, language, onEnded) => {
     audio.play()
       .then(() => {
         audio.onended = () => {
-          if (typeof onEnded === "function") onEnded(); // ✅ Call after audio ends
+          if (typeof onEnded === "function") onEnded();
         };
       })
       .catch((error) => {
         console.error(`[playSound] Error playing sound for number ${number}:`, error);
-        if (typeof onEnded === "function") onEnded(); // Fallback in case of error
+        if (typeof onEnded === "function") onEnded();
       });
   } else if (typeof onEnded === "function") {
-    onEnded(); // Fallback if no audio file
+    onEnded();
   }
 };
-
 
 const NumberPractice = () => {
   const navigate = useNavigate();
@@ -127,7 +126,7 @@ const NumberPractice = () => {
   const addProgress = useProgressStore((state) => state.addProgress);
 
   const goToDashboard = () => {
-    navigate("/math/mathdashboard"); // ← Adjust if needed
+    navigate("/math/mathdashboard");
   };
 
   const startPractice = () => {
@@ -136,8 +135,7 @@ const NumberPractice = () => {
     setFinalPrediction("");
     setIsCapturing(true);
     setIsChecking(false);
-  
-    // 👇 Play sound and then begin countdown after it ends
+
     playSound(newNumber, language, () => {
       let count = 5;
       setCountdown(count);
@@ -151,8 +149,6 @@ const NumberPractice = () => {
       }, 1000);
     });
   };
-  
-  
 
   const checkResult = async (targetNumber) => {
     try {
@@ -167,7 +163,7 @@ const NumberPractice = () => {
 
       const isCorrect = userPrediction === targetNumber && confidence >= 0.8;
       if (isCorrect) {
-        addProgress("NumberPractice", 1);
+        addProgress("Number", true); // Score: 1
         showSuccessAlert(translations, language);
         if (!isRandomMode && targetNumber === 10) {
           setIsRandomMode(true);
@@ -176,7 +172,7 @@ const NumberPractice = () => {
           setCurrentNumber((prev) => prev + 1);
         }
       } else {
-        addProgress("NumberPractice", 0);
+        addProgress("Number", false); // Score: -1
         showFailureAlert(translations, language, confidence, targetNumber, userPrediction);
       }
     } catch (error) {
@@ -199,18 +195,11 @@ const NumberPractice = () => {
     }
   }, [isChecking, currentNumber]);
 
-  // useEffect(() => {
-  //   if (currentNumber !== null) {
-  //     playSound(currentNumber, language);
-  //   }
-  // }, [currentNumber, language]);
-
   return (
     <div 
       className="relative min-h-screen bg-cover bg-center flex items-center justify-center p-6"
       style={{ backgroundImage: `url(${backgroundImg})` }}
     >
-      {/* 🔙 Back to Dashboard Button */}
       <button
         onClick={goToDashboard}
         className="absolute top-4 left-4 bg-indigo-500 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-600 transition"

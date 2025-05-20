@@ -58,7 +58,7 @@ const translations = {
     successTitle: "සුපිරි වැඩක්!",
     successText: "ඔබ නිවැරදි ඉලක්කම පෙන්වූවා!",
     failureTitle: "නැවත උත්සාහ කරන්න!",
-    failureText: "යම් දෝෂයක් ඇති විය. කරුණාකර නැවත උත්සාහ කරන්න.",
+    failureText: "යම් දෝෂයක් ඇති විය. කරුණාකර නැවත උත්සාහ කරන්න。",
     failureLowConfidence: "ඔබේ අත් ඉරියව්ව පැහැදිලි නැත. ඉලක්කම පැහැදිලිව පෙන්වන්න.",
     failureWrongNumber: "ඔබ පෙන්වූයේ {userPrediction}, නමුත් නිවැරදි ඉලක්කම වූයේ {targetNumber}.",
   },
@@ -195,7 +195,7 @@ const SequencePractice = () => {
       const isAnswerCorrect = userPrediction === targetSequence.answer && confidence >= 0.8;
       setIsCorrect(isAnswerCorrect);
 
-      addProgress("SequencePractice", isAnswerCorrect ? 1 : 0);
+      addProgress("Sequence", isAnswerCorrect); // Updated to use "Sequence" as subSkill and boolean for score
       if (isAnswerCorrect) {
         showSuccessAlert(translations, language);
       } else {
@@ -227,7 +227,6 @@ const SequencePractice = () => {
       className="relative min-h-screen bg-cover bg-center flex items-center justify-center p-6"
       style={{ backgroundImage: `url(${backgroundImg})` }}
     >
-      {/* 🔙 Back to Dashboard Button */}
       <button
         onClick={goToDashboard}
         className="absolute top-4 left-4 bg-indigo-500 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-600 transition z-50"
