@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import useProgressStore from '../maths/store/progressStore';
 import useLanguageStore from '../maths/store/languageStore';
@@ -92,20 +93,30 @@ const englishSounds = {
   6: R6Finger, 7: R7Finger, 8: R8Finger, 9: R9Finger, 10: R10Finger,
 };
 
-const playSound = (number, language) => {
+const playSound = (number, language, onEnded) => {
   const soundMap = language === 'si' ? sinhalaSounds : englishSounds;
   const audioFile = soundMap[number];
+
   if (audioFile) {
-    setTimeout(() => {
-      const audio = new Audio(audioFile);
-      audio.play().catch((error) => {
+    const audio = new Audio(audioFile);
+    audio.play()
+      .then(() => {
+        audio.onended = () => {
+          if (typeof onEnded === "function") onEnded(); // ✅ Call after audio ends
+        };
+      })
+      .catch((error) => {
         console.error(`[playSound] Error playing sound for number ${number}:`, error);
+        if (typeof onEnded === "function") onEnded(); // Fallback in case of error
       });
-    }, 3000);
+  } else if (typeof onEnded === "function") {
+    onEnded(); // Fallback if no audio file
   }
 };
 
+
 const NumberPractice = () => {
+  const navigate = useNavigate();
   const [currentNumber, setCurrentNumber] = useState(0);
   const [isRandomMode, setIsRandomMode] = useState(false);
   const [countdown, setCountdown] = useState(null);
@@ -115,24 +126,33 @@ const NumberPractice = () => {
   const { language } = useLanguageStore();
   const addProgress = useProgressStore((state) => state.addProgress);
 
+  const goToDashboard = () => {
+    navigate("/math/mathdashboard"); // ← Adjust if needed
+  };
+
   const startPractice = () => {
     const newNumber = isRandomMode ? Math.floor(Math.random() * 11) : currentNumber;
     setCurrentNumber(newNumber);
     setFinalPrediction("");
     setIsCapturing(true);
     setIsChecking(false);
-
-    let count = 5;
-    setCountdown(count);
-    const countdownInterval = setInterval(() => {
-      count -= 1;
+  
+    // 👇 Play sound and then begin countdown after it ends
+    playSound(newNumber, language, () => {
+      let count = 5;
       setCountdown(count);
-      if (count === 0) {
-        clearInterval(countdownInterval);
-        setTimeout(() => setIsChecking(true), 3000);
-      }
-    }, 1000);
+      const countdownInterval = setInterval(() => {
+        count -= 1;
+        setCountdown(count);
+        if (count === 0) {
+          clearInterval(countdownInterval);
+          setTimeout(() => setIsChecking(true), 3000);
+        }
+      }, 1000);
+    });
   };
+  
+  
 
   const checkResult = async (targetNumber) => {
     try {
@@ -179,18 +199,25 @@ const NumberPractice = () => {
     }
   }, [isChecking, currentNumber]);
 
-  // ✅ Play sound on load and every time currentNumber changes
-  useEffect(() => {
-    if (currentNumber !== null) {
-      playSound(currentNumber, language);
-    }
-  }, [currentNumber, language]);
+  // useEffect(() => {
+  //   if (currentNumber !== null) {
+  //     playSound(currentNumber, language);
+  //   }
+  // }, [currentNumber, language]);
 
   return (
     <div 
-      className="min-h-screen bg-cover bg-center flex items-center justify-center p-6"
+      className="relative min-h-screen bg-cover bg-center flex items-center justify-center p-6"
       style={{ backgroundImage: `url(${backgroundImg})` }}
     >
+      {/* 🔙 Back to Dashboard Button */}
+      <button
+        onClick={goToDashboard}
+        className="absolute top-4 left-4 bg-indigo-500 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-600 transition"
+      >
+        Back to Dashboard
+      </button>
+
       <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-10 mt-5">
         <div className="flex flex-col items-center lg:w-1/2 rounded-2xl p-8">
           <div className="text-center mb-2 animate-fade-in mt-[100px]">

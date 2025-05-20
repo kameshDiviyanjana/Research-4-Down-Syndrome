@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import useProgressStore from '../maths/store/progressStore';
@@ -5,10 +6,11 @@ import useLanguageStore from '../maths/store/languageStore';
 import { showSuccessAlert, showFailureAlert } from '../maths/ResponseModal';
 import "./PracticeAnimations.css";
 import substractEnglish from '../maths/sounds/substract.m4a';
-import  substractSinhala from '../maths/sounds/S-subtract.m4a';
+import substractSinhala from '../maths/sounds/S-subtract.m4a';
 import whatIstheAnswerAudioSinhala from '../maths/sounds/S-SonAnswer.m4a';
 import whatIstheAnswerAudioEnglish from '../maths/sounds/answerIs.m4a';
 import backgroundImg from "../../../public/images/practiceBg2.jpg";
+import { useNavigate } from "react-router-dom";
 
 import num0 from "../../assets/numbers/0.png";
 import num1 from "../../assets/numbers/1.png";
@@ -89,7 +91,7 @@ const translations = {
     startButton: "පුහුණුව ආරම්භ කරන්න",
     tryAgainButton: "නැවත උත්සාහ කරන්න",
     nextQuestionButton: "ඊළඟ ප්‍රශ්නය",
-    countdown: "ආරම්භ වන්නේ: {count} �තත්පරයකින්",
+    countdown: "ආරම්භ වන්නේ: {count} තත්පරයකින්",
     successTitle: "නිවැරදි පිළිතුර!",
     successText: "හොඳින් කළා!",
     failureTitle: "වැරදියි!",
@@ -97,7 +99,7 @@ const translations = {
     failureLowConfidence: "නැවත උත්සාහ කරන්න! (වැඩි විශ්වාස ප්‍රමාණයක් සඳහා ඔබේ අත ස්ථිරව තබා ගන්න)",
     failureWrongNumber: "ඔබ පෙන්වූයේ {userPrediction}, නමුත් නිවැරදි ඉලක්කම වූයේ {targetNumber}.",
     errorTitle: "දෝෂය",
-    errorText: "ඇඟිලි ගණන ලබා ගැනීමට අපොහොසත් විය. කරුණාකර නැවත උත්සාහ කරන්න.",
+    errorText: "ඇඟිලි ගණන ලබා ගැනීමට අපොහොසත් විය. කරුණාකර නැවත උත්සාහ කරන්න。",
   },
 };
 
@@ -118,12 +120,9 @@ const initialEasyTasks = [
 
 // Generate a random task based on taskCount
 const generateTask = (taskCount) => {
-  // First 5 tasks: Use predefined easy tasks
   if (taskCount <= 5) {
     return initialEasyTasks[taskCount - 1];
-  }
-  // Basic Level (tasks 6–10): Random tasks with num1, num2 in 0–5, difference 0–5
-  else if (taskCount <= 10) {
+  } else if (taskCount <= 10) {
     let num1, num2, difference;
     do {
       num1 = Math.floor(Math.random() * 6); // 0–5
@@ -131,9 +130,7 @@ const generateTask = (taskCount) => {
       difference = num1 - num2;
     } while (difference > 5);
     return { num1, num2, answer: difference };
-  }
-  // Advanced Level (tasks 11+): Random tasks with num1, num2 in 0–10, difference 0–10
-  else {
+  } else {
     let num1, num2, difference;
     do {
       num1 = Math.floor(Math.random() * 11); // 0–10
@@ -145,6 +142,7 @@ const generateTask = (taskCount) => {
 };
 
 const SubtractionPractice = () => {
+  const navigate = useNavigate();
   const [currentTask, setCurrentTask] = useState(null);
   const [countdown, setCountdown] = useState(null);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -154,6 +152,10 @@ const SubtractionPractice = () => {
   const [isCorrect, setIsCorrect] = useState(false);
   const { language } = useLanguageStore();
   const addProgress = useProgressStore((state) => state.addProgress);
+
+  const goToDashboard = () => {
+    navigate("/math/mathdashboard");
+  };
 
   const startCountdown = () => {
     setCountdown(5);
@@ -282,9 +284,17 @@ const SubtractionPractice = () => {
 
   return (
     <div 
-      className="min-h-screen bg-cover bg-center flex items-center justify-center p-6"
+      className="relative min-h-screen bg-cover bg-center flex items-center justify-center p-6"
       style={{ backgroundImage: `url(${backgroundImg})` }}
     >
+      {/* 🔙 Back to Dashboard Button */}
+      <button
+        onClick={goToDashboard}
+        className="absolute top-4 left-4 bg-indigo-500 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-600 transition z-50"
+      >
+        Back to Dashboard
+      </button>
+
       <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-10">
         <div className="flex flex-col items-center lg:w-1/2 rounded-2xl p-8 transform transition-all">
           <div className="text-center mb-1 mt-10">

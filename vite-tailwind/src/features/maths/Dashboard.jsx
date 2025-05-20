@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Canvas } from "@react-three/fiber";
 import backgroundImage from "../../assets/dashboard-bg.jpg";
@@ -11,6 +11,11 @@ import TropicalFishSchoolModel from "./models/TropicalFishSchoolModel";
 import useLanguageStore from "../maths/store/languageStore"; // Import Zustand store
 
 const Dashboard = () => {
+    useEffect(() => {
+        const userId = localStorage.getItem("userid"); // fetch with correct key
+        console.log("User ID from localStorage:", userId);
+      }, []);
+      
   const navigate = useNavigate();
   const { language, toggleLanguage } = useLanguageStore(); // Use Zustand store
 
