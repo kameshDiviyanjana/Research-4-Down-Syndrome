@@ -1,17 +1,46 @@
-// src/components/ResponseModal.js
 import Swal from "sweetalert2";
-import SmileImage from "../../../src/assets/smile.jpg"; // Adjust path if necessary
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+import ClapModel from "./models/ClapModel";
+import substractSinhala from '../maths/sounds/S-Correct.m4a';
+import substractSe from '../maths/sounds/Correct.m4a';
+
+const playSuccessSound = (language) => {
+  const audioFile = language === 'si' ? substractSinhala : substractSe;
+  const audio = new Audio(audioFile);
+  audio.play().catch((error) => {
+    console.error(`[playSuccessSound] Error playing sound:`, error);
+  });
+};
 
 export const showSuccessAlert = (translations, language) => {
   console.log("[showSuccessAlert] Displaying success alert");
+
+  // Play success sound
+  playSuccessSound(language);
+
   Swal.fire({
     title: translations[language].successTitle,
     text: translations[language].successText,
     icon: "success",
-    imageUrl: SmileImage,
-    imageWidth: 100,
-    imageHeight: 100,
-    imageAlt: 'Smile image',
+    html: (
+      <div
+        style={{
+          position: 'relative',
+          width: '200px',
+          height: '200px',
+          margin: 'auto',
+          pointerEvents: 'none',
+        }}
+      >
+        <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
+          <ambientLight intensity={0.5} />
+          <directionalLight position={[5, 5, 5]} intensity={1} />
+          <ClapModel />
+          <OrbitControls enableZoom={false} />
+        </Canvas>
+      </div>
+    ),
     showConfirmButton: false,
     timer: 2000,
   });

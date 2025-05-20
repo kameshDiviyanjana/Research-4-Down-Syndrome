@@ -21,6 +21,7 @@ import num9 from "../../assets/numbers/9.png";
 import num10 from "../../assets/numbers/10.png";
 
 // Sinhala sounds
+import S0Finger from '../maths/sounds/S0Finger.m4a';
 import S1Finger from '../maths/sounds/S1Finger.m4a';
 import S2Finger from '../maths/sounds/S2Finger.m4a';
 import S3Finger from '../maths/sounds/S3Finger.m4a';
@@ -33,6 +34,7 @@ import S9Finger from '../maths/sounds/S9Finger.m4a';
 import S10Finger from '../maths/sounds/S10Finger.m4a';
 
 // English sounds
+import R0Finger from '../maths/sounds/R0Finger.m4a';
 import R1Finger from '../maths/sounds/R1Finger.m4a';
 import R2Finger from '../maths/sounds/R2Finger.m4a';
 import R3Finger from '../maths/sounds/R3Finger.m4a';
@@ -81,24 +83,25 @@ const translations = {
 };
 
 const sinhalaSounds = {
-  1: S1Finger, 2: S2Finger, 3: S3Finger, 4: S4Finger, 5: S5Finger,
+  0: S0Finger, 1: S1Finger, 2: S2Finger, 3: S3Finger, 4: S4Finger, 5: S5Finger,
   6: S6Finger, 7: S7Finger, 8: S8Finger, 9: S9Finger, 10: S10Finger,
 };
 
 const englishSounds = {
-  1: R1Finger, 2: R2Finger, 3: R3Finger, 4: R4Finger, 5: R5Finger,
+  0: R0Finger, 1: R1Finger, 2: R2Finger, 3: R3Finger, 4: R4Finger, 5: R5Finger,
   6: R6Finger, 7: R7Finger, 8: R8Finger, 9: R9Finger, 10: R10Finger,
 };
 
 const playSound = (number, language) => {
   const soundMap = language === 'si' ? sinhalaSounds : englishSounds;
   const audioFile = soundMap[number];
-
   if (audioFile) {
-    const audio = new Audio(audioFile);
-    audio.play().catch((error) => {
-      console.error(`[playSound] Error playing sound for number ${number}:`, error);
-    });
+    setTimeout(() => {
+      const audio = new Audio(audioFile);
+      audio.play().catch((error) => {
+        console.error(`[playSound] Error playing sound for number ${number}:`, error);
+      });
+    }, 3000);
   }
 };
 
@@ -118,8 +121,6 @@ const NumberPractice = () => {
     setFinalPrediction("");
     setIsCapturing(true);
     setIsChecking(false);
-
-    playSound(newNumber, language);
 
     let count = 5;
     setCountdown(count);
@@ -177,6 +178,13 @@ const NumberPractice = () => {
       checkResult(currentNumber);
     }
   }, [isChecking, currentNumber]);
+
+  // ✅ Play sound on load and every time currentNumber changes
+  useEffect(() => {
+    if (currentNumber !== null) {
+      playSound(currentNumber, language);
+    }
+  }, [currentNumber, language]);
 
   return (
     <div 

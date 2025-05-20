@@ -53,7 +53,7 @@ const generateRandomExample = (exampleCount) => {
     { sequence: [1, null, 3], answer: 2 }, // 1, 2, 3
     { sequence: [2, null, 4], answer: 3 }, // 2, 3, 4
     { sequence: [3, null, 5], answer: 4 }, // 3, 4, 5
-    { sequence: [4, null, 5], answer: 5 }, // 4, 5
+    { sequence: [4, null, 6], answer: 5}, // 4, 5,6
   ];
 
   // Define reverse sequences for 0–5
@@ -70,7 +70,7 @@ const generateRandomExample = (exampleCount) => {
     { sequence: [6, null, 8], answer: 7 }, // 6, 7, 8
     { sequence: [7, null, 9], answer: 8 }, // 7, 8, 9
     { sequence: [8, null, 10], answer: 9 }, // 8, 9, 10
-    { sequence: [9, null, 10], answer: 10 }, // 9, 10
+    // { sequence: [9, null, 10], answer: 10 }, // 9, 10
     { sequence: [8, null, 10], answer: 9 }, // 8, 9, 10
   ];
 

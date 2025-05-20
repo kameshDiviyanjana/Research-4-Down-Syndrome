@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import bg1 from "../../../public/images/bg4.jpg";
 import num0 from "../../assets/numbers/0.png";
@@ -12,6 +12,8 @@ import num7 from "../../assets/numbers/7.png";
 import num8 from "../../assets/numbers/8.png";
 import num9 from "../../assets/numbers/9.png";
 import num10 from "../../assets/numbers/10.png";
+
+// Sinhala Sounds
 import sound0 from "../maths/sounds/0.mp3";
 import sound1 from "../maths/sounds/1.mp3";
 import sound2 from "../maths/sounds/2.mp3";
@@ -23,26 +25,67 @@ import sound7 from "../maths/sounds/7.mp3";
 import sound8 from "../maths/sounds/8.mp3";
 import sound9 from "../maths/sounds/9.mp3";
 import sound10 from "../maths/sounds/10.m4a";
-import useLanguageStore from "../maths/store/languageStore"; // Import Zustand store
+import useLanguageStore from "../maths/store/languageStore";
+
+// English Sounds
+import ESound0 from "../maths/sounds/E0.m4a";
+import ESound1 from "../maths/sounds/E1.m4a";
+import ESound2 from "../maths/sounds/E2.m4a";
+import ESound3 from "../maths/sounds/E3.m4a";
+import ESound4 from "../maths/sounds/E4.m4a";
+import ESound5 from "../maths/sounds/E5.m4a";
+import ESound6 from "../maths/sounds/E6.m4a";
+import ESound7 from "../maths/sounds/E7.m4a";
+import ESound8 from "../maths/sounds/E8.m4a";
+import ESound9 from "../maths/sounds/E9.m4a";
+import ESound10 from "../maths/sounds/E10.m4a";
 
 const numbers = [
-  { value: 0, image: num0, sound: sound0 },
-  { value: 1, image: num1, sound: sound1 },
-  { value: 2, image: num2, sound: sound2 },
-  { value: 3, image: num3, sound: sound3 },
-  { value: 4, image: num4, sound: sound4 },
-  { value: 5, image: num5, sound: sound5 },
-  { value: 6, image: num6, sound: sound6 },
-  { value: 7, image: num7, sound: sound7 },
-  { value: 8, image: num8, sound: sound8 },
-  { value: 9, image: num9, sound: sound9 },
-  { value: 10, image: num10, sound: sound10 },
+  { value: 0, image: num0 },
+  { value: 1, image: num1 },
+  { value: 2, image: num2 },
+  { value: 3, image: num3 },
+  { value: 4, image: num4 },
+  { value: 5, image: num5 },
+  { value: 6, image: num6 },
+  { value: 7, image: num7 },
+  { value: 8, image: num8 },
+  { value: 9, image: num9 },
+  { value: 10, image: num10 },
 ];
+
+const sinhalaSounds = {
+  0: sound0,
+  1: sound1,
+  2: sound2,
+  3: sound3,
+  4: sound4,
+  5: sound5,
+  6: sound6,
+  7: sound7,
+  8: sound8,
+  9: sound9,
+  10: sound10,
+};
+
+const englishSounds = {
+  0: ESound0,
+  1: ESound1,
+  2: ESound2,
+  3: ESound3,
+  4: ESound4,
+  5: ESound5,
+  6: ESound6,
+  7: ESound7,
+  8: ESound8,
+  9: ESound9,
+  10: ESound10,
+};
 
 const translations = {
   en: {
     title: "Guide for Parents: Helping Your Child Learn Numbers",
-    adventure: "Number Leaning!",
+    adventure: "Number Learning!",
     tapInstruction: "Tap the picture to hear the number!",
     practiceButton: "Go to Practice",
     instructionsButton: {
@@ -61,7 +104,7 @@ const translations = {
   },
   si: {
     title: "දෙමවුපියන් සඳහා මාර්ගෝපදේශය: ඔබේ දරුවාට ඉලක්කම් ඉගෙන ගැනීමට උපකාර කිරීම",
-    adventure: "ඉලක්කම් වික්‍රමය!",
+    adventure: "ඉලක්කම් ඉගෙනීම!",
     tapInstruction: "ඉලක්කම ඇසීමට රූපය තට්ටු කරන්න!",
     practiceButton: "පුහුණුවීමට යන්න",
     instructionsButton: {
@@ -84,21 +127,29 @@ const NumberLearning = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showInstructions, setShowInstructions] = useState(false);
   const navigate = useNavigate();
-  const { language, toggleLanguage } = useLanguageStore(); // Use Zustand store
+  const { language } = useLanguageStore();
 
-  const playSound = () => {
-    const audio = new Audio(numbers[currentIndex].sound);
-    audio.play().catch((error) => {
-      console.log("Audio play error:", error);
-    });
+  const playSound = (number, lang) => {
+    const selectedSounds = lang === "si" ? sinhalaSounds : englishSounds;
+    const soundToPlay = selectedSounds[number];
+    if (soundToPlay) {
+      const audio = new Audio(soundToPlay);
+      audio.play().catch((err) => {
+        console.error(`Error playing ${lang} sound for ${number}:`, err);
+      });
+    }
   };
 
+  useEffect(() => {
+    playSound(numbers[currentIndex].value, language);
+  }, [currentIndex, language]);
+
   const prevNumber = () => {
-    setCurrentIndex((prevIndex) => (prevIndex === 0 ? numbers.length - 1 : prevIndex - 1));
+    setCurrentIndex((prev) => (prev === 0 ? numbers.length - 1 : prev - 1));
   };
 
   const nextNumber = () => {
-    setCurrentIndex((prevIndex) => (prevIndex === numbers.length - 1 ? 0 : prevIndex + 1));
+    setCurrentIndex((prev) => (prev === numbers.length - 1 ? 0 : prev + 1));
   };
 
   const toggleInstructions = () => {
@@ -108,7 +159,7 @@ const NumberLearning = () => {
   return (
     <div className="h-[100vh] w-screen relative flex flex-col items-center justify-start p-4 m-0 overflow-hidden">
       <div
-        className={`absolute inset-0 ${showInstructions ? 'backdrop-blur-sm' : ''}`}
+        className={`absolute inset-0 ${showInstructions ? "backdrop-blur-sm" : ""}`}
         style={{
           backgroundImage: `url(${bg1})`,
           backgroundSize: "cover",
@@ -117,7 +168,6 @@ const NumberLearning = () => {
         }}
       />
 
-      {/* Go to Practice Button in Top-Right Corner */}
       <div className="absolute top-4 right-8">
         <button
           onClick={() => navigate("/math/numbers/practice")}
@@ -136,7 +186,6 @@ const NumberLearning = () => {
         </button>
       </div>
 
-      {/* Instruction Modal */}
       {showInstructions && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm">
           <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6 m-4 relative">
@@ -150,23 +199,19 @@ const NumberLearning = () => {
               <h3 className="text-2xl font-bold text-indigo-600">
                 {translations[language].title}
               </h3>
-              <button
-                className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-all duration-200"
-                onClick={toggleLanguage}
-              >
-                {language === "en" ? "සිංහල" : "English"}
-              </button>
             </div>
             <ul className="list-disc list-inside text-gray-700 text-lg max-h-[60vh] overflow-y-auto">
               {translations[language].content.map((item, index) => (
-                <li key={index} className="mb-2">{item}</li>
+                <li key={index} className="mb-2">
+                  {item}
+                </li>
               ))}
             </ul>
           </div>
         </div>
       )}
 
-      <h2 className="text-5xl font-extrabold text-indigo-700 drop-shadow-lg animate-bounce mb-4 mt-10">
+      <h2 className="text-5xl font-extrabold text-indigo-700 drop-shadow-lg  mb-4 mt-10">
         {translations[language].adventure}
       </h2>
 
@@ -176,17 +221,17 @@ const NumberLearning = () => {
           onClick={prevNumber}
         >
           ⬅️
-        </button> 
+        </button>
         <img
           src={numbers[currentIndex].image}
           alt={`Number ${numbers[currentIndex].value}`}
-          className="w-96 h-72 object-contain cursor-pointer transform transition-all duration-300 hover:scale-110 hover:rotate-3 active:scale-90"
-          onClick={playSound}
+          className="w-96 h-72 object-contain cursor-pointer transform transition-all duration-300  active:scale-90"
+          onClick={() => playSound(numbers[currentIndex].value, language)}
         />
         <button
           className="bg-yellow-400 text-white text-3xl font-bold p-6 rounded-full shadow-2xl hover:bg-yellow-500 active:scale-90 transition-all duration-200"
           onClick={nextNumber}
-        > 
+        >
           ➡️
         </button>
       </div>

@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AiOutlineQuestionCircle } from "react-icons/ai";
 import bg1 from "../../../public/images/bg2.jpg";
-import useLanguageStore from "../maths/store/languageStore"; // Import Zustand store
+import useLanguageStore from "../maths/store/languageStore";
 
 // Import number images
 import num0 from "../../assets/numbers/0.png";
@@ -15,14 +14,9 @@ import num6 from "../../assets/numbers/6.png";
 import num7 from "../../assets/numbers/7.png";
 import num8 from "../../assets/numbers/8.png";
 import num9 from "../../assets/numbers/9.png";
+import num10 from "../../assets/numbers/10.png";
 
-// Number images map
-const numberImages = {
-  0: num0, 1: num1, 2: num2, 3: num3, 4: num4,
-  5: num5, 6: num6, 7: num7, 8: num8, 9: num9
-};
-
-// Import sounds
+// Import Sinhala sounds
 import sound0 from "../maths/sounds/0.mp3";
 import sound1 from "../maths/sounds/1.mp3";
 import sound2 from "../maths/sounds/2.mp3";
@@ -33,19 +27,43 @@ import sound6 from "../maths/sounds/6.mp3";
 import sound7 from "../maths/sounds/7.mp3";
 import sound8 from "../maths/sounds/8.mp3";
 import sound9 from "../maths/sounds/9.mp3";
+import sound10 from "../maths/sounds/10.m4a";
 
-// Map numbers to sounds dynamically
-const numberSounds = {
-  0: sound0, 1: sound1, 2: sound2, 3: sound3, 4: sound4,
-  5: sound5, 6: sound6, 7: sound7, 8: sound8, 9: sound9,
+// Import English sounds
+import soundEN0 from "../maths/sounds/E0.m4a";
+import soundEN1 from "../maths/sounds/E1.m4a";
+import soundEN2 from "../maths/sounds/E2.m4a";
+import soundEN3 from "../maths/sounds/E3.m4a";
+import soundEN4 from "../maths/sounds/E4.m4a";
+import soundEN5 from "../maths/sounds/E5.m4a";
+import soundEN6 from "../maths/sounds/E6.m4a";
+import soundEN7 from "../maths/sounds/E7.m4a";
+import soundEN8 from "../maths/sounds/E8.m4a";
+import soundEN9 from "../maths/sounds/E9.m4a";
+import soundEN10 from "../maths/sounds/E10.m4a";
+
+// Import addition and prompt sounds
+import plusEnglish from '../maths/sounds/plus.m4a';
+import plusSinhala from '../maths/sounds/S-plus.m4a';
+import andSinhala from '../maths/sounds/S-and.m4a';
+import whatIstheAnswerAudioEnglish from '../maths/sounds/answerIs.m4a';
+
+// Number images map
+const numberImages = {
+  0: num0, 1: num1, 2: num2, 3: num3, 4: num4,
+  5: num5, 6: num6, 7: num7, 8: num8, 9: num9, 10: num10
 };
 
-// Function to generate a simple addition example
-const generateRandomExample = () => {
-  const num1 = Math.floor(Math.random() * 5) + 1; // Random number between 1 and 5
-  const num2 = Math.floor(Math.random() * (9 - num1)) + 1; // Ensure sum <= 9
-  const sum = num1 + num2;
-  return { num1, num2, sum };
+// Sinhala number sounds
+const numberSoundsSinhala = {
+  0: sound0, 1: sound1, 2: sound2, 3: sound3, 4: sound4,
+  5: sound5, 6: sound6, 7: sound7, 8: sound8, 9: sound9, 10: sound10
+};
+
+// English number sounds
+const numberSoundsEnglish = {
+  0: soundEN0, 1: soundEN1, 2: soundEN2, 3: soundEN3, 4: soundEN4,
+  5: soundEN5, 6: soundEN6, 7: soundEN7, 8: soundEN8, 9: soundEN9, 10: soundEN10
 };
 
 // Translations for English and Sinhala
@@ -87,7 +105,7 @@ const translations = {
       "1. එකට වාඩි වන්න: ඔබේ දරුවා සමඟ නිශ්ශබ්ද, සුවපහසු ස්ථානයක වාඩි වී එකතු කිරීම කෙරෙහි අවධානය යොමු කරන්න。",
       "2. ඉලක්කම් පෙන්වන්න: තිරයේ ඇති ඉලක්කම් දෙකට ඇඟිල්ලෙන් යොමු කර එකට ශබ්ද නඟා කියන්න。",
       "3. තට්ටු කර ඇසීමට: එක් එක් ඉලක්කම ක්ලික් කර එහි ශබ්දය ඇසෙන්න。 ඔබේ දරුවාට හොඳින් ඇසීමට ධෛර්යමත් කරන්න。",
-      "4. එකතු කිරීම පැහැදිලි කරන්න: 'අපි මේවා එකතු කරමු' කියන්න සහ එකතු ලකුණට (+) යොමු කරන්න。 පසුව එකතුව පෙන්වන්න。",
+      "4. එකතු කිරීම පැහැදිලි කරන්න: 'අපි මේවා එකතු කරමු' කියන්න සහ එකතු ලකුණට (+) දොමු කරන්න。 පසුව එකතුව පෙන්වන්න。",
       "5. ඇඟිලිවලින් ගණන් කරන්න: පළමු ඉලක්කම ඔබේ ඇඟිලිවලින් ගණන් කරන්න, පසුව දෙවන ඉලක්කම එකතු කරන්න。 ඔබේ දරුවාට අනුගමනය කිරීමට උපකාර කරන්න。",
       "6. එකතුව කියන්න: එකතුවේ ශබ්දය ඇසූ පසු, එය සතුටු හඬකින් එකට කියන්න!",
       "7. පුනරුච්චාරණය කර සමරන්න: උදාහරණය කිහිප වතාවක් යන්න。 සෑම උත්සාහයකටම අත්පුඩි ගසන්න හෝ සිනහවන්න!",
@@ -96,14 +114,52 @@ const translations = {
   },
 };
 
+// Initial easy examples for the first 5 examples
+const initialEasyExamples = [
+  { num1: 1, num2: 0, sum: 1 },
+  { num1: 1, num2: 1, sum: 2 },
+  { num1: 2, num2: 1, sum: 3 },
+  { num1: 2, num2: 2, sum: 4 },
+  { num1: 3, num2: 2, sum: 5 }
+];
+
+// Function to generate addition examples based on exampleCount
+const generateExample = (exampleCount) => {
+  // First 5 examples: Use predefined easy examples
+  if (exampleCount <= 5) {
+    return initialEasyExamples[exampleCount - 1];
+  }
+  // Basic Level (examples 6–10): Random examples with num1, num2 in 0–5, sum 0–5
+  else if (exampleCount <= 10) {
+    let num1, num2, sum;
+    do {
+      num1 = Math.floor(Math.random() * 6); // 0–5
+      num2 = Math.floor(Math.random() * 6); // 0–5
+      sum = num1 + num2;
+    } while (sum > 5);
+    return { num1, num2, sum };
+  }
+  // Advanced Level (examples 11+): Random examples with num1, num2 in 0–10, sum 0–10
+  else {
+    let num1, num2, sum;
+    do {
+      num1 = Math.floor(Math.random() * 11); // 0–10
+      num2 = Math.floor(Math.random() * 11); // 0–10
+      sum = num1 + num2;
+    } while (sum > 10);
+    return { num1, num2, sum };
+  }
+};
+
 const LearningComponent = () => {
   const navigate = useNavigate();
-  const [example, setExample] = useState(generateRandomExample());
+  const [example, setExample] = useState(generateExample(1));
   const [exampleCount, setExampleCount] = useState(1);
   const [showInstructions, setShowInstructions] = useState(false);
-  const { language, toggleLanguage } = useLanguageStore(); // Use Zustand store
+  const { language, toggleLanguage } = useLanguageStore();
 
-  const playSound = (number) => {
+  const playSound = (number, lang = language) => {
+    const numberSounds = lang === 'si' ? numberSoundsSinhala : numberSoundsEnglish;
     const sound = numberSounds[number];
     if (sound) {
       const audio = new Audio(sound);
@@ -113,26 +169,70 @@ const LearningComponent = () => {
     }
   };
 
-  const swapExample = () => {
-    setExample(generateRandomExample());
-    setExampleCount((prev) => prev + 1);
+  const playAudioSequence = (ex) => {
+    const numberSounds = language === 'si' ? numberSoundsSinhala : numberSoundsEnglish;
+    const num1Audio = new Audio(numberSounds[ex.num1]);
+    const num2Audio = new Audio(numberSounds[ex.num2]);
+    const plusAudio = new Audio(language === 'si' ? plusSinhala : plusEnglish);
+    const whatIsTheAnswerAudio = new Audio(whatIstheAnswerAudioEnglish);
+    const sumAudio = new Audio(numberSounds[ex.sum]);
+
+    if (language === 'si') {
+      const andAudio = new Audio(andSinhala);
+      num1Audio.play().catch((error) => console.log("Num1 audio error:", error));
+      num1Audio.onended = () => {
+        andAudio.play().catch((error) => console.log("And audio error:", error));
+        andAudio.onended = () => {
+          num2Audio.play().catch((error) => console.log("Num2 audio error:", error));
+          num2Audio.onended = () => {
+            plusAudio.play().catch((error) => console.log("Plus audio error:", error));
+            plusAudio.onended = () => {
+              sumAudio.play().catch((error) => console.log("Sum audio error:", error));
+            };
+          };
+        };
+      };
+    } else {
+     num1Audio.play().catch((error) => console.log("Num1 audio error:", error));
+  num1Audio.onended = () => {
+    plusAudio.play().catch((error) => console.log("Plus audio error:", error));
+    plusAudio.onended = () => {
+      num2Audio.play().catch((error) => console.log("Num2 audio error:", error));
+      num2Audio.onended = () => {
+        whatIsTheAnswerAudio.play().catch((error) => console.log("What is the answer audio error:", error));
+        whatIsTheAnswerAudio.onended = () => {
+          sumAudio.play().catch((error) => console.log("Sum audio error:", error));
+        };
+      };
+    };
+  };
+    }
   };
 
-  const toggleInstructions = () => {
-    setShowInstructions((prev) => !prev);
+  const swapExample = () => {
+    const newCount = exampleCount + 1;
+    const newExample = generateExample(newCount);
+    setExample(newExample);
+    setExampleCount(newCount);
+    playAudioSequence(newExample);
   };
+
+  // Play audio sequence when the page loads
+  useEffect(() => {
+    playAudioSequence(example);
+  }, []);
 
   return (
     <div className="min-h-screen w-screen relative flex flex-col items-center justify-center p-8 text-center">
       <div
-              className={`absolute inset-0 ${showInstructions ? 'backdrop-blur-sm' : ''}`}
-              style={{
-                backgroundImage: `url(${bg1})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                zIndex: -1,
-              }}
-            />
+        className={`absolute inset-0 ${showInstructions ? 'backdrop-blur-sm' : ''}`}
+        style={{
+          backgroundImage: `url(${bg1})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          zIndex: -1,
+        }}
+      />
 
       {/* Go to Practice Button in Top-Right Corner */}
       <div className="absolute top-4 right-8">
@@ -146,17 +246,17 @@ const LearningComponent = () => {
 
       <div className="absolute top-[-20px] left-4">
         <button
-          onClick={toggleInstructions}
-          className="bg-blue-500 text-white text-lg font-semibold px-6 py-3 rounded-full shadow-lg hover:bg-blue-600 active:scale-95 transition-all duration-200 mt-10"
+          onClick={() => setShowInstructions(!showInstructions)}
+          className="bg-blue-500 text-white text-lg font-semibold px-6 py-3 rounded-full shadow-lg hover:bg-blue-600 active:scale-95 transition-all duration- Symptom: The instructions button is misaligned vertically, appearing too high on the page.200 mt-10"
         >
           {translations[language].instructionsButton[showInstructions ? "hide" : "show"]}
         </button>
       </div>
 
       {/* Header */}
-      <div className="w-full max-w-3xl mt-[250px]">
+      <div className="w-full max-w-3xl mt-[-250px]">
         <h1 className="text-4xl font-bold text-indigo-700 mb-2 drop-shadow-lg">
-          {translations[language].title}
+          ➕ {translations[language].title}
         </h1>
         <p className="text-lg text-purple-600 drop-shadow-md">
           {translations[language].pronunciation}
@@ -186,14 +286,14 @@ const LearningComponent = () => {
             className="w-[200px] h-[150px] cursor-pointer hover:scale-110 transition"
             onClick={() => playSound(example.num1)}
           />
-          <span className="text-4xl font-bold text-purple-600">+</span>
+          <span className="text-[70px] font-bold text-purple-600">+</span>
           <img
             src={numberImages[example.num2]}
             alt={String(example.num2)}
             className="w-[200px] h-[150px] cursor-pointer hover:scale-110 transition"
             onClick={() => playSound(example.num2)}
           />
-          <span className="text-4xl font-bold text-purple-600">=</span>
+          <span className="text-[70px] font-bold text-purple-600">=</span>
           <img
             src={numberImages[example.sum]}
             alt={String(example.sum)}
@@ -208,7 +308,7 @@ const LearningComponent = () => {
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm">
           <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6 m-4 relative">
             <button
-              onClick={toggleInstructions}
+              onClick={() => setShowInstructions(false)}
               className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-2xl"
             >
               ×
@@ -232,7 +332,7 @@ const LearningComponent = () => {
           </div>
         </div>
       )}
-    </div> 
+    </div>
   );
 };
 

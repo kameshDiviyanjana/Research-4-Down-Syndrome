@@ -28,25 +28,25 @@ const Dashboard = () => {
       welcome: "සාදරයෙන් පිළිගනිමු",
       subtitle: "ඔබේ අන්තර්ක්‍රියාකාරී ඉගෙනුම් උපකරණ පුවරුව",
       numbers: "ඉලක්කම් ඉගෙන ගන්න",
-      sequence: "ඉලක්කම් අනුක්‍රමය",
+      sequence: "ඉලක්කම් අනු පිළිවෙළ",
       addition: "එකතු කිරීම",
       subtraction: "අඩු කිරීම",
       progress: "ප්‍රගතිය ලුහුබඳින්න",
     },
   };
 
-  const buttonStyles = `
-    flex items-center justify-center gap-2
-    px-4 py-2 
-    bg-gradient-to-r from-aqua-400 to-teal-500 
-    text-white rounded-lg 
-    hover:from-aqua-500 hover:to-teal-600 
-    transform hover:-translate-y-0.5 
-    transition-all duration-300 
-    shadow-sm hover:shadow-md
-    text-base font-medium
-    w-full
-  `;
+ const buttonStyles = `
+  flex items-center justify-center gap-3
+  px-6 py-4 
+  bg-gradient-to-r from-aqua-400 to-teal-500 
+  text-white rounded-xl 
+  hover:from-aqua-500 hover:to-teal-600 
+  transform hover:-translate-y-0.5 
+  transition-all duration-300 
+  shadow-md hover:shadow-lg
+  text-lg font-semibold
+  w-full
+`;
 
   return (
     <div 
@@ -61,7 +61,7 @@ const Dashboard = () => {
 
       <div className="absolute inset-0 bg-black/10"></div>
 
-      <div className="absolute top-4 right-4 z-20">
+      <div className="absolute top-4 right-5 z-20">
         <button
           onClick={toggleLanguage}
           className="px-3 py-1 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
@@ -71,23 +71,23 @@ const Dashboard = () => {
       </div>
 
       {/* Main Card */}
-      <div className="relative z-10 mt-[-350px] rounded-2xl max-w-lg w-full animate-fade-in p-6 sm:p-8">
+      <div className="relative z-10 mt-[-150px] rounded-2xl max-w-lg w-full animate-fade-in p-6 sm:p-8">
         <h1 className="text-4xl md:text-3xl font-extrabold text-black mb-3 text-center">
           {translations[language]?.welcome}
         </h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-10 pr-10">
           <button onClick={() => navigate("/math/numbers")} className={buttonStyles}>
-            <span className="text-xl">🔢</span> {translations[language].numbers}
+            <span className="text-2xl">🔢</span> {translations[language].numbers}
           </button>
           <button onClick={() => navigate("/math/sequence")} className={buttonStyles}>
-            <span className="text-xl">🔢</span> {translations[language].sequence}
+            <span className="text-2xl">🔢</span> {translations[language].sequence}
           </button>
           <button onClick={() => navigate("/math/addition")} className={buttonStyles}>
-            <span className="text-xl">➕</span> {translations[language].addition}
+            <span className="text-2xl">➕</span> {translations[language].addition}
           </button>
           <button onClick={() => navigate("/math/subtraction")} className={buttonStyles}>
-            <span className="text-xl">➖</span> {translations[language].subtraction}
+            <span className="text-2xl">➖</span> {translations[language].subtraction}
           </button>
           <button
             onClick={() => navigate("/math/progress")}
