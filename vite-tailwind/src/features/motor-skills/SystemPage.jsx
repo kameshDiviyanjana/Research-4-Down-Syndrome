@@ -321,7 +321,6 @@ function SystemPage() {
         backgroundSize: "cover",
         backgroundPosition: "center",
         zIndex: -1,
-        height: "900px",
       }}
     >
       {radamselect && (
