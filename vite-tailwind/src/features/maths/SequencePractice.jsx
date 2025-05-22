@@ -8,6 +8,7 @@ import "./PracticeAnimations.css";
 import blankAnswerAudio from '../maths/sounds/SNextAnswer.m4a';
 import blankAnswerAudioEnglish from '../maths/sounds/WhatistheNextAnswer.m4a';
 import backgroundImg from "../../../public/images/practiceBg2.jpg";
+import { useNavigate } from "react-router-dom";
 
 import num0 from "../../assets/numbers/0.png";
 import num1 from "../../assets/numbers/1.png";
@@ -57,7 +58,7 @@ const translations = {
     successTitle: "සුපිරි වැඩක්!",
     successText: "ඔබ නිවැරදි ඉලක්කම පෙන්වූවා!",
     failureTitle: "නැවත උත්සාහ කරන්න!",
-    failureText: "යම් දෝෂයක් ඇති විය. කරුණාකර නැවත උත්සාහ කරන්න.",
+    failureText: "යම් දෝෂයක් ඇති විය. කරුණාකර නැවත උත්සාහ කරන්න。",
     failureLowConfidence: "ඔබේ අත් ඉරියව්ව පැහැදිලි නැත. ඉලක්කම පැහැදිලිව පෙන්වන්න.",
     failureWrongNumber: "ඔබ පෙන්වූයේ {userPrediction}, නමුත් නිවැරදි ඉලක්කම වූයේ {targetNumber}.",
   },
@@ -65,45 +66,35 @@ const translations = {
 
 // Function to generate a simple consecutive sequence example (max 10)
 const generateRandomExample = (exampleCount) => {
-  // Normalize exampleCount to cycle every 20 examples
   const normalizedCount = ((exampleCount - 1) % 20) + 1;
-
-  // Define base sequences for 0–5 (ascending order)
   const baseSequences05 = [
-    { sequence: [0, null, 2], answer: 1 }, // 0, 1, 2
-    { sequence: [1, null, 3], answer: 2 }, // 1, 2, 3
-    { sequence: [2, null, 4], answer: 3 }, // 2, 3, 4
-    { sequence: [3, null, 5], answer: 4 }, // 3, 4, 5
-    { sequence: [4, null, 6], answer: 5 }, // 4, 5, 6
+    { sequence: [0, null, 2], answer: 1 },
+    { sequence: [1, null, 3], answer: 2 },
+    { sequence: [2, null, 4], answer: 3 },
+    { sequence: [3, null, 5], answer: 4 },
+    { sequence: [4, null, 6], answer: 5 },
   ];
-
-  // Define reverse sequences for 0–5
   const reverseSequences05 = [
-    { sequence: [4, null, 2], answer: 3 }, // Reverse of [2, 3, 4]
-    { sequence: [5, null, 3], answer: 4 }, // Reverse of [3, 4, 5]
-    { sequence: [4, null, 2], answer: 3 }, // Reverse of [2, 3, 4]
-    { sequence: [3, null, 1], answer: 2 }, // Reverse of [1, 2, 3]
-    { sequence: [2, null, 0], answer: 1 }, // Reverse of [0, 1, 2]
+    { sequence: [4, null, 2], answer: 3 },
+    { sequence: [5, null, 3], answer: 4 },
+    { sequence: [4, null, 2], answer: 3 },
+    { sequence: [3, null, 1], answer: 2 },
+    { sequence: [2, null, 0], answer: 1 },
   ];
-
-  // Define base sequences for 6–10 (ascending order)
   const baseSequences610 = [
-    { sequence: [6, null, 8], answer: 7 }, // 6, 7, 8
-    { sequence: [7, null, 9], answer: 8 }, // 7, 8, 9
-    { sequence: [8, null, 10], answer: 9 }, // 8, 9, 10
-    { sequence: [8, null, 10], answer: 9 }, // 8, 9, 10
+    { sequence: [6, null, 8], answer: 7 },
+    { sequence: [7, null, 9], answer: 8 },
+    { sequence: [8, null, 10], answer: 9 },
+    { sequence: [8, null, 10], answer: 9 },
   ];
-
-  // Define reverse sequences for 6–10
   const reverseSequences610 = [
-    { sequence: [9, null, 7], answer: 8 }, // Reverse of [7, 8, 9]
-    { sequence: [10, null, 8], answer: 9 }, // Reverse of [8, 9, 10]
-    { sequence: [9, null, 7], answer: 8 }, // Reverse of [7, 8, 9]
-    { sequence: [8, null, 6], answer: 7 }, // Reverse of [6, 7, 8]
-    { sequence: [10, null, 8], answer: 9 }, // Reverse of [8, 9, 10]
+    { sequence: [9, null, 7], answer: 8 },
+    { sequence: [10, null, 8], answer: 9 },
+    { sequence: [9, null, 7], answer: 8 },
+    { sequence: [8, null, 6], answer: 7 },
+    { sequence: [10, null, 8], answer: 9 },
   ];
 
-  // Determine which sequence to use based on normalizedCount
   if (normalizedCount <= 5) {
     return { ...baseSequences05[normalizedCount - 1] };
   } else if (normalizedCount <= 10) {
@@ -119,10 +110,11 @@ const playSound = (number) => {
   setTimeout(() => {
     const audio = new Audio(`/sounds/${number}.mp3`);
     audio.play().catch((error) => console.log("Audio play error:", error));
-  }, 3000); // 3000ms = 3 seconds
+  }, 3000);
 };
 
 const SequencePractice = () => {
+  const navigate = useNavigate();
   const [selectedSequence, setSelectedSequence] = useState(null);
   const [countdown, setCountdown] = useState(null);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -132,6 +124,10 @@ const SequencePractice = () => {
   const [isCorrect, setIsCorrect] = useState(false);
   const { language } = useLanguageStore();
   const addProgress = useProgressStore((state) => state.addProgress);
+
+  const goToDashboard = () => {
+    navigate("/math/mathdashboard");
+  };
 
   const startCountdown = () => {
     setCountdown(5);
@@ -150,7 +146,6 @@ const SequencePractice = () => {
   };
 
   const startPractice = () => {
-    // Set sequence first
     const nextCount = exampleCount + 1;
     const targetSequence = generateRandomExample(nextCount);
     const displaySequence = targetSequence.sequence.map(num => num === null ? "?" : num);
@@ -160,36 +155,28 @@ const SequencePractice = () => {
     setFinalPrediction("");
     setIsCorrect(false);
 
-    // Play audio after sequence is displayed
     const audioFile = language === 'si' ? blankAnswerAudio : blankAnswerAudioEnglish;
     const audio = new Audio(audioFile);
     audio.play().then(() => {
-      // Start countdown after audio finishes
       audio.onended = () => {
         startCountdown();
       };
     }).catch((error) => {
       console.log("Audio play error:", error);
-      // Fallback: start countdown if audio fails
       startCountdown();
     });
   };
 
   const retryPractice = () => {
-    // Keep the same sequence, reset prediction
     setFinalPrediction("");
-
-    // Play audio
     const audioFile = language === 'si' ? blankAnswerAudio : blankAnswerAudioEnglish;
     const audio = new Audio(audioFile);
     audio.play().then(() => {
-      // Start countdown after audio finishes
       audio.onended = () => {
         startCountdown();
       };
     }).catch((error) => {
       console.log("Audio play error:", error);
-      // Fallback: start countdown if audio fails
       startCountdown();
     });
   };
@@ -208,7 +195,7 @@ const SequencePractice = () => {
       const isAnswerCorrect = userPrediction === targetSequence.answer && confidence >= 0.8;
       setIsCorrect(isAnswerCorrect);
 
-      addProgress("SequencePractice", isAnswerCorrect ? 1 : 0);
+      addProgress("Sequence", isAnswerCorrect); // Updated to use "Sequence" as subSkill and boolean for score
       if (isAnswerCorrect) {
         showSuccessAlert(translations, language);
       } else {
@@ -237,9 +224,16 @@ const SequencePractice = () => {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center flex items-center justify-center p-6"
+      className="relative min-h-screen bg-cover bg-center flex items-center justify-center p-6"
       style={{ backgroundImage: `url(${backgroundImg})` }}
     >
+      <button
+        onClick={goToDashboard}
+        className="absolute top-4 left-4 bg-indigo-500 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-600 transition z-50"
+      >
+        Back to Dashboard
+      </button>
+
       <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-10">
         <div className="flex flex-col items-center lg:w-1/2 rounded-2xl p-8 transform transition-all">
           <div className="text-center mt-8">

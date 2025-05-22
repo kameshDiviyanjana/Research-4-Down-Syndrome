@@ -17,7 +17,7 @@ const FishModel = () => {
         // Log scene structure to identify fin names (for debugging)
         scene.traverse((child) => {
             if (child.isMesh || child.isBone) {
-                console.log(child.name);
+               // console.log(child.name);
                 if (child.name.toLowerCase().includes("tail")) {
                     fins.current.tail = child;
                 } else if (child.name.toLowerCase().includes("pectoral") && child.name.toLowerCase().includes("left")) {
