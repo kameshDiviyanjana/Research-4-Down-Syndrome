@@ -12,6 +12,7 @@ import Van from "../../../assets/van.jpeg";
 import Button from "../../../atomes/Button";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import bg1 from "../../../../public/images/bg3.jpg";
 
 const imageMapping = {
   Car: car,
@@ -260,7 +261,16 @@ function TestDashbord() {
     //     </div>
     //   </div>
     // </div>
-    <div className="bg-[url('https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg')] bg-cover bg-no-repeat bg-center w-full h-[900px] flex items-center justify-center">
+    <div
+      className="bg-cover bg-no-repeat bg-center w-full justify-center items-center text-center p-6 h-screen flex flex-col"
+      style={{
+        backgroundImage: `url(${bg1})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        zIndex: -1,
+       
+      }}
+    >
       <div className="grid grid-cols-1 gap-8 px-6">
         {/* 🏆 Scoreboard */}
         <motion.div

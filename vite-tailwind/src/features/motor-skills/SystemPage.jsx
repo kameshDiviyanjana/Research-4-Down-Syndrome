@@ -157,23 +157,52 @@ function SystemPage() {
         });
         setVideoBlob(null);
       } else {
-        Swal.fire({
-          title: `Results Processed!`,
-          html: `<b>Match Percentage:</b> ${percentage}% <br>
+     
+         if (randomCategory != predicted_action) {
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: `The detected action does not match the expected action. Actual action is  ${randomCategory} 
+          Detected action is  ${predicted_action}`,
+            footer: "Please try again.",
+          });
+
+         } else {
+           Swal.fire({
+             title: `Results Processed!`,
+             html: `<b>Match Percentage:</b> ${percentage}% <br>
           <b>Actual action is :</b> ${randomCategory} <br>
           <b>Detected action is :</b> ${predicted_action} <br>
           <b>System suggests next level as:</b> <span style="margin: 10px 0; font-size: 1.8rem; color: ${levelColor}">${levelIcon} ${level}</span>
           <br><b>Message:</b> ${message}`,
-          icon: "success",
-          confirmButtonText: "OK",
-          confirmButtonColor: levelColor,
-          timerProgressBar: true,
-          customClass: {
-            popup: "level-popup",
-            confirmButton: "level-confirm-button",
-          },
-        });
+             icon: "success",
+             confirmButtonText: "OK",
+             confirmButtonColor: levelColor,
+             timerProgressBar: true,
+             customClass: {
+               popup: "level-popup",
+               confirmButton: "level-confirm-button",
+             },
+           });
+         }
         setVideoBlob(null);
+          // Swal.fire({
+          //   title: `Results Processed!`,
+          //   html: `<b>Match Percentage:</b> ${percentage}% <br>
+          // <b>Actual action is :</b> ${randomCategory} <br>
+          // <b>Detected action is :</b> ${predicted_action} <br>
+          // <b>System suggests next level as:</b> <span style="margin: 10px 0; font-size: 1.8rem; color: ${levelColor}">${levelIcon} ${level}</span>
+          // <br><b>Message:</b> ${message}`,
+          //   icon: "success",
+          //   confirmButtonText: "OK",
+          //   confirmButtonColor: levelColor,
+          //   timerProgressBar: true,
+          //   customClass: {
+          //     popup: "level-popup",
+          //     confirmButton: "level-confirm-button",
+          //   },
+          // });
+          // setVideoBlob(null);
       }
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -313,15 +342,13 @@ function SystemPage() {
     <div
       // style={{ padding: "20px" }}
       // className="bg-[url(https://cdn.pixabay.com/photo/2022/06/22/11/45/background-7277773_1280.jpg)] bg-cover bg-no-repeat bg-center h-[700px] w-full overflow-y-auto"
-      className="
-      bg-cover bg-no-repeat bg-center w-ful
-      justify-center items-center text-center p-6"
+      className={`bg-cover bg-no-repeat bg-center w-ful
+      justify-center items-center text-center p-6 h-full ${radamselect ? "h-screen" : "h-auto"}`}
       style={{
         backgroundImage: `url(${bg1})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         zIndex: -1,
-        height: "900px",
       }}
     >
       {radamselect && (

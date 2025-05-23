@@ -118,7 +118,7 @@ function PracticeLevel() {
   };
 
   const handleClickStageThreePage = () => {
-    navigate("stage-three");
+    navigate("quize");
   };
 
   return (
