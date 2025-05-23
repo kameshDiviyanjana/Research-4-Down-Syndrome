@@ -14,7 +14,7 @@ const FishModel = () => {
     const { actions } = useAnimations(animations, ref);
 
     useEffect(() => {
-        // Log scene structure to identify fin names (for debugging)
+        // Log scene structure to identify fin names 
         scene.traverse((child) => {
             if (child.isMesh || child.isBone) {
                // console.log(child.name);
@@ -31,7 +31,7 @@ const FishModel = () => {
         // Play built-in animations if available
         if (animations.length > 0) {
             mixer.current = new THREE.AnimationMixer(scene);
-            const swimAnimation = actions[Object.keys(actions)[0]]; // Play first animation (e.g., "Swim")
+            const swimAnimation = actions[Object.keys(actions)[0]]; 
             if (swimAnimation) {
                 swimAnimation.play();
             }

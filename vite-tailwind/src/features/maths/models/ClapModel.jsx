@@ -14,10 +14,10 @@ const ClapModel = () => {
   const { actions } = useAnimations(animations, ref);
 
   useEffect(() => {
-    // Log scene structure to identify arm/hand names (for debugging)
+    // Log scene structure to identify arm/hand names 
     scene.traverse((child) => {
       if (child.isMesh || child.isBone) {
-        console.log(child.name);
+        // console.log(child.name);
         if (child.name.toLowerCase().includes("arm") && child.name.toLowerCase().includes("left")) {
           parts.current.leftArm = child;
         } else if (child.name.toLowerCase().includes("arm") && child.name.toLowerCase().includes("right")) {
@@ -29,7 +29,7 @@ const ClapModel = () => {
     // Play built-in clapping animation if available
     if (animations.length > 0) {
       mixer.current = new THREE.AnimationMixer(scene);
-      const clapAnimation = actions[Object.keys(actions)[0]]; // Play first animation (e.g., "Clap")
+      const clapAnimation = actions[Object.keys(actions)[0]]; 
       if (clapAnimation) {
         clapAnimation.play();
       }

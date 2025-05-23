@@ -234,7 +234,7 @@ const LearningComponent = () => {
         }}
       />
 
-      {/* Go to Practice Button in Top-Right Corner */}
+      {/* Practice Button */}
       <div className="absolute top-4 right-8">
         <button
           onClick={() => navigate("/math/addition/practice")}
@@ -263,9 +263,9 @@ const LearningComponent = () => {
         </p>
       </div>
 
-      {/* Example Container */}
+      
       <div className="w-full max-w-md p-6 rounded-xl shadow-none">
-        {/* Example Header */}
+      
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-blue-800 drop-shadow-md">
             {translations[language].example} {exampleCount}

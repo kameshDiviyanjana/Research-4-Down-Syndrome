@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import useProgressStore from '../maths/store/progressStore';
 import useLanguageStore from '../maths/store/languageStore';
-import { showSuccessAlert, showFailureAlert } from '../maths/ResponseModal';
+import { showSuccessAlert, showFailureAlert } from '../maths/components/ResponseModal';
+import FingerCountingFeed from './components/FingerCountingFeed';
 import "./PracticeAnimations.css";
 import substractEnglish from '../maths/sounds/substract.m4a';
 import substractSinhala from '../maths/sounds/S-subtract.m4a';
@@ -10,6 +11,7 @@ import whatIstheAnswerAudioSinhala from '../maths/sounds/S-SonAnswer.m4a';
 import whatIstheAnswerAudioEnglish from '../maths/sounds/answerIs.m4a';
 import backgroundImg from "../../../public/images/practiceBg2.jpg";
 import { useNavigate } from "react-router-dom";
+import { fetchFingerCount } from './services/fingerCountingService';
 
 import num0 from "../../assets/numbers/0.png";
 import num1 from "../../assets/numbers/1.png";
@@ -238,31 +240,10 @@ const SubtractionPractice = () => {
 
   const checkResult = async (targetTask) => {
     console.log("[checkResult] Fetching finger count from API");
-    try {
-      const response = await fetch("http://localhost:5000/finger_counting/count");
-      const data = await response.json();
-      const userPrediction = data.finger_count;
-      const confidence = data.confidence;
-      console.log(`[checkResult] Fetched finger count: ${userPrediction}, Confidence: ${confidence}`);
+    const result = await fetchFingerCount();
 
-      setFinalPrediction(userPrediction);
-      setIsCapturing(false);
-      setIsChecking(false);
-
-      const targetAnswer = targetTask.answer;
-      const isAnswerCorrect = userPrediction === targetAnswer && confidence >= 0.8;
-      setIsCorrect(isAnswerCorrect);
-      console.log(`[checkResult] Comparison result: ${isAnswerCorrect} (Target: ${targetAnswer}, User: ${userPrediction}, Conf: ${confidence})`);
-
-      addProgress("Subtraction", isAnswerCorrect); // Updated to use "Subtraction" as subSkill and boolean for score
-      if (isAnswerCorrect) {
-        setTaskCount(taskCount + 1);
-        showSuccessAlert(translations, language);
-      } else {
-        showFailureAlert(translations, language, confidence, targetAnswer, userPrediction);
-      }
-    } catch (error) {
-      console.error("[checkResult] Error fetching finger count:", error);
+    if (result.error) {
+      console.error("[checkResult] Error fetching finger count:", result.error);
       setIsCapturing(false);
       setIsChecking(false);
       Swal.fire({
@@ -272,6 +253,26 @@ const SubtractionPractice = () => {
         showConfirmButton: false,
         timer: 2000,
       });
+      return;
+    }
+
+    const { userPrediction, confidence } = result;
+    console.log(`[checkResult] Fetched finger count: ${userPrediction}, Confidence: ${confidence}`);
+    setFinalPrediction(userPrediction);
+    setIsCapturing(false);
+    setIsChecking(false);
+
+    const targetAnswer = targetTask.answer;
+    const isAnswerCorrect = userPrediction === targetAnswer && confidence >= 0.8;
+    setIsCorrect(isAnswerCorrect);
+    console.log(`[checkResult] Comparison result: ${isAnswerCorrect} (Target: ${targetAnswer}, User: ${userPrediction}, Conf: ${confidence})`);
+
+    addProgress("Subtraction", isAnswerCorrect);
+    if (isAnswerCorrect) {
+      setTaskCount(taskCount + 1);
+      showSuccessAlert(translations, language);
+    } else {
+      showFailureAlert(translations, language, confidence, targetAnswer, userPrediction);
     }
   };
 
@@ -350,13 +351,7 @@ const SubtractionPractice = () => {
           )}
         </div>
 
-        <div className="lg:w-1/2 flex justify-center mt-[100px] mr-[70px]">
-          <img 
-            src="http://localhost:5000/finger_counting/feed" 
-            alt="Finger counting feed" 
-            className="w-full max-w-2xl rounded-2xl shadow-xl border-4 border-indigo-200 transform transition-all hover:border-indigo-400"
-          />
-        </div>
+        <FingerCountingFeed />
       </div>
     </div>
   );

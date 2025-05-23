@@ -8,16 +8,16 @@ import bgMusic from '../../assets/bgmusic.mp3';
 import ClownfishModel from "./models/ClownfishModel";
 // import CrabModel from "./models/CrabModel";
 import TropicalFishSchoolModel from "./models/TropicalFishSchoolModel";
-import useLanguageStore from "../maths/store/languageStore"; // Import Zustand store
+import useLanguageStore from "../maths/store/languageStore"; 
 
 const Dashboard = () => {
     useEffect(() => {
-        const userId = localStorage.getItem("userid"); // fetch with correct key
+        const userId = localStorage.getItem("userid"); 
         console.log("User ID from localStorage:", userId);
       }, []);
       
   const navigate = useNavigate();
-  const { language, toggleLanguage } = useLanguageStore(); // Use Zustand store
+  const { language, toggleLanguage } = useLanguageStore(); 
 
   const translations = {
     en: {
