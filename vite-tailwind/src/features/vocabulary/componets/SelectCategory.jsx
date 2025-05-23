@@ -44,7 +44,7 @@ function SelectCategory() {
      <div className="py-12 px-8">
        {/* Sun & Bush Images */}
        <div className=" flex flex-row">
-         <div className="h-full w-full flex flex-col items-center text-center p-4">
+         <div className="h-full w-full flex flex-col items-center text-center p-2">
            {/* Alpert Sound Section */}
            <h1 className="text-4xl font-extrabold text-blue-700 mt-8">
              🏆 Alphabet Sound
@@ -101,8 +101,8 @@ function SelectCategory() {
          </div>
        </div>
        <div className=" mb-16">
-         <div className="h-full w-full flex flex-col items-center text-center p-4">
-           {/* Letter Sound Section */}
+         {/* <div className="h-full w-full flex flex-col items-center text-center p-4">
+           
            <h1 className="text-4xl font-extrabold text-blue-700 mt-8">
              🔤 Sinhala Hodiya
            </h1>
@@ -110,7 +110,7 @@ function SelectCategory() {
              Let's explore letters! 🎈
            </p>
 
-           {/* Animated Icon */}
+         
            <div
              className="mt-6 w-24 h-24 bg-yellow-400 flex items-center justify-center 
                   rounded-full shadow-xl animate-pulse border-4 border-white"
@@ -118,7 +118,7 @@ function SelectCategory() {
              <span className="text-5xl text-white">🔠</span>
            </div>
 
-           {/* Start Practice Button */}
+          
            <button
              className="bg-gradient-to-r from-purple-400 to-blue-500 text-white text-lg font-extrabold 
                py-4 px-8 rounded-full shadow-xl mt-6 hover:scale-105 active:scale-95 
@@ -127,7 +127,7 @@ function SelectCategory() {
            >
              🎵 Start Practice 🎶
            </button>
-         </div>
+         </div> */}
        </div>
      </div>
    </div>
