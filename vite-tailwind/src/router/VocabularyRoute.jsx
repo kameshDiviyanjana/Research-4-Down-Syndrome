@@ -13,6 +13,7 @@ import AlphabetView from '../features/vocabulary/componets/AlphabetView';
 import SelectCategory from '../features/vocabulary/componets/selectCategory';
 import AlphabetLearning from '../features/vocabulary/componets/Alphabet -learing';
 import Dectation from '../features/vocabulary/componets/Dectation';
+import TestDashbord from '../features/vocabulary/componets/TestDashbord';
 function VocabularyRoute() {
   return (
     <div>
@@ -30,6 +31,7 @@ function VocabularyRoute() {
           <Route path="category" element={<SelectCategory />} />
           <Route path="alohabet-learing" element={<AlphabetLearning />} />
           <Route path="dectation" element={<Dectation />} />
+          <Route path="quize" element={<TestDashbord />} />
         </Routes>
       </AuthProvider>
       <Outlet />

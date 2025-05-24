@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AiOutlineQuestionCircle } from "react-icons/ai";
 import bg1 from "../../../public/images/bg3.jpg";
+import useLanguageStore from "../maths/store/languageStore";
 
 // Import number images
 import num0 from "../../assets/numbers/0.png";
@@ -14,20 +15,7 @@ import num6 from "../../assets/numbers/6.png";
 import num7 from "../../assets/numbers/7.png";
 import num8 from "../../assets/numbers/8.png";
 import num9 from "../../assets/numbers/9.png";
-
-// Number data for images
-const numberImages = {
-  0: num0,
-  1: num1,
-  2: num2,
-  3: num3,
-  4: num4,
-  5: num5,
-  6: num6,
-  7: num7,
-  8: num8,
-  9: num9,
-};
+import num10 from "../../assets/numbers/10.png";
 
 // Import sounds
 import sound0 from "../maths/sounds/0.mp3";
@@ -40,44 +28,71 @@ import sound6 from "../maths/sounds/6.mp3";
 import sound7 from "../maths/sounds/7.mp3";
 import sound8 from "../maths/sounds/8.mp3";
 import sound9 from "../maths/sounds/9.mp3";
+import sound10 from "../maths/sounds/10.m4a";
+
+// Number data for images
+const numberImages = {
+  0: num0, 1: num1, 2: num2, 3: num3, 4: num4,
+  5: num5, 6: num6, 7: num7, 8: num8, 9: num9, 10: num10
+};
 
 // Map numbers to sounds dynamically
 const numberSounds = {
-  0: sound0,
-  1: sound1,
-  2: sound2,
-  3: sound3,
-  4: sound4,
-  5: sound5,
-  6: sound6,
-  7: sound7,
-  8: sound8,
-  9: sound9,
+  0: sound0, 1: sound1, 2: sound2, 3: sound3, 4: sound4,
+  5: sound5, 6: sound6, 7: sound7, 8: sound8, 9: sound9, 10: sound10
 };
 
-// Function to generate a simple consecutive sequence example (max 9)
+// Function to generate a simple consecutive sequence example (max 10)
 const generateRandomExample = (exampleCount) => {
-  const rangeStart = exampleCount <= 5 ? 0 : 5;
-  const rangeEnd = exampleCount <= 5 ? 5 : 10;
+  // Normalize exampleCount to cycle every 20 examples
+  const normalizedCount = ((exampleCount - 1) % 20) + 1;
 
-  const numbers = Array.from(
-    { length: rangeEnd - rangeStart },
-    (_, i) => i + rangeStart
-  );
+  // Define base sequences for 0–5 (ascending order)
+  const baseSequences05 = [
+    { sequence: [0, null, 2], answer: 1 }, // 0, 1, 2
+    { sequence: [1, null, 3], answer: 2 }, // 1, 2, 3
+    { sequence: [2, null, 4], answer: 3 }, // 2, 3, 4
+    { sequence: [3, null, 5], answer: 4 }, // 3, 4, 5
+    { sequence: [4, null, 6], answer: 5 }, // 4, 5, 6
+  ];
 
-  // Shuffle the numbers
-  const shuffled = numbers.sort(() => Math.random() - 0.5);
+  // Define reverse sequences for 0–5
+  const reverseSequences05 = [
+    { sequence: [4, null, 2], answer: 3 }, // Reverse of [2, 3, 4]
+    { sequence: [5, null, 3], answer: 4 }, // Reverse of [3, 4, 5]
+    { sequence: [4, null, 2], answer: 3 }, // Reverse of [2, 3, 4]
+    { sequence: [3, null, 1], answer: 2 }, // Reverse of [1, 2, 3]
+    { sequence: [2, null, 0], answer: 1 }, // Reverse of [0, 1, 2]
+  ];
 
-  // Pick up to 4 numbers
-  const length = Math.floor(Math.random() * 2) + 3; // 3 or 4
-  const sequence = shuffled.slice(0, length);
+  // Define base sequences for 6–10 (ascending order)
+  const baseSequences610 = [
+    { sequence: [6, null, 8], answer: 7 }, // 6, 7, 8
+    { sequence: [7, null, 9], answer: 8 }, // 7, 8, 9
+    { sequence: [8, null, 10], answer: 9 }, // 8, 9, 10
+    { sequence: [8, null, 10], answer: 9 }, // 8, 9, 10
+    { sequence: [6, null, 8], answer: 7 }, // 6, 7, 8
+  ];
 
-  // Randomly hide one number
-  const answerIndex = Math.floor(Math.random() * sequence.length);
-  const answer = sequence[answerIndex];
-  sequence[answerIndex] = null;
+  // Define reverse sequences for 6–10
+  const reverseSequences610 = [
+    { sequence: [9, null, 7], answer: 8 }, // Reverse of [7, 8, 9]
+    { sequence: [10, null, 8], answer: 9 }, // Reverse of [8, 9, 10]
+    { sequence: [9, null, 7], answer: 8 }, // Reverse of [7, 8, 9]
+    { sequence: [8, null, 6], answer: 7 }, // Reverse of [6, 7, 8]
+    { sequence: [10, null, 8], answer: 9 }, // Reverse of [8, 9, 10]
+  ];
 
-  return { sequence, answer };
+  // Determine which sequence to use based on normalizedCount
+  if (normalizedCount <= 5) {
+    return { ...baseSequences05[normalizedCount - 1] };
+  } else if (normalizedCount <= 10) {
+    return { ...reverseSequences05[normalizedCount - 6] };
+  } else if (normalizedCount <= 15) {
+    return { ...baseSequences610[normalizedCount - 11] };
+  } else {
+    return { ...reverseSequences610[normalizedCount - 16] };
+  }
 };
 
 // Translations for English and Sinhala
@@ -122,7 +137,7 @@ const translations = {
       "2. අනුක්‍රමය පෙන්වන්න: තිරයේ ඇති ඉලක්කම් දෙස බලන්න. රටාව පියවරෙන් පියවර පෙන්වන්න.",
       "3. තට්ටු කර ඇසීමට: එක් එක් ඉලක්කම ක්ලික් කර එහි ශබ්දය ඇසෙන්න. ඔබේ දරුවාට හොඳින් ඇසීමට ධෛර්යමත් කරන්න.",
       "4. එකට කියන්න: ශබ්ද ඇසූ පසු ඔබේ දරුවා සමඟ ඉලක්කම් ශබ්ද නඟා කියන්න. සතුටු හඬකින් භාවිතා කරන්න!",
-      "5. නැති ඉලක්කම සොයන්න: ප්‍රශ්න ලකුණට ඇඟිල්ලෙන් යොමු කර, 'මීළඟට එන්නේ මොකක්ද?' කියා ඇසිල්ලක් කරන්න. පිළිතුර පෙන්වා එකට කියන්න.",
+      "5. නැති ඉලක්කම සොයන්න: ප්‍ර෶න ලකුණට ඇඟිල්ලෙන් යොමු කර, 'මීළඟට එන්නේ මොකක්ද?' කියා ඇසිල්ලක් කරන්න. පිළිතුර පෙන්වා එකට කියන්න.",
       "6. ඇඟිලි භාවිතා කරන්න: අනුක්‍රමය ඔබේ ඇඟිලි භාවිතයෙන් ගණන් කරන්න. ඔබේ දරුවාටත් එසේ කිරීමට උපකාර කරන්න.",
       "7. පුනරුච්චාරණය කර ප්‍රශංසා කරන්න: අනුක්‍රමය කිහිප වතාවක් යන්න. සෑම උත්සාහයකටම අත්පුඩි ගසන්න හෝ සතුටු වන්න!",
       "8. ඊළඟ උදාහරණය: නව අනුක්‍රමයක් බැලීමට 'ඊළඟ උදාහරණය' ක්ලික් කර ඉගෙනීම රසවත් කරන්න.",
@@ -135,12 +150,7 @@ const SequenceLearning = () => {
   const [example, setExample] = useState(generateRandomExample(exampleCount));
   const [showInstructions, setShowInstructions] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Extract language from query parameter
-  const queryParams = new URLSearchParams(location.search);
-  const initialLang = queryParams.get("lang") === "si" ? "si" : "en";
-  const [language, setLanguage] = useState(initialLang);
+  const { language } = useLanguageStore();
 
   const playSound = (number) => {
     const sound = numberSounds[number];
@@ -160,141 +170,124 @@ const SequenceLearning = () => {
     });
   };
 
-  const toggleLanguage = () => {
-    setLanguage((prevLang) => (prevLang === "en" ? "si" : "en"));
-  };
-
   const toggleInstructions = () => {
     setShowInstructions((prev) => !prev);
   };
 
   return (
-    <div className="min-h-screen w-screen relative flex flex-col items-center justify-center p-8 text-center">
+    <div
+      className="h-[100vh] w-screen relative flex flex-col items-center justify-start p-4 sm:p-6 overflow-hidden"
+      style={{
+        backgroundImage: `url(${bg1})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <div
-        className={`absolute inset-0 ${
-          showInstructions ? "backdrop-blur-sm" : ""
-        }`}
-        style={{
-          backgroundImage: `url(${bg1})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          zIndex: -1,
-          height: "900px",
-        }}
+        className={`absolute inset-0 ${showInstructions ? "backdrop-blur-sm z-10" : "z-0"}`}
       />
 
-      {/* Go to Practice Button in Top-Right Corner */}
-      <div className="absolute top-4 right-8">
-        <button
-          onClick={() => navigate(`/math/sequence/practice?lang=${language}`)}
-          className="bg-indigo-500 text-white text-lg font-semibold px-6 py-3 rounded-full shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
-        >
-          📝 {translations[language].practiceButton}
-        </button>
-      </div>
-
-      <div className="absolute top-[-20px] left-4">
+      {/* Top-left button */}
+      <div className="absolute top-4 left-4 z-20">
         <button
           onClick={toggleInstructions}
-          className="bg-blue-500 text-white text-lg font-semibold px-6 py-3 rounded-full shadow-lg hover:bg-blue-600 active:scale-95 transition-all duration-200 mt-10"
+          className="bg-blue-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-6 py-1 sm:py-3 rounded-full shadow-lg hover:bg-blue-600 active:scale-95 transition-all duration-200"
         >
           {translations[language].instructionsButton[showInstructions ? "hide" : "show"]}
         </button>
       </div>
 
-      <div className="mt-[20px] ml-[0px]">
-        {/* Header */}
-        <div className="w-full max-w-3xl">
-          <h1 className="text-4xl font-bold text-indigo-700 mb-2 drop-shadow-lg">
-            {translations[language].title}
-          </h1>
-        </div>
-
-        {/* Example Container */}
-        <div className="w-full max-w-md p-6 rounded-xl shadow-none">
-          {/* Example Header */}
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-blue-800 drop-shadow-md">
-              {translations[language].example} {exampleCount}
-            </h2>
-            <button
-              className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition"
-              onClick={swapExample}
-            >
-              ➡ {translations[language].nextExample}
-            </button>
-          </div>
-
-          {/* Dynamic Sequence - Horizontal Layout with Centering */}
-          <div className="!flex !flex-row justify-center items-center gap-4 my-6">
-            {example.sequence.slice(0, 4).map((num, index) =>
-              num !== null ? (
-                <img
-                  key={index}
-                  src={numberImages[num]}
-                  alt={String(num)}
-                  className="w-[200px] h-40 cursor-pointer hover:scale-110 transition"
-                  onClick={() => playSound(num)}
-                />
-              ) : (
-                <div
-                  key={index}
-                  className="w-40 h-40 flex justify-center items-center border-gray-300 rounded-full"
-                >
-                  <AiOutlineQuestionCircle className="w-24 h-24 text-purple-600" />
-                </div>
-              )
-            )}
-
-            <div className="text-3xl text-purple-600 font-bold my-4"></div>
-            <h3 className="text-lg font-semibold text-purple-600 drop-shadow-md">
-              {translations[language].answerIs}
-            </h3>
-            <img
-              src={numberImages[example.answer]}
-              alt={String(example.answer)}
-              className="w-[200px] h-40 cursor-pointer hover:scale-110 transition"
-              onClick={() => playSound(example.answer)}
-            />
-          </div>
-          <p className="text-lg text-purple-600 mb-6 drop-shadow-md">
-            {translations[language].pronunciation}
-          </p>
-        </div>
+      {/* Top-right button */}
+      <div className="absolute top-4 right-4 z-20">
+        <button
+          onClick={() => navigate("/math/sequence/practice")}
+          className="bg-indigo-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-6 py-1 sm:py-3 rounded-full shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
+        >
+          {translations[language].practiceButton}
+        </button>
       </div>
 
       {/* Instruction Modal */}
       {showInstructions && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm">
-          <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6 m-4 relative">
+          <div className="w-full max-w-md sm:max-w-2xl bg-white rounded-lg shadow-lg p-4 sm:p-6 m-4 relative">
             <button
               onClick={toggleInstructions}
-              className="absolute top-2 right-2 text-gray-600 hovered:text-gray-800 text-2xl"
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-xl sm:text-2xl"
             >
               ×
             </button>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-2xl font-bold text-indigo-600">
+              <h3 className="text-xl sm:text-2xl font-bold text-indigo-600">
                 {translations[language].instructionsTitle}
               </h3>
-              <button
-                className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-all duration-200"
-                onClick={toggleLanguage}
-              >
-                {language === "en" ? "සිංහල" : "English"}
-              </button>
             </div>
-            <ul className="list-disc list-inside text-gray-700 text-lg max-h-[60vh] overflow-y-auto">
+            <ul className="list-disc list-inside text-gray-700 text-base sm:text-lg max-h-[60vh] overflow-y-auto">
               {translations[language].content.map((item, index) => (
-                <li key={index} className="mb-2">
-                  {item}
-                </li>
+                <li key={index} className="mb-2">{item}</li>
               ))}
             </ul>
           </div>
         </div>
       )}
-    </div> 
+
+      {/* Header */}
+      <h2 className="text-3xl sm:text-5xl font-extrabold text-indigo-700 drop-shadow-lg mb-4 mt-[100px] sm:mt-10 z-20">
+        {translations[language].title}
+      </h2>
+
+      {/* Sequence Section */}
+      <div className="w-full max-w-md sm:max-w-4xl bg-white bg-opacity-80 rounded-xl shadow-lg p-4 sm:p-6 z-20">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h3 className="text-lg sm:text-xl font-semibold text-blue-800 drop-shadow-md">
+            {translations[language].example} {exampleCount}
+          </h3>
+          <button
+            className="bg-indigo-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-lg shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
+            onClick={swapExample}
+          >
+            ➡ {translations[language].nextExample}
+          </button>
+        </div>
+
+        {/* Sequence Display */}
+        <div className="flex flex-row justify-center items-center gap-2 sm:gap-4 my-4 sm:my-6">
+          {example.sequence.slice(0, 3).map((num, index) =>
+            num !== null ? (
+              <img
+                key={index}
+                src={numberImages[num]}
+                alt={String(num)}
+                className="w-24 sm:w-32 h-20 sm:h-24 cursor-pointer hover:scale-110 transition-all duration-200"
+                onClick={() => playSound(num)}
+              />
+            ) : (
+              <div
+                key={index}
+                className="w-24 sm:w-32 h-20 sm:h-24 flex justify-center items-center border-gray-300 rounded-full"
+              >
+                <AiOutlineQuestionCircle className="w-12 sm:w-16 h-12 sm:h-16 text-purple-600" />
+              </div>
+            )
+          )}
+        </div>
+
+        {/* Answer Section */}
+        <h3 className="text-base sm:text-lg font-semibold text-purple-600 drop-shadow-md mb-2">
+          {translations[language].answerIs}
+        </h3>
+        <img
+          src={numberImages[example.answer]}
+          alt={String(example.answer)}
+          className="w-24 sm:w-32 h-20 sm:h-24 cursor-pointer hover:scale-110 transition-all duration-200 mx-auto"
+          onClick={() => playSound(example.answer)}
+        />
+
+        <p className="text-base sm:text-lg text-purple-600 font-semibold mt-4 drop-shadow-md">
+          {translations[language].pronunciation}
+        </p>
+      </div>
+    </div>
   );
 };
 

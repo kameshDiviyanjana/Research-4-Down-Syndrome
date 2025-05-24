@@ -16,7 +16,7 @@ const TropicalFishSchoolModel = ({ scale = 4, moveDistanceX = 0.4, moveDistanceY
         // Log scene structure for debugging
         scene.traverse((child) => {
             if (child.isMesh || child.isBone) {
-                console.log(child.name);
+               // console.log(child.name);
 
                 // If the child has a material, set its color
                 if (child.material && child.material.color) {

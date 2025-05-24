@@ -14,10 +14,10 @@ const ClownfishModel = () => {
     const { actions } = useAnimations(animations, ref);
 
     useEffect(() => {
-        // Log scene structure to identify fin names (for debugging)
+        // Log scene structure to identify fin names 
         scene.traverse((child) => {
             if (child.isMesh || child.isBone) {
-                console.log(child.name);
+                //console.log(child.name);
                 if (child.name.toLowerCase().includes("tail")) {
                     fins.current.tail = child;
                 } else if (child.name.toLowerCase().includes("pectoral") && child.name.toLowerCase().includes("left")) {
@@ -31,7 +31,7 @@ const ClownfishModel = () => {
         // Play built-in animations if available
         if (animations.length > 0) {
             mixer.current = new THREE.AnimationMixer(scene);
-            const swimAnimation = actions[Object.keys(actions)[0]]; // Play first animation (e.g., "Swim")
+            const swimAnimation = actions[Object.keys(actions)[0]]; 
             if (swimAnimation) {
                 swimAnimation.play();
             }
