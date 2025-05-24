@@ -28,11 +28,9 @@ function SystemPage() {
 
   const categories = ["catch", "walk", "stand"];
   const categoryVideos = {
-    // catch: "/videos/catch.mp4",
-    catch: "/videos/catch2.mp4",
-    // walk: "/videos/walk.mp4",
-    walk: "/videos/walk2.mp4",
-    stand: "/videos/jump.mp4",
+    catch: "/videos/catch.mp4",
+    walk: "/videos/walk.mp4",
+    stand: "/videos/stand.mp4",
   };
 
   useEffect(() => {
@@ -355,7 +353,7 @@ function SystemPage() {
         <>
           <div className=" pt-40">
             <h1 className="text-7xl text-white font-extrabold font-fontstle2 mb-8 text-center mt-24 animate-bounce drop-shadow-lg">
-              🎮 Play The Game 🎉
+              🎮 තරගය පටන් ගනිමු 🎉
             </h1>
             <div className="flex justify-center">
               <button
