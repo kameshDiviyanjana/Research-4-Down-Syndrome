@@ -1,18 +1,20 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Line } from "react-chartjs-2"; 
+import { fetchProgressData } from './services/progressService';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
-} from "chart.js"; 
+} from "chart.js";
+import { Line, Bar } from "react-chartjs-2";
 
 // Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
 
 const ProgressBar = () => {
   const [progress, setProgress] = useState([]);
@@ -33,36 +35,20 @@ const ProgressBar = () => {
     setLoading(true);
     setError(null);
 
-    try {
-      const response = await fetch(`http://localhost:8005/api/progress/progress/${userId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-      });
+    const { data, error } = await fetchProgressData(userId, token);
+    console.log("Full API response:", data);
 
-      const data = await response.json();
-      console.log("Full API response:", data);
-
-      if (response.ok) {
-        const progressData = data.data || []; // Adjusted to match API response key 'data'
-        console.log("Fetched progress:", progressData);
-        setProgress(progressData);
-        setLoading(false);
-      } else {
-        console.error("Failed to fetch progress:", data.error || data.message);
-        setError(data.error || "Failed to fetch progress");
-        setLoading(false);
-      }
-    } catch (error) {
-      console.error("Error fetching progress:", error);
-      setError(error.message || "Network error");
+    if (error) {
+      console.error("Failed to fetch progress:", error);
+      setError(error);
+      setLoading(false);
+    } else {
+      console.log("Fetched progress:", data);
+      setProgress(data);
       setLoading(false);
     }
   }, []);
 
-  // Fetch progress data on component mount
   useEffect(() => {
     fetchProgress();
   }, [fetchProgress]);
@@ -70,26 +56,39 @@ const ProgressBar = () => {
   // Filter progress for skillType: "Maths"
   const mathProgress = progress.filter((entry) => entry.skillType === "Maths");
 
-  // Function to calculate overall progress for Maths
-  const calculateOverallProgress = () => {
-    if (mathProgress.length === 0) return { labels: [], data: [], totalProgress: 0 };
+  // Prepare data for line chart
+  const prepareLineChartData = () => {
+    if (mathProgress.length === 0) {
+      return { labels: [], scores: [], dates: [] };
+    }
 
-    // Sum all scores
-    const rawTotalProgress = mathProgress.reduce((sum, entry) => sum + entry.score, 0);
-    // Clamp the value to 0–100 for chart display
-    const totalProgress = Math.min(100, Math.max(0, rawTotalProgress));
+    // Sort progress by updatedAt to ensure chronological order
+    const sortedProgress = [...mathProgress].sort(
+      (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt)
+    );
 
-    return {
-      labels: ["Overall Progress"], 
-      data: [totalProgress], 
-      totalProgress: rawTotalProgress, 
-    };
+    // Extract labels (dates), cumulative scores, and formatted dates
+    const labels = sortedProgress.map((entry) =>
+      new Date(entry.updatedAt).toISOString().split('T')[0]
+    );
+    // Calculate cumulative score
+    let cumulativeScore = 0;
+    const scores = sortedProgress.map((entry) => {
+      cumulativeScore += entry.score; // Add score (1 or -1)
+      return Math.min(100, Math.max(0, cumulativeScore)); // Clamp to 0–100
+    });
+    const dates = labels; // Same as labels for tooltips
+
+    console.log("Labels (dates):", labels);
+    console.log("Cumulative scores:", scores);
+    console.log("Dates array:", dates);
+    return { labels, scores, dates };
   };
 
   // Function to calculate per-subSkill progress
   const calculateProgress = () => {
     const progressData = {};
-    const MAX_ATTEMPTS = 100; 
+    const MAX_ATTEMPTS = 100;
 
     mathProgress.forEach(({ subSkill, score }) => {
       if (!progressData[subSkill]) {
@@ -109,23 +108,23 @@ const ProgressBar = () => {
     return progressData;
   };
 
-  const overallProgress = calculateOverallProgress();
+  const { labels, scores, dates } = prepareLineChartData();
   const progressData = calculateProgress();
-
 
   // Line chart data
   const lineChartData = {
-    labels: overallProgress.labels, 
+    labels,
     datasets: [
       {
-        label: "Maths Progress",
-        data: overallProgress.data, 
-        borderColor: "rgba(75, 192, 192, 1)", 
-        backgroundColor: "rgba(75, 192, 192, 0.2)", 
+        label: "Cumulative Maths Score",
+        data: scores,
+        borderColor: "rgba(59, 130, 246, 1)", // Tailwind blue-500
+        backgroundColor: "rgba(59, 130, 246, 0.2)",
         fill: false,
-        tension: 0, 
-        pointRadius: 8, 
-        pointHoverRadius: 10,
+        tension: 0.4,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        pointBackgroundColor: "rgba(59, 130, 246, 1)",
       },
     ],
   };
@@ -133,88 +132,240 @@ const ProgressBar = () => {
   // Line chart options
   const lineChartOptions = {
     responsive: true,
-    maintainAspectRatio: false, 
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "top",
+        labels: {
+          font: { size: 14, family: "'Inter', sans-serif" },
+          color: "#1f2937", // Tailwind gray-800
+        },
       },
       title: {
         display: true,
-        text: "Overall Maths Progress",
-        font: {
-          size: 18,
-        },
+        text: "Maths Progress Over Time",
+        font: { size: 18, family: "'Inter', sans-serif", weight: "bold" },
+        color: "#1f2937", // Tailwind gray-800
       },
       tooltip: {
+        backgroundColor: "#1f2937", // Tailwind gray-800
+        titleFont: { family: "'Inter', sans-serif" },
+        bodyFont: { family: "'Inter', sans-serif" },
         callbacks: {
-          label: (context) => `Total Score: ${context.raw}`,
+          label: (context) => `Score: ${context.raw}`,
+          title: (tooltipItems) => {
+            console.log("TooltipItems:", tooltipItems);
+            if (tooltipItems.length > 0 && dates[tooltipItems[0].dataIndex]) {
+              return `Date: ${dates[tooltipItems[0].dataIndex]}`;
+            }
+            return "Date: N/A";
+          },
         },
       },
     },
     scales: {
       y: {
-        min: 0, // Set y-axis minimum to 0
-        max: 100, // Set y-axis maximum to 100
+        min: 0,
+        max: 100,
         title: {
           display: true,
-          text: "Total Score",
+          text: "Cumulative Score",
+          font: { size: 14, family: "'Inter', sans-serif" },
+          color: "#1f2937", // Tailwind gray-800
         },
+        grid: { color: "#e5e7eb" }, // Tailwind gray-200
       },
       x: {
         title: {
           display: true,
-          text: "Category",
+          text: "Date",
+          font: { size: 14, family: "'Inter', sans-serif" },
+          color: "#1f2937", // Tailwind gray-800
         },
+        ticks: {
+          maxRotation: 45,
+          minRotation: 45,
+          maxTicksLimit: 10,
+          font: { size: 12, family: "'Inter', sans-serif" },
+          color: "#4b5563", // Tailwind gray-600
+        },
+        grid: { display: false },
+      },
+    },
+  };
+
+  // Define four colors for sub-skills
+  const subSkillColors = [
+    {
+      background: "rgba(59, 130, 246, 0.8)", // Tailwind blue-500
+      border: "rgba(59, 130, 246, 1)",
+      hoverBackground: "rgba(37, 99, 235, 0.8)", // Tailwind blue-600
+      hoverBorder: "rgba(37, 99, 235, 1)",
+    },
+    {
+      background: "rgba(20, 184, 166, 0.8)", // Tailwind teal-500
+      border: "rgba(20, 184, 166, 1)",
+      hoverBackground: "rgba(13, 148, 136, 0.8)", // Tailwind teal-600
+      hoverBorder: "rgba(13, 148, 136, 1)",
+    },
+    {
+      background: "rgba(139, 92, 246, 0.8)", // Tailwind purple-500
+      border: "rgba(139, 92, 246, 1)",
+      hoverBackground: "rgba(124, 58, 237, 0.8)", // Tailwind purple-600
+      hoverBorder: "rgba(124, 58, 237, 1)",
+    },
+    {
+      background: "rgba(249, 115, 22, 0.8)", // Tailwind orange-500
+      border: "rgba(249, 115, 22, 1)",
+      hoverBackground: "rgba(234, 88, 12, 0.8)", // Tailwind orange-600
+      hoverBorder: "rgba(234, 88, 12, 1)",
+    },
+  ];
+
+  // Bar chart data for Skill Breakdown
+  const barChartData = {
+    labels: Object.keys(progressData),
+    datasets: [
+      {
+        label: "Sub-Skill Completion",
+        data: Object.values(progressData).map((data) => data.completion),
+        backgroundColor: Object.keys(progressData).map((_, index) => subSkillColors[index % 4].background),
+        borderColor: Object.keys(progressData).map((_, index) => subSkillColors[index % 4].border),
+        borderWidth: 1,
+        hoverBackgroundColor: Object.keys(progressData).map((_, index) => subSkillColors[index % 4].hoverBackground),
+        hoverBorderColor: Object.keys(progressData).map((_, index) => subSkillColors[index % 4].hoverBorder),
+      },
+    ],
+  };
+
+  // Bar chart options
+  const barChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top",
+        labels: {
+          font: { size: 14, family: "'Inter', sans-serif" },
+          color: "#1f2937", // Tailwind gray-800
+        },
+      },
+      title: {
+        display: true,
+        text: "Skill Breakdown",
+        font: { size: 18, family: "'Inter', sans-serif", weight: "bold" },
+        color: "#1f2937", // Tailwind gray-800
+      },
+      tooltip: {
+        backgroundColor: "#1f2937", // Tailwind gray-800
+        titleFont: { family: "'Inter', sans-serif" },
+        bodyFont: { family: "'Inter', sans-serif" },
+        callbacks: {
+          label: (context) => `Completion: ${context.raw}%`,
+          title: (context) => {
+            console.log("Bar TooltipItems:", context);
+            if (context.length > 0) {
+              return `Sub-Skill: ${context[0].label}`;
+            }
+            return "Sub-Skill: N/A";
+          },
+        },
+      },
+    },
+    scales: {
+      y: {
+        min: 0,
+        max: 100,
+        title: {
+          display: true,
+          text: "Completion (%)",
+          font: { size: 14, family: "'Inter', sans-serif" },
+          color: "#1f2937", // Tailwind gray-800
+        },
+        grid: { color: "#e5e7eb" }, // Tailwind gray-200
+      },
+      x: {
+        title: {
+          display: true,
+          text: "Sub-Skill",
+          font: { size: 14, family: "'Inter', sans-serif" },
+          color: "#1f2937", // Tailwind gray-800
+        },
+        ticks: {
+          maxRotation: 45,
+          minRotation: 45,
+          font: { size: 12, family: "'Inter', sans-serif" },
+          color: "#4b5563", // Tailwind gray-600
+        },
+        grid: { display: false },
       },
     },
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto bg-white rounded-xl shadow-lg">
-      <h2 className="text-2xl font-bold text-indigo-700 mb-6 text-center">📊 Maths Progress</h2>
-
-      {/* Error or Loading State */}
-      {error && (
-        <p className="text-red-600 text-center mb-4">
-          Error: {error}. Please check your authentication and try again.
-        </p>
-      )}
-      {loading && (
-        <p className="text-gray-600 text-center mb-4">Loading progress...</p>
-      )}
-
-      {/* Line Chart Section */}
-      <div className="mb-8 h-80">
-        {!loading && mathProgress.length === 0 && !error ? (
-          <p className="text-gray-600 text-center">No Maths progress recorded yet!</p>
-        ) : (
-          <Line data={lineChartData} options={lineChartOptions} />
-        )}
-      </div>
-
-      {/* Per-SubSkill Progress Bars */}
-      {!loading && Object.keys(progressData).length === 0 && !error ? (
-        <p className="text-gray-600 text-center">No activity-specific progress recorded yet!</p>
-      ) : (
-        Object.keys(progressData).map((subSkill) => (
-          <div key={subSkill} className="mb-6">
-            <span className="block text-lg font-semibold text-indigo-600 uppercase mb-2">
-              {subSkill}
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-500">
+              Maths Progress Dashboard
             </span>
-            <div className="w-full h-6 bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-green-500 text-white text-center text-sm font-medium transition-all duration-300 ease-in-out"
-                style={{ width: `${progressData[subSkill].completion}%` }}
-              >
-                {progressData[subSkill].completion}%
-              </div>
+          </h1>
+          <p className="mt-3 text-lg text-gray-600 font-medium">
+            Track your progress and master your Maths skills!
+          </p>
+        </div>
+
+        {/* Main Card */}
+        <div className="bg-white rounded-2xl shadow-xl p-8 transition-all duration-300 hover:shadow-2xl">
+          {/* Error or Loading State */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg text-center animate-fade-in">
+              Error: {error}. Please check your authentication and try again.
             </div>
-            <p className="text-sm text-gray-600 mt-1">
-              Correct: {progressData[subSkill].correct} / Total: {progressData[subSkill].total}
-            </p>
+          )}
+          {loading && (
+            <div className="mb-6 p-4 bg-blue-100 text-blue-700 rounded-lg text-center animate-pulse">
+              Loading progress...
+            </div>
+          )}
+
+          {/* Line Chart Section */}
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+            <svg className="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Progress Over Time
+          </h2>
+          <div className="h-96 bg-gray-50 rounded-lg p-4 mb-12 transition-all duration-300 hover:bg-gray-100">
+            {!loading && mathProgress.length === 0 && !error ? (
+              <p className="text-gray-600 text-center text-lg font-medium">
+                No Maths progress recorded yet! Start practicing to see your progress.
+              </p>
+            ) : (
+              <Line data={lineChartData} options={lineChartOptions} />
+            )}
           </div>
-        ))
-      )}
+
+          {/* Skill Breakdown Bar Chart */}
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+            <svg className="w-6 h-6 mr-2 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+            Skill Breakdown
+          </h2>
+          <div className="h-96 bg-gray-50 rounded-lg p-4 transition-all duration-300 hover:bg-gray-100 animate-fade-in">
+            {!loading && Object.keys(progressData).length === 0 && !error ? (
+              <p className="text-gray-600 text-center text-lg font-medium">
+                No activity-specific progress recorded yet!
+              </p>
+            ) : (
+              <Bar data={barChartData} options={barChartOptions} />
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
