@@ -107,7 +107,7 @@ function Grossmotorskills() {
           >
             <Button
               styles="bg-pink-500 text-white text-lg font-bold px-6 py-3 rounded-full shadow-lg hover:bg-pink-700 transition-all"
-              buttonname="🎮 Start Playing"
+              buttonname="🎮 ආරම්භ කරමු!"
               Onclicks={hadleclickwordpage}
             />
           </motion.div>
