@@ -88,19 +88,26 @@ function SystemPage() {
 
   const handleFileUpload = async (file) => {
     if (!file) {
-      Swal.fire(
-        "Warning!",
-        "Please select or record a video first!",
-        "warning"
+      Swal.fire({
+        title: "අවවාදයයි!",
+        text: "පළමුව වීඩියෝවක් තෝරන්න හෝ වාර්තා කරන්න!",
+        icon: "error",
+        confirmButtonText: "OK",
+
+      }
+        
       );
       return;
     }
 
     if (!randomCategory) {
-      Swal.fire(
-        "Warning!",
-        "Please generate a random category first!",
-        "warning"
+      Swal.fire({
+        title: "අවවාදයයි!",
+        text: "පළමුව අහඹු ක්‍රියාවක් තෝරන්න!",
+        icon: "error",
+        confirmButtonText: "OK",
+      }
+        
       );
       return;
     }
@@ -111,7 +118,7 @@ function SystemPage() {
 
     try {
       setIsModalOpen(true);
-      setUploadStatus("Uploading and processing...");
+      setUploadStatus("උඩුගත කරමින් සහ සැකසමින්...");
 
       const response = await axios.post(
         "http://127.0.0.1:5000/video/action/predict",
@@ -123,7 +130,7 @@ function SystemPage() {
       setIsModalOpen(false);
 
       setPredictions(receivedPredictions);
-      setUploadStatus("Processing complete!");
+      setUploadStatus("සැකසීම අවසන්!");
       let message = response.data.message;
       let percentage = response.data.percentage;
       let level = response.data.level;
@@ -146,10 +153,10 @@ function SystemPage() {
 
       if (level == "No level" || level == "No detection") {
         Swal.fire({
-          title: `Oops...`,
+          title: `අයියෝ!...`,
           html: `<b>Match Percentage:</b> ${percentage}% <br><b>Message:</b> ${message}`,
           icon: "error",
-          confirmButtonText: "Try Again",
+          confirmButtonText: "අපි තව වරක් උත්සාහ කරමු!",
           confirmButtonColor: "red",
           timerProgressBar: true,
         });
@@ -159,19 +166,19 @@ function SystemPage() {
          if (randomCategory != predicted_action) {
           Swal.fire({
             icon: "error",
-            title: "Oops...",
-            text: `The detected action does not match the expected action. Actual action is  ${randomCategory} 
-          Detected action is  ${predicted_action}`,
-            footer: "Please try again.",
+            title: "අයියෝ!...",
+            text: `ඔයා කළ දේ, අපි බලාපොරොත්තු වූ දේට වෙනස් වගේ! බලාපොරොත්තු වූ දේ  ${randomCategory} 
+          ඔයා කරපු දේ තමයි...  ${predicted_action}`,
+            footer: "අපි තව වරක් උත්සාහ කරමු!",
           });
 
          } else {
            Swal.fire({
-             title: `Results Processed!`,
+             title: `ප්‍රතිඵල!`,
              html: `<b>Match Percentage:</b> ${percentage}% <br>
-          <b>Actual action is :</b> ${randomCategory} <br>
-          <b>Detected action is :</b> ${predicted_action} <br>
-          <b>System suggests next level as:</b> <span style="margin: 10px 0; font-size: 1.8rem; color: ${levelColor}">${levelIcon} ${level}</span>
+          <b>අපි බලාපොරොත්තු වූ දේ :</b> ${randomCategory} <br>
+          <b>ඔයා කරපු දේ තමයි :</b> ${predicted_action} <br>
+          <b>දැන් අපි ඔයාට දෙන ඊළඟ මට්ටම තමයි!:</b> <span style="margin: 10px 0; font-size: 1.8rem; color: ${levelColor}">${levelIcon} ${level}</span>
           <br><b>Message:</b> ${message}`,
              icon: "success",
              confirmButtonText: "OK",
@@ -206,8 +213,8 @@ function SystemPage() {
       console.error("Error uploading file:", error);
       setUploadStatus("Failed to process video.");
       Swal.fire({
-        title: "Error!",
-        text: "Failed to process video. Please try again.",
+        title: "වැරද්දක් වෙලා!",
+        text: "වීඩියෝව සැකසීමට අසමත් වුනා. අපි තව වරක් උත්සාහ කරමු!",
         icon: "error",
         confirmButtonText: "OK",
       });
@@ -217,21 +224,21 @@ function SystemPage() {
   const startRecording = async () => {
     if (!cameraStream) {
       Swal.fire(
-        "Error!",
-        "Camera is not available! Please check your webcam settings.",
+        "වැරද්දක් වෙලා!",
+        "කැමරාව ලබාගත නොහැකිය! කරුණාකර ඔබේ වෙබ්කැමරා සැකසුම් පරීක්ෂා කරන්න",
         "error"
       );
       return;
     }
 
     setCountdown(5);
-    setUploadStatus(`Recording starts in 5 seconds...`);
+    setUploadStatus(`වීඩියෝ එක තත්පර 5න් පටන් ගනී...`);
 
     const countdownInterval = setInterval(() => {
       setCountdown((prev) => {
         const newCount = prev - 1;
         if (newCount > 0) {
-          setUploadStatus(`Recording starts in ${newCount} seconds...`);
+          setUploadStatus(`වීඩියෝ පටන් ගන්නේ තත්පර ${newCount}...`);
           return newCount;
         } else {
           clearInterval(countdownInterval);
@@ -245,7 +252,7 @@ function SystemPage() {
   const startActualRecording = () => {
     setRecording(true);
     setVideoBlob(null);
-    setUploadStatus("Recording...");
+    setUploadStatus("රෙකෝඩ් වෙමින් ...");
 
     try {
       mediaRecorderRef.current = new MediaRecorder(cameraStream, {
@@ -263,7 +270,7 @@ function SystemPage() {
         const blob = new Blob(recordedChunks, { type: "video/webm" });
         setVideoBlob(blob);
         setSelectedFile(blob);
-        setUploadStatus("Recording complete! Ready to send.");
+        setUploadStatus("රෙකෝඩ් වීම අවසන්! සැකසීමට යවමු.");
       };
 
       mediaRecorderRef.current.start(80);
@@ -280,7 +287,7 @@ function SystemPage() {
       }, 8000);
     } catch (error) {
       console.error("Failed to start recording:", error);
-      Swal.fire("Error!", "Failed to start recording. Try again.", "error");
+      Swal.fire("වැරද්දක් වෙලා!", "රෙකෝඩ් කිරීමට අසමත් විය. අපි තව වරක් උත්සාහ කරමු!.", "error");
       setUploadStatus("");
       setRecording(false);
     }
@@ -360,7 +367,7 @@ function SystemPage() {
                 onClick={handleRandomCategory}
                 className="bg-gradient-to-r from-pink-400 to-yellow-400 text-white text-2xl font-bold px-8 py-4 rounded-full hover:scale-110 transition-all shadow-lg"
               >
-                🎲 Generate Random Category
+                🎲 ක්‍රියාවක් ලබාගනිමු
               </button>
             </div>
           </div>
@@ -373,7 +380,7 @@ function SystemPage() {
             {/* Video Section */}
             <div className="flex flex-col items-center">
               <h3 className="text-4xl font-extrabold text-pink-500 mb-6 animate-pulse">
-                📚 Start Learning: {randomCategory}
+                📚 වීඩියෝ එකේ පෙන්වන විදියට කරමු: {randomCategory}
               </h3>
               <div className="relative">
                 <video
@@ -392,7 +399,7 @@ function SystemPage() {
             {/* Live Camera Section */}
             <div className="flex flex-col items-center bg-gradient-to-b from-blue-200 to-white p-8 rounded-3xl shadow-2xl">
               <h2 className="text-3xl font-extrabold text-blue-700 mb-6">
-                🎥 Live Camera Preview
+                 මෙතනින් පටන් ගනිමු 🎥
               </h2>
 
               {Playe && displayrecode ? (
@@ -410,21 +417,21 @@ function SystemPage() {
                         onClick={stopRecording}
                         className="bg-red-500 text-white px-8 py-3 rounded-full hover:bg-red-700 transition-all"
                       >
-                        ⏹️ Stop Recording
+                        ⏹️ රෙකෝඩ් වීම නවත්වන්න 
                       </button>
                     ) : countdown > 0 ? (
                       <button
                         disabled
                         className="bg-gray-400 text-white px-8 py-3 rounded-full cursor-not-allowed"
                       >
-                        ⏳ Starting...
+                        ⏳ පටන් ගනිමින් ...
                       </button>
                     ) : (
                       <button
                         onClick={startRecording}
                         className="bg-green-500 text-white px-8 py-3 rounded-full hover:bg-green-700 transition-all"
                       >
-                        ⏺️ Start Recording
+                        ⏺️ රෙකෝඩ් කිරීම ආරම්භ කරමු 
                       </button>
                     )}
                   </div>
@@ -435,7 +442,7 @@ function SystemPage() {
               ) : (
                 <>
                   <label className="cursor-pointer bg-yellow-400 text-white font-bold px-8 py-3 rounded-full shadow-md hover:bg-yellow-500 transition-all">
-                    📂 Select Video
+                     වීඩියෝ එකක් තෝරලා බලමු! 📂
                     <input
                       type="file"
                       accept="video/*"
@@ -443,17 +450,16 @@ function SystemPage() {
                       className="hidden"
                     />
                   </label>
-                  <button
-                    onClick={() => handleFileUpload(selectedFile)}
+                  <label
                     className="bg-green-500 text-white font-bold px-8 py-3 rounded-full shadow-md hover:bg-green-600 mt-4 transition-all"
                   >
-                    🚀 Upload Video
-                  </button>
+                     හෝ 
+                  </label>
                   <button
                     onClick={startrecodevedio}
                     className="mt-4 bg-blue-500 text-white px-8 py-3 rounded-full hover:bg-blue-700 transition-all"
                   >
-                    🎥 Start Recording
+                     රෙකෝඩ් කිරීම පටන් ගනිමු 🎥 
                   </button>
                   <p className="text-blue-600 font-semibold mt-4">
                     {uploadStatus}
@@ -467,7 +473,7 @@ function SystemPage() {
           {videoBlob && (
             <div className="mt-10 flex flex-col items-center">
               <h3 className="text-2xl font-bold text-purple-600 mb-4">
-                🎬 Recorded Video
+                ඔයා රෙකෝඩ් කරපු දේ 🎬 
               </h3>
               <video
                 src={URL.createObjectURL(videoBlob)}
@@ -478,7 +484,27 @@ function SystemPage() {
                 onClick={() => handleFileUpload(videoBlob)}
                 className="mt-6 bg-purple-500 text-white px-8 py-3 rounded-full shadow-md hover:bg-purple-700 transition-all"
               >
-                ⬆️ Upload Recorded Video
+                 රෙකෝඩ් කරපු වීඩියෝ එක දාමු ⬆️
+              </button>
+            </div>
+          )}
+
+ {/* Recorded Video */}
+          {selectedFile && (
+            <div className="mt-10 flex flex-col items-center">
+              <h3 className="text-2xl font-bold text-purple-600 mb-4">
+                ඔයා රෙකෝඩ් කරපු දේ 🎬 
+              </h3>
+              <video
+                src={URL.createObjectURL(selectedFile)}
+                controls
+                className="w-full max-w-md rounded-3xl shadow-md"
+              />
+              <button
+                onClick={() => handleFileUpload(selectedFile)}
+                className="mt-6 bg-purple-500 text-white px-8 py-3 rounded-full shadow-md hover:bg-purple-700 transition-all"
+              >
+                 වීඩියෝ එක දාමු ⬆️
               </button>
             </div>
           )}
@@ -487,7 +513,7 @@ function SystemPage() {
           {!videoBlob && predictions.length > 0 && (
             <div className="mt-12">
               <h2 className="text-3xl font-bold text-blue-700 mb-6 text-center">
-                📊 Predictions Summary
+                 අනුමාන සාරාංශය 📊
               </h2>
               <table className="w-full table-auto border-collapse shadow-xl rounded-2xl overflow-hidden">
                 <thead className="bg-gradient-to-r from-yellow-200 to-pink-200 text-blue-900">
@@ -513,7 +539,7 @@ function SystemPage() {
                 </tbody>
               </table>
 
-              {isModalOpen && (
+              {/* {isModalOpen && (
                 <div style={OVERLAY_STYLES}>
                   <div
                     style={MODAL_STYLES}
@@ -529,21 +555,21 @@ function SystemPage() {
                     </div>
                   </div>
                 </div>
-              )}
+              )} */}
 
               <div className="flex justify-center gap-8 mt-8">
                 <button
                   onClick={handleRandomCategory}
                   className="bg-yellow-500 text-white px-8 py-4 rounded-full hover:bg-yellow-600 transition-all shadow-lg"
                 >
-                  🔄 Generate New Category
+                  අලුත් ක්‍රියාවක් එකතුවෙන් තෝරමු! 🔄
                 </button>
                 <button
                   onClick={handleNextTask}
                   disabled={!difficultyLevel || difficultyLevel === "No level"}
                   className="bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold px-8 py-4 rounded-full hover:scale-105 transition-all shadow-lg"
                 >
-                  🚀 Go to Next Task
+                   ඔයාගේ මට්ටමට ගැලපෙන ඊළඟ ක්‍රියාවට යමු!
                 </button>
               </div>
             </div>
