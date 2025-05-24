@@ -93,7 +93,7 @@ const Navbar = () => {
               to="/"
               className="flex items-center font-bold text-lg hover:text-yellow-300 transition-colors"
             >
-              E Learning
+              Little Hearts
             </Link>
           </div>
 

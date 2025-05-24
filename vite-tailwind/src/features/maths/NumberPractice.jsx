@@ -197,9 +197,11 @@ const NumberPractice = () => {
   }, [isChecking, currentNumber]);
 
   return (
-    <div 
+    <div
       className="relative min-h-screen bg-cover bg-center flex items-center justify-center p-6"
-      style={{ backgroundImage: `url(${backgroundImg})` }}
+      style={{
+        backgroundImage: window.innerWidth >= 640 ? `url(${backgroundImg})` : 'none',
+      }}
     >
       <button
         onClick={goToDashboard}
@@ -208,7 +210,9 @@ const NumberPractice = () => {
         Back to Dashboard
       </button>
 
-      <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-10 mt-5">
+      <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-0 lg:gap-10 mt-[-90px] lg:mt-5">
+
+        {/* Left Pane */}
         <div className="flex flex-col items-center lg:w-1/2 rounded-2xl p-8">
           <div className="text-center mb-2 animate-fade-in mt-[100px]">
             <h2 className="text-2xl font-bold text-indigo-700">
@@ -245,7 +249,11 @@ const NumberPractice = () => {
           )}
         </div>
 
-        <FingerCountingFeed />
+
+        <div className="w-full lg:w-1/2 flex justify-center mt-[-120px] ml-[60px] lg:mt-0">
+          <FingerCountingFeed />
+        </div>
+
       </div>
     </div>
   );

@@ -2,22 +2,20 @@ import React, { Suspense, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Canvas } from "@react-three/fiber";
 import backgroundImage from "../../assets/dashboard-bg.jpg";
-import FishModel from "../maths/models/FishModel";
-// import TurtleModel from "../models/TurtleModel";
 import bgMusic from '../../assets/bgmusic.mp3';
+import FishModel from "../maths/models/FishModel";
 import ClownfishModel from "./models/ClownfishModel";
-// import CrabModel from "./models/CrabModel";
 import TropicalFishSchoolModel from "./models/TropicalFishSchoolModel";
-import useLanguageStore from "../maths/store/languageStore"; 
+import useLanguageStore from "../maths/store/languageStore";
 
 const Dashboard = () => {
-    useEffect(() => {
-        const userId = localStorage.getItem("userid"); 
-        console.log("User ID from localStorage:", userId);
-      }, []);
-      
+  useEffect(() => {
+    const userId = localStorage.getItem("userid");
+    console.log("User ID from localStorage:", userId);
+  }, []);
+
   const navigate = useNavigate();
-  const { language, toggleLanguage } = useLanguageStore(); 
+  const { language, toggleLanguage } = useLanguageStore();
 
   const translations = {
     en: {
@@ -40,26 +38,13 @@ const Dashboard = () => {
     },
   };
 
- const buttonStyles = `
-  flex items-center justify-center gap-3
-  px-6 py-4 
-  bg-gradient-to-r from-aqua-400 to-teal-500 
-  text-white rounded-xl 
-  hover:from-aqua-500 hover:to-teal-600 
-  transform hover:-translate-y-0.5 
-  transition-all duration-300 
-  shadow-md hover:shadow-lg
-  text-lg font-semibold
-  w-full
-`;
-
   return (
-    <div 
-      className="relative w-screen min-h-screen bg-cover bg-centerGon flex items-center justify-center p-4 sm:p-6 overflow-hidden"
-      style={{ backgroundImage: `url(${backgroundImage})` }}
+    <div
+      className="relative w-screen min-h-screen flex items-center justify-center p-4 sm:p-6 bg-gradient-to-b from-blue-100 to-blue-200 overflow-hidden md:bg-none"
+      style={{ backgroundImage: window.innerWidth >= 768 ? `url(${backgroundImage})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}
     >
-      {/* Background Music */}
-      <audio autoPlay loop>
+      {/* Background Music (Desktop Only) */}
+      <audio autoPlay loop className="hidden md:block">
         <source src={bgMusic} type="audio/mp3" />
         Your browser does not support the audio element.
       </audio>
@@ -76,35 +61,56 @@ const Dashboard = () => {
       </div>
 
       {/* Main Card */}
-      <div className="relative z-10 mt-[-150px] rounded-2xl max-w-lg w-full animate-fade-in p-6 sm:p-8">
-        <h1 className="text-4xl md:text-3xl font-extrabold text-black mb-3 text-center">
+      <div className="relative z-10 mt-4 sm:mt-[-150px] rounded-2xl max-w-lg w-full p-6 sm:p-8 bg-white/90 md:bg-white/10 backdrop-blur-sm shadow-xl animate-fade-in">
+      <h1 className="text-3xl sm:text-4xl font-extrabold text-black mb-3 text-center">
           {translations[language]?.welcome}
         </h1>
+        <p className="text-sm sm:text-base text-gray-600 mb-6 text-center md:hidden">
+          {translations[language]?.subtitle}
+        </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-10 pr-10">
-          <button onClick={() => navigate("/math/numbers")} className={buttonStyles}>
-            <span className="text-2xl">🔢</span> {translations[language].numbers}
-          </button>
-          <button onClick={() => navigate("/math/sequence")} className={buttonStyles}>
-            <span className="text-2xl">🔢</span> {translations[language].sequence}
-          </button>
-          <button onClick={() => navigate("/math/addition")} className={buttonStyles}>
-            <span className="text-2xl">➕</span> {translations[language].addition}
-          </button>
-          <button onClick={() => navigate("/math/subtraction")} className={buttonStyles}>
-            <span className="text-2xl">➖</span> {translations[language].subtraction}
-          </button>
-          <button
-            onClick={() => navigate("/math/progress")}
-            className={buttonStyles + " sm:col-span-2"}
-          >
-            <span className="text-xl">📊</span> {translations[language].progress}
-          </button>
-        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 px-4 sm:px-10 mt-6 sm:mt-0">
+  <button
+    onClick={() => navigate("/math/numbers")}
+    className="flex items-center justify-center gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-aqua-400 to-teal-500 text-black rounded-xl hover:from-aqua-500 hover:to-teal-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-md hover:shadow-lg text-base sm:text-lg font-semibold w-full"
+  >
+    <span className="text-xl sm:text-2xl">🔢</span> {translations[language].numbers}
+  </button>
+
+  <button
+    onClick={() => navigate("/math/sequence")}
+    className="flex items-center justify-center gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-aqua-400 to-teal-500 text-black rounded-xl hover:from-aqua-500 hover:to-teal-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-md hover:shadow-lg text-base sm:text-lg font-semibold w-full"
+  >
+    <span className="text-xl sm:text-2xl">🔢</span> {translations[language].sequence}
+  </button>
+
+  <button
+    onClick={() => navigate("/math/addition")}
+    className="flex items-center justify-center gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-aqua-400 to-teal-500 text-black rounded-xl hover:from-aqua-500 hover:to-teal-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-md hover:shadow-lg text-base sm:text-lg font-semibold w-full"
+  >
+    <span className="text-xl sm:text-2xl">➕</span> {translations[language].addition}
+  </button>
+
+  <button
+    onClick={() => navigate("/math/subtraction")}
+    className="flex items-center justify-center gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-aqua-400 to-teal-500 text-black rounded-xl hover:from-aqua-500 hover:to-teal-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-md hover:shadow-lg text-base sm:text-lg font-semibold w-full"
+  >
+    <span className="text-lg sm:text-xl">➖</span> {translations[language].subtraction}
+  </button>
+
+  <button
+    onClick={() => navigate("/math/progress")}
+    className="flex items-center justify-center gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-aqua-400 to-teal-500 text-black rounded-xl hover:from-aqua-500 hover:to-teal-600 transform hover:-translate-y-0.5 transition-all duration-300 shadow-md hover:shadow-lg text-base sm:text-lg font-semibold w-full sm:col-span-2"
+  >
+    <span className="text-lg sm:text-xl">📊</span> {translations[language].progress}
+  </button>
+</div>
+
+
       </div>
 
-      {/* Fish Model Canvas in bottom-right */}
-      <div className="absolute bottom-4 left-4 w-[600px] h-[700px] z-10 pointer-events-none">
+      {/* Fish Model Canvas in bottom-right (Desktop Only) */}
+      <div className="hidden md:block absolute bottom-4 left-4 w-[600px] h-[700px] z-10 pointer-events-none">
         <Canvas camera={{ position: [0, 0, 2.5], fov: 50 }}>
           <ambientLight intensity={4} />
           <Suspense fallback={null}>
@@ -113,8 +119,8 @@ const Dashboard = () => {
         </Canvas>
       </div>
 
-      {/* ClownFish Model Canvas in bottom-left */}
-      <div className="absolute bottom-4 right-4 w-[600px] h-[700px] z-10 pointer-events-none">
+      {/* ClownFish Model Canvas in bottom-left (Desktop Only) */}
+      <div className="hidden md:block absolute bottom-4 right-4 w-[600px] h-[700px] z-10 pointer-events-none">
         <Canvas camera={{ position: [0, 0, 2.5], fov: 50 }}>
           <ambientLight intensity={2.5} />
           <Suspense fallback={null}>
@@ -123,27 +129,18 @@ const Dashboard = () => {
         </Canvas>
       </div>
 
-      <div className="absolute bottom-[-100px] left-1/2 -translate-x-1/2 w-screen h-[900px] z-15 pointer-events-none">
+      {/* Tropical Fish School (Desktop Only) */}
+      <div className="hidden md:block absolute bottom-[-100px] left-1/2 -translate-x-1/2 w-screen h-[900px] z-15 pointer-events-none">
         <Canvas camera={{ position: [0, 2, 2.5], fov: 50 }}>
           <ambientLight intensity={0.3} />
-          <directionalLight 
-            position={[2, 5, 2]} 
-            intensity={2} 
-            castShadow 
-          />
-          <pointLight 
-            position={[0, 1, 0]} 
-            intensity={3} 
-            distance={10} 
-            decay={2} 
-            color="white" 
-          />
+          <directionalLight position={[2, 5, 2]} intensity={2} castShadow />
+          <pointLight position={[0, 1, 0]} intensity={3} distance={10} decay={2} color="white" />
           <Suspense fallback={null}>
-            <TropicalFishSchoolModel 
-              scale={0.5} 
-              moveDistanceX={0.4} 
-              moveDistanceY={0.5} 
-              moveDuration={10} 
+            <TropicalFishSchoolModel
+              scale={0.5}
+              moveDistanceX={0.4}
+              moveDistanceY={0.5}
+              moveDuration={10}
               rotationSpeed={0.001}
             />
           </Suspense>

@@ -223,8 +223,10 @@ const SequencePractice = () => {
 
   return (
     <div
-      className="relative min-h-screen bg-cover bg-center flex items-center justify-center p-6"
-      style={{ backgroundImage: `url(${backgroundImg})` }}
+      className="relative min-h-screen bg-cover bg-center flex items-center justify-center p-4 sm:p-6"
+      style={{
+        backgroundImage: window.innerWidth >= 640 ? `url(${backgroundImg})` : 'none',
+      }}
     >
       <button
         onClick={goToDashboard}
@@ -233,13 +235,13 @@ const SequencePractice = () => {
         Back to Dashboard
       </button>
 
-      <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-10">
-        <div className="flex flex-col items-center lg:w-1/2 rounded-2xl p-8 transform transition-all">
-          <div className="text-center mt-8">
-            <h2 className="text-4xl font-bold text-indigo-700 drop-shadow-md">
+      <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-4 lg:gap-10">
+        <div className="flex flex-col items-center w-full lg:w-1/2 rounded-2xl p-6 sm:p-8">
+          <div className="text-center mb-4 animate-fade-in">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-indigo-700 drop-shadow-md">
               {translations[language].title}
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-base sm:text-lg text-gray-600 mt-2">
               {translations[language].instructions}
             </p>
           </div>
@@ -248,7 +250,7 @@ const SequencePractice = () => {
             <button
               onClick={startPractice}
               disabled={isCapturing}
-              className="w-[200px] px-8 py-2 mt-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold text-center rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+              className="w-full max-w-[250px] px-8 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
             >
               📸 {isCorrect ? translations[language].nextQuestionButton : translations[language].startButton}
             </button>
@@ -256,20 +258,20 @@ const SequencePractice = () => {
             <button
               onClick={retryPractice}
               disabled={isCapturing}
-              className="w-[200px] px-8 py-2 mt-4 bg-gradient-to-r from-red-500 to-orange-600 text-white font-semibold text-center rounded-lg shadow-md hover:from-red-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+              className="w-full max-w-[250px] px-8 py-2 bg-gradient-to-r from-red-500 to-orange-600 text-white font-semibold rounded-lg shadow-md hover:from-red-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
             >
               🔄 {translations[language].tryAgainButton}
             </button>
           )}
 
           {selectedSequence && (
-            <div className="mt-3">
-              <div className="flex justify-center items-center gap-8">
+            <div className="mt-4 animate-bounce-in w-full flex justify-center">
+              <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8">
                 {selectedSequence.sequence.map((num, index) =>
                   num === "?" ? (
                     <div
                       key={index}
-                      className="w-36 h-36 flex items-center justify-center bg-gradient-to-r from-red-300 to-orange-400 rounded-lg text-6xl font-extrabold text-white shadow-lg"
+                      className="w-20 h-20 sm:w-24 sm:h-24 lg:w-36 lg:h-36 flex items-center justify-center bg-gradient-to-r from-red-300 to-orange-400 rounded-lg text-3xl sm:text-4xl lg:text-6xl font-extrabold text-white shadow-lg"
                     >
                       ?
                     </div>
@@ -278,7 +280,7 @@ const SequencePractice = () => {
                       key={index}
                       src={numberImages[num]}
                       alt={`Number ${num}`}
-                      className="w-36 h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
+                      className="w-20 h-20 sm:w-24 sm:h-24 lg:w-36 lg:h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
                       onClick={() => playSound(num)}
                     />
                   )
@@ -288,21 +290,23 @@ const SequencePractice = () => {
           )}
 
           {countdown !== null && countdown > 0 && (
-            <div className="mt-6 text-2xl font-semibold text-indigo-600">
+            <div className="mt-4 text-lg sm:text-xl font-semibold text-indigo-600 animate-pulse">
               {translations[language].countdown.replace("{count}", countdown)}
             </div>
           )}
 
           {finalPrediction !== "" && (
-            <div className="mt-8">
-              <h2 className="text-2xl font-bold text-purple-700">
+            <div className="mt-4">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-700 text-center">
                 {translations[language].youShowed.replace("{prediction}", finalPrediction)}
               </h2>
             </div>
           )}
         </div>
 
-        <FingerCountingFeed />
+        <div className="w-full lg:w-1/2 flex justify-center mt-[-100px] lg:mt-0 ml-[60px]">
+          <FingerCountingFeed />
+        </div>
       </div>
     </div>
   );

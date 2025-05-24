@@ -107,7 +107,7 @@ const translations = {
 const playSound = (number, language) => {
   const numberSounds = language === 'si' ? numberSoundsSinhala : numberSoundsEnglish;
   const audio = new Audio(numberSounds[number]);
-  audio.play().catch((error) => console.log("Audio play error:", error));
+  audio.play().catch((error) => console.error("Audio play error:", error));
 };
 
 // Initial easy tasks for the first 5 questions
@@ -177,6 +177,47 @@ const SubtractionPractice = () => {
     }, 1000);
   };
 
+  const playAudioSequence = (task, callback) => {
+    const numberSounds = language === 'si' ? numberSoundsSinhala : numberSoundsEnglish;
+    const firstNumberAudio = new Audio(numberSounds[task.num1]);
+    const minusAudioFile = new Audio(language === 'si' ? substractSinhala : substractEnglish);
+    const secondNumberAudio = new Audio(numberSounds[task.num2]);
+    const whatIsTheAnswerAudioFile = new Audio(language === 'si' ? whatIstheAnswerAudioSinhala : whatIstheAnswerAudioEnglish);
+
+    // Preload audio files to avoid delays
+    [firstNumberAudio, minusAudioFile, secondNumberAudio, whatIsTheAnswerAudioFile].forEach((audio) => {
+      audio.preload = 'auto';
+      audio.load(); // Force preload
+    });
+
+    // Function to play audio with error handling and fallback
+    const playWithFallback = (audio, next, timeout = 5000) => {
+      audio.play().catch((error) => {
+        console.error(`Audio play error for ${audio.src}:`, error);
+        // Proceed to next audio after a short delay if playback fails
+        setTimeout(next, 500);
+      });
+      // Fallback: If onended doesn't fire within timeout, proceed to next
+      const timeoutId = setTimeout(() => {
+        console.warn(`Timeout waiting for ${audio.src} to end, proceeding to next.`);
+        next();
+      }, timeout);
+      audio.onended = () => {
+        clearTimeout(timeoutId);
+        next();
+      };
+    };
+
+    // Play audio sequence
+    playWithFallback(secondNumberAudio, () => {
+      playWithFallback(minusAudioFile, () => {
+        playWithFallback(firstNumberAudio, () => {
+          playWithFallback(whatIsTheAnswerAudioFile, callback);
+        });
+      });
+    });
+  };
+
   const startPractice = () => {
     const newTask = generateTask(taskCount);
     console.log(`[startPractice] Generated task #${taskCount}: ${JSON.stringify(newTask)}`);
@@ -184,58 +225,14 @@ const SubtractionPractice = () => {
     setFinalPrediction("");
     setIsCorrect(false);
 
-    const playAudioSequence = () => {
-      const numberSounds = language === 'si' ? numberSoundsSinhala : numberSoundsEnglish;
-      const firstNumberAudio = new Audio(numberSounds[newTask.num1]);
-      const minusAudioFile = new Audio(language === 'si' ? substractSinhala : substractEnglish);
-      const secondNumberAudio = new Audio(numberSounds[newTask.num2]);
-      const whatIsTheAnswerAudioFile = new Audio(language === 'si' ? whatIstheAnswerAudioSinhala : whatIstheAnswerAudioEnglish);
-
-      firstNumberAudio.play().catch((error) => console.log("First number audio error:", error));
-      firstNumberAudio.onended = () => {
-        minusAudioFile.play().catch((error) => console.log("Minus audio error:", error));
-      };
-      minusAudioFile.onended = () => {
-        secondNumberAudio.play().catch((error) => console.log("Second number audio error:", error));
-      };
-      secondNumberAudio.onended = () => {
-        whatIsTheAnswerAudioFile.play().catch((error) => console.log("What is the answer audio error:", error));
-        whatIsTheAnswerAudioFile.onended = () => {
-          startCountdown();
-        };
-      };
-    };
-
-    playAudioSequence();
+    playAudioSequence(newTask, startCountdown);
   };
 
   const retryPractice = () => {
     setFinalPrediction("");
     console.log(`[retryPractice] Retrying task: ${JSON.stringify(currentTask)}`);
 
-    const playAudioSequence = () => {
-      const numberSounds = language === 'si' ? numberSoundsSinhala : numberSoundsEnglish;
-      const firstNumberAudio = new Audio(numberSounds[currentTask.num1]);
-      const minusAudioFile = new Audio(language === 'si' ? substractSinhala : substractEnglish);
-      const secondNumberAudio = new Audio(numberSounds[currentTask.num2]);
-      const whatIsTheAnswerAudioFile = new Audio(language === 'si' ? whatIstheAnswerAudioSinhala : whatIstheAnswerAudioEnglish);
-
-      firstNumberAudio.play().catch((error) => console.log("First number audio error:", error));
-      firstNumberAudio.onended = () => {
-        minusAudioFile.play().catch((error) => console.log("Minus audio error:", error));
-      };
-      minusAudioFile.onended = () => {
-        secondNumberAudio.play().catch((error) => console.log("Second number audio error:", error));
-      };
-      secondNumberAudio.onended = () => {
-        whatIsTheAnswerAudioFile.play().catch((error) => console.log("What is the answer audio error:", error));
-        whatIsTheAnswerAudioFile.onended = () => {
-          startCountdown();
-        };
-      };
-    };
-
-    playAudioSequence();
+    playAudioSequence(currentTask, startCountdown);
   };
 
   const checkResult = async (targetTask) => {
@@ -283,9 +280,11 @@ const SubtractionPractice = () => {
   }, [isChecking, currentTask]);
 
   return (
-    <div 
-      className="relative min-h-screen bg-cover bg-center flex items-center justify-center p-6"
-      style={{ backgroundImage: `url(${backgroundImg})` }}
+    <div
+      className="relative min-h-screen bg-cover bg-center flex items-center justify-center p-4 sm:p-6"
+      style={{
+        backgroundImage: window.innerWidth >= 640 ? `url(${backgroundImg})` : 'none',
+      }}
     >
       <button
         onClick={goToDashboard}
@@ -294,64 +293,66 @@ const SubtractionPractice = () => {
         Back to Dashboard
       </button>
 
-      <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-10">
-        <div className="flex flex-col items-center lg:w-1/2 rounded-2xl p-8 transform transition-all">
-          <div className="text-center mb-1 mt-10">
-            <h2 className="text-4xl font-bold text-indigo-700 drop-shadow-md">
+      <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-4 lg:gap-10 lg:mt-4">
+        <div className="flex flex-col items-center w-full lg:w-1/2 rounded-2xl p-6 sm:p-8 overflow-visible">
+          <div className="text-center mb-4 animate-fade-in">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-indigo-700 drop-shadow-md">
               - {translations[language].title}
             </h2>
-            <p className="text-lg text-gray-600 mt-2">
+            <p className="text-base sm:text-lg text-gray-600 mt-2">
               {translations[language].instructions}
             </p>
           </div>
 
           {!currentTask || isCorrect ? (
-            <button 
-              onClick={startPractice} 
+            <button
+              onClick={startPractice}
               disabled={isCapturing}
-              className="w-[200px] px-8 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold text-center rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+              className="w-full min-w-[200px] max-w-[250px] px-8 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 z-10"
             >
               {isCorrect ? translations[language].nextQuestionButton : translations[language].startButton}
             </button>
           ) : (
-            <button 
-              onClick={retryPractice} 
+            <button
+              onClick={retryPractice}
               disabled={isCapturing}
-              className="w-[200px] px-8 py-2 bg-gradient-to-r from-red-500 to-orange-600 text-white font-semibold text-center rounded-lg shadow-md hover:from-red-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+              className="w-full min-w-[200px] max-w-[250px] px-8 py-2 bg-gradient-to-r from-red-500 to-orange-600 text-white font-semibold rounded-lg shadow-md hover:from-red-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 z-10"
             >
               🔄 {translations[language].tryAgainButton}
             </button>
           )}
 
           {currentTask && (
-            <div className="mt-8 animate-bounce-in">
-              <div className="flex justify-center items-center gap-6">
-                <img 
-                  src={numberImages[currentTask.num1]} 
-                  alt={`Number ${currentTask.num1}`} 
-                  className="w-[160px] h-[150px] object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
+            <div className="mt-4 animate-bounce-in w-full flex justify-center">
+              <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6">
+                <img
+                  src={numberImages[currentTask.num1]}
+                  alt={`Number ${currentTask.num1}`}
+                  className="w-24 h-24 sm:w-32 sm:h-32 lg:w-[160px] lg:h-[150px] object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
                   onClick={() => playSound(currentTask.num1, language)}
                 />
-                <span className="text-3xl font-bold text-gray-700">-</span>
-                <img 
-                  src={numberImages[currentTask.num2]} 
-                  alt={`Number ${currentTask.num2}`} 
-                  className="w-[160px] h-[150px] object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
+                <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-600">-</span>
+                <img
+                  src={numberImages[currentTask.num2]}
+                  alt={`Number ${currentTask.num2}`}
+                  className="w-24 h-24 sm:w-32 sm:h-32 lg:w-[160px] lg:h-[150px] object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
                   onClick={() => playSound(currentTask.num2, language)}
                 />
-                <span className="text-3xl font-bold text-gray-700">= ?</span>
+                <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-600">= ?</span>
               </div>
             </div>
           )}
 
           {countdown !== null && countdown > 0 && (
-            <div className="mt-6 text-2xl font-semibold text-indigo-600 animate-pulse">
+            <div className="mt-4 text-lg sm:text-xl font-semibold text-indigo-600 animate-pulse">
               {translations[language].countdown.replace("{count}", countdown)}
             </div>
           )}
         </div>
 
-        <FingerCountingFeed />
+        <div className="w-full lg:w-1/2 flex justify-center mt-[-100px] lg:mt-0 ml-[60px]">
+          <FingerCountingFeed />
+        </div>
       </div>
     </div>
   );

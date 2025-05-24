@@ -277,9 +277,11 @@ const AdditionPractice = () => {
   }, [isChecking, currentTask]);
 
   return (
-    <div 
-      className="relative min-h-screen bg-cover bg-center flex items-center justify-center p-6"
-      style={{ backgroundImage: `url(${backgroundImg})` }}
+    <div
+      className="relative min-h-screen bg-cover bg-center flex items-center justify-center p-4 sm:p-6"
+      style={{
+        backgroundImage: window.innerWidth >= 640 ? `url(${backgroundImg})` : 'none',
+      }}
     >
       <button
         onClick={goToDashboard}
@@ -288,64 +290,66 @@ const AdditionPractice = () => {
         Back to Dashboard
       </button>
 
-      <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-10">
-        <div className="flex flex-col items-center lg:w-1/2 rounded-2xl p-8 transform transition-all">
-          <div className="text-center mb-1 mt-10">
-            <h2 className="text-4xl font-bold text-indigo-700 drop-shadow-md">
+      <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-4 lg:gap-10">
+        <div className="flex flex-col items-center w-full lg:w-1/2 rounded-2xl p-6 sm:p-8">
+          <div className="text-center mb-4 animate-fade-in">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-indigo-700 drop-shadow-md">
               + {translations[language].title}
             </h2>
-            <p className="text-lg text-gray-600 mt-2">
+            <p className="text-base sm:text-lg text-gray-600 mt-2">
               {translations[language].instructions}
             </p>
           </div>
 
           {!currentTask || isCorrect ? (
-            <button 
-              onClick={startPractice} 
+            <button
+              onClick={startPractice}
               disabled={isCapturing}
-              className="w-[200px] px-8 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold text-center rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+              className="w-full max-w-[250px] px-8 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
             >
               {isCorrect ? translations[language].nextQuestionButton : translations[language].startButton}
             </button>
           ) : (
-            <button 
-              onClick={retryPractice} 
+            <button
+              onClick={retryPractice}
               disabled={isCapturing}
-              className="w-[200px] px-8 py-2 bg-gradient-to-r from-red-500 to-orange-600 text-white font-semibold text-center rounded-lg shadow-md hover:from-red-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+              className="w-full max-w-[250px] px-8 py-2 bg-gradient-to-r from-red-500 to-orange-600 text-white font-semibold rounded-lg shadow-md hover:from-red-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
             >
               🔄 {translations[language].tryAgainButton}
             </button>
           )}
 
           {currentTask && (
-            <div className="mt-2 animate-bounce-in">
-              <div className="flex justify-center items-center gap-6">
-                <img 
-                  src={numberImages[currentTask.num1]} 
-                  alt={`Number ${currentTask.num1}`} 
-                  className="w-[160px] h-[150px] object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
+            <div className="mt-4 animate-bounce-in w-full flex justify-center">
+              <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6">
+                <img
+                  src={numberImages[currentTask.num1]}
+                  alt={`Number ${currentTask.num1}`}
+                  className="w-24 h-24 sm:w-32 sm:h-32 lg:w-[160px] lg:h-[150px] object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
                   onClick={() => playSound(currentTask.num1, language)}
                 />
-                <span className="text-3xl font-bold text-gray-700">+</span>
-                <img 
-                  src={numberImages[currentTask.num2]} 
-                  alt={`Number ${currentTask.num2}`} 
-                  className="w-[160px] h-[150px] object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
+                <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-700">+</span>
+                <img
+                  src={numberImages[currentTask.num2]}
+                  alt={`Number ${currentTask.num2}`}
+                  className="w-24 h-24 sm:w-32 sm:h-32 lg:w-[160px] lg:h-[150px] object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
                   onClick={() => playSound(currentTask.num2, language)}
                 />
-                <span className="text-3xl font-bold text-gray-700">= ?</span>
+                <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-700">= ?</span>
               </div>
             </div>
           )}
 
           {countdown !== null && countdown > 0 && (
-            <div className="mt-6 text-2xl font-semibold text-indigo-600 animate-pulse">
+            <div className="mt-4 text-lg sm:text-xl font-semibold text-indigo-600 animate-pulse">
               {translations[language].countdown.replace("{count}", countdown)}
             </div>
           )}
         </div>
 
-        <FingerCountingFeed />
+        <div className="w-full lg:w-1/2 flex justify-center mt-[-130px] ml-[60px] lg:mt-0">
+          <FingerCountingFeed />
+        </div>
       </div>
     </div>
   );
