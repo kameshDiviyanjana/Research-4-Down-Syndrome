@@ -58,7 +58,7 @@ const numberImages = {
 // Sinhala number sounds
 const numberSoundsSinhala = {
   0: sound0, 1: sound1, 2: sound2, 3: sound3, 4: sound4,
-  5: sound5, 6: sound6, 7: sound7, 8: sound8, 9: sound9, 10: sound10
+  5: sound5, 6: num6, 7: sound7, 8: sound8, 9: sound9, 10: sound10
 };
 
 // English number sounds
@@ -157,7 +157,7 @@ const SubtractionLearning = () => {
   const [example, setExample] = useState(generateExample(1));
   const [exampleCount, setExampleCount] = useState(1);
   const [showInstructions, setShowInstructions] = useState(false);
-  const { language, toggleLanguage } = useLanguageStore();
+  const { language } = useLanguageStore();
 
   const playSound = (number, lang = language) => {
     const numberSounds = lang === 'si' ? numberSoundsSinhala : numberSoundsEnglish;
@@ -228,107 +228,54 @@ const SubtractionLearning = () => {
   }, []);
 
   return (
-    <div className="min-h-screen w-screen relative flex flex-col items-center justify-center p-8 text-center">
+    <div
+      className="h-[100vh] w-screen relative flex flex-col items-center justify-start p-4 sm:p-6 overflow-hidden"
+      style={{
+        backgroundImage: `url(${bg1})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <div
-        className={`absolute inset-0 ${showInstructions ? 'backdrop-blur-sm' : ''}`}
-        style={{
-          backgroundImage: `url(${bg1})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          zIndex: -1,
-        }}
+        className={`absolute inset-0 ${showInstructions ? "backdrop-blur-sm z-10" : "z-0"}`}
       />
 
-      {/* Go to Practice Button in Top-Right Corner */}
-      <div className="absolute top-4 right-8">
-        <button
-          onClick={() => navigate("/math/subtraction/practice")}
-          className="bg-indigo-500 text-white text-lg font-semibold px-6 py-3 rounded-full shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
-        >
-          📝 {translations[language].practiceButton}
-        </button>
-      </div>
-
-      <div className="absolute top-[-20px] left-4">
+      {/* Top-left button */}
+      <div className="absolute top-4 left-4 z-20">
         <button
           onClick={() => setShowInstructions(!showInstructions)}
-          className="bg-blue-500 text-white text-lg font-semibold px-6 py-3 rounded-full shadow-lg hover:bg-blue-600 active:scale-95 transition-all duration-200 mt-10"
+          className="bg-blue-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-6 py-1 sm:py-3 rounded-full shadow-lg hover:bg-blue-600 active:scale-95 transition-all duration-200"
         >
           {translations[language].instructionsButton[showInstructions ? "hide" : "show"]}
         </button>
       </div>
 
-      {/* Header */}
-      <div className="w-full max-w-3xl mt-[-250px]">
-        <h1 className="text-4xl font-bold text-indigo-700 mb-2 drop-shadow-lg">
-          ➖ {translations[language].title}
-        </h1>
-        <p className="text-lg text-purple-600 mb-2 drop-shadow-md">
-          {translations[language].pronunciation}
-        </p>
-      </div>
-
-      {/* Example Container */}
-      <div className="w-full max-w-md mt-[-20px] p-6 rounded-xl shadow-none mr-10">
-        {/* Example Header */}
-        <div className="flex justify-between items-center mb-2">
-          <h2 className="text-xl font-semibold text-blue-800 drop-shadow-md">
-            {translations[language].example} {exampleCount}
-          </h2>
-          <button
-            className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition"
-            onClick={swapExample}
-          >
-            ➡ {translations[language].nextExample}
-          </button>
-        </div>
-
-        {/* Dynamic Subtraction Example */}
-        <div className="!flex !flex-row justify-center items-center gap-4 my-6">
-          <img
-            src={numberImages[example.minuend]}
-            alt={String(example.minuend)}
-            className="w-[200px] h-[150px] cursor-pointer hover:scale-110 transition"
-            onClick={() => playSound(example.minuend)}
-          />
-          <span className="text-[70px] font-bold text-purple-600">-</span>
-          <img
-            src={numberImages[example.subtrahend]}
-            alt={String(example.subtrahend)}
-            className="w-[200px] h-[150px] cursor-pointer hover:scale-110 transition"
-            onClick={() => playSound(example.subtrahend)}
-          />
-          <span className="text-[70px] font-bold text-purple-600">=</span>
-          <img
-            src={numberImages[example.difference]}
-            alt={String(example.difference)}
-            className="w-[200px] h-[150px] cursor-pointer hover:scale-110 transition"
-            onClick={() => playSound(example.difference)}
-          />
-        </div>
+      {/* Top-right button */}
+      <div className="absolute top-4 right-4 z-20">
+        <button
+          onClick={() => navigate("/math/subtraction/practice")}
+          className="bg-indigo-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-6 py-1 sm:py-3 rounded-full shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
+        >
+          {translations[language].practiceButton}
+        </button>
       </div>
 
       {/* Instruction Modal */}
       {showInstructions && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm">
-          <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6 m-4 relative">
+          <div className="w-full max-w-md sm:max-w-2xl bg-white rounded-lg shadow-lg p-4 sm:p-6 m-4 relative">
             <button
               onClick={() => setShowInstructions(false)}
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-2xl">
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-xl sm:text-2xl"
+            >
               ×
             </button>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-2xl font-bold text-indigo-600">
+              <h3 className="text-xl sm:text-2xl font-bold text-indigo-600">
                 {translations[language].instructionsTitle}
               </h3>
-              <button
-                className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-all duration-200"
-                onClick={toggleLanguage}
-              >
-                {language === "en" ? "සිංහල" : "English"}
-              </button>
             </div>
-            <ul className="list-disc list-inside text-gray-700 text-lg max-h-[60vh] overflow-y-auto">
+            <ul className="list-disc list-inside text-gray-700 text-base sm:text-lg max-h-[60vh] overflow-y-auto">
               {translations[language].content.map((item, index) => (
                 <li key={index} className="mb-2">{item}</li>
               ))}
@@ -336,6 +283,54 @@ const SubtractionLearning = () => {
           </div>
         </div>
       )}
+
+      {/* Header */}
+      <h2 className="text-3xl sm:text-5xl font-extrabold text-indigo-700 drop-shadow-lg mb-4 mt-[100px] sm:mt-10 z-20">
+        ➖ {translations[language].title}
+      </h2>
+
+      {/* Example Container */}
+      <div className="w-full max-w-md sm:max-w-4xl bg-white bg-opacity-80 rounded-xl shadow-lg p-4 sm:p-6 z-20 lg:w-[800px] lg:mr-5">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h3 className="text-lg sm:text-xl font-semibold text-blue-800 drop-shadow-md">
+            {translations[language].example} {exampleCount}
+          </h3>
+          <button
+            className="bg-indigo-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-lg shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
+            onClick={swapExample}
+          >
+            ➡ {translations[language].nextExample}
+          </button>
+        </div>
+
+        {/* Dynamic Subtraction Example */}
+        <div className="flex flex-row justify-center items-center gap-2 sm:gap-4 my-4 sm:my-6">
+          <img
+            src={numberImages[example.minuend]}
+            alt={String(example.minuend)}
+             className="w-24 h-20 sm:w-32 sm:h-24 md:w-40 md:h-32 lg:w-48 lg:h-36 cursor-pointer hover:scale-110 transition-all duration-200"
+            onClick={() => playSound(example.minuend)}
+          />
+          <span className="text-4xl sm:text-5xl font-bold text-purple-600">-</span>
+          <img
+            src={numberImages[example.subtrahend]}
+            alt={String(example.subtrahend)}
+              className="w-24 h-20 sm:w-32 sm:h-24 md:w-40 md:h-32 lg:w-48 lg:h-36 cursor-pointer hover:scale-110 transition-all duration-200"
+            onClick={() => playSound(example.subtrahend)}
+          />
+          <span className="text-4xl sm:text-5xl font-bold text-purple-600">=</span>
+          <img
+            src={numberImages[example.difference]}
+            alt={String(example.difference)}
+              className="w-24 h-20 sm:w-32 sm:h-24 md:w-40 md:h-32 lg:w-48 lg:h-36 cursor-pointer hover:scale-110 transition-all duration-200"
+            onClick={() => playSound(example.difference)}
+          />
+        </div>
+
+        <p className="text-base sm:text-lg text-purple-600 font-semibold mt-4 drop-shadow-md">
+          {translations[language].pronunciation}
+        </p>
+      </div>
     </div>
   );
 };

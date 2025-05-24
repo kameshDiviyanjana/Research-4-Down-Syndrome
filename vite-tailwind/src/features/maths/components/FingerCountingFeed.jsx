@@ -2,7 +2,7 @@ import React from 'react';
 
 const FingerCountingFeed = () => {
   return (
-    <div className="lg:w-1/2 flex justify-center mt-[100px] mr-[70px]">
+    <div className="flex justify-center mt-[100px] mr-[70px]">
       <img 
         src="http://localhost:5000/finger_counting/feed" 
         alt="Finger counting feed" 
