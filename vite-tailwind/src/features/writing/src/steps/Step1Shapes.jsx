@@ -1,6 +1,7 @@
 // src/steps/Step1Shapes.jsx
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import ShapeDisplay from '../components/ShapeDisplay';
+import ShapeAnimator from '../components/ShapeAnimator';
 import TracingCanvas from '../components/TracingCanvas';
 
 // Import all SVG shapes
@@ -27,10 +28,15 @@ function Step1Shapes() {
     { id: 'rectangle_third_plus', name: 'Rectangle Plus', svg: rectangleThirdPlusSVGPath },
     { id: 'square_large', name: 'Square', svg: squareLargeSVGPath }
   ];
-
   // State to track the current shape
   const [currentShapeIndex, setCurrentShapeIndex] = useState(0);
   const currentShape = allShapes[currentShapeIndex];
+  
+  // State to control display mode
+  const [showAnimation, setShowAnimation] = useState(false);
+  
+  // Reference to the animator component
+  const animatorRef = useRef(null);
   
   // Define the desired size for the display area
   const displayWidth = 500;
@@ -41,26 +47,63 @@ function Step1Shapes() {
       <h1 className="text-3xl font-bold text-neutral-700 mb-6">
         Trace the Shape: {currentShape.name}
       </h1>
-      
-      <div
+        <div
         className="relative"
         style={{ width: `${displayWidth}px`, height: `${displayHeight}px`, marginBottom: '50px' }}
       >
-        {/* ShapeDisplay will show the SVG *underneath* the canvas */}
-        <ShapeDisplay SvgComponent={currentShape.svg} />
+        {/* Show either ShapeAnimator or ShapeDisplay based on mode */}
+        {showAnimation ? (
+          <ShapeAnimator 
+            ref={animatorRef}
+            SvgComponent={currentShape.svg} 
+            tracerColor="#FF5733"
+            tracerSize={10}
+            duration={3}
+            onAnimationComplete={() => {
+              // Switch back to tracing mode after animation completes
+              setTimeout(() => {
+                setShowAnimation(false);
+              }, 500);
+            }}
+          />
+        ) : (
+          <>
+            {/* ShapeDisplay will show the SVG *underneath* the canvas */}
+            <ShapeDisplay SvgComponent={currentShape.svg} />
 
-        {/* TracingCanvas is where the child draws, it's *on top* and transparent */}
-        <TracingCanvas
-          width={displayWidth}
-          height={displayHeight}
-          traceColor="#22C55E" /* A nice green for tracing (Tailwind green-500) */
-        />
+            {/* TracingCanvas is where the child draws, it's *on top* and transparent */}
+            <TracingCanvas
+              width={displayWidth}
+              height={displayHeight}
+              traceColor="#22C55E" /* A nice green for tracing (Tailwind green-500) */
+            />
+          </>
+        )}
       </div>
       
+      {/* Animation control button */}
+      <button
+        onClick={() => {
+          setShowAnimation(true);
+          // Give a small delay before playing to ensure the component is mounted
+          setTimeout(() => {
+            if (animatorRef.current) {
+              animatorRef.current.play();
+            }
+          }, 100);
+        }}
+        className="mb-4 bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-6 rounded-lg flex items-center justify-center gap-2 transition-colors"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+        </svg>
+        Show me how to draw
+      </button>
+      
       {/* Navigation buttons for switching between shapes */}
-      <div className="mt-20 flex flex-wrap justify-center gap-8" style={{ zIndex: 30, position: 'relative' }}>
-        <button 
+      <div className="mt-20 flex flex-wrap justify-center gap-8" style={{ zIndex: 30, position: 'relative' }}>        <button 
           onClick={() => {
+            setShowAnimation(false);
             setCurrentShapeIndex((prev) => (prev === 0 ? allShapes.length - 1 : prev - 1));
           }}
           className="bg-button-bg text-button-text p-3 rounded-full w-14 h-14 flex items-center justify-center text-2xl hover:bg-blue-700"
@@ -75,6 +118,7 @@ function Step1Shapes() {
         
         <button 
           onClick={() => {
+            setShowAnimation(false);
             setCurrentShapeIndex((prev) => (prev === allShapes.length - 1 ? 0 : prev + 1));
           }}
           className="bg-button-bg text-button-text p-3 rounded-full w-14 h-14 flex items-center justify-center text-2xl hover:bg-blue-700"
@@ -90,7 +134,10 @@ function Step1Shapes() {
           {allShapes.map((shape, index) => (
             <button
               key={shape.id}
-              onClick={() => setCurrentShapeIndex(index)}
+              onClick={() => {
+                setShowAnimation(false);
+                setCurrentShapeIndex(index);
+              }}
               className={`py-1 px-3 rounded-md whitespace-nowrap flex-shrink-0 transition-colors ${
                 index === currentShapeIndex
                   ? 'bg-blue-600 text-white'

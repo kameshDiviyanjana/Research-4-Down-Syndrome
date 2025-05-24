@@ -1,6 +1,7 @@
 // src/steps/Step2Strokes.jsx
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import LetterDisplay from '../components/LetterDisplay';
+import LetterAnimator from '../components/LetterAnimator';
 import TracingCanvas from '../components/TracingCanvas';
 
 // Import all SVGs
@@ -46,10 +47,16 @@ function Step2Strokes() {
     { id: 'rakaranshaya', name: 'රකාරාංශය', svg: rakaranshayaSVGPath },
     { id: 'hal_lakuna', name: 'හල් ලකුණ', svg: halLakunaSVGPath }
   ];
-
   // State to track the current stroke
   const [currentStrokeIndex, setCurrentStrokeIndex] = useState(0);
   const currentStroke = allStrokes[currentStrokeIndex];
+  
+  // State to control display mode
+  const [showAnimation, setShowAnimation] = useState(false);
+  
+  // Reference to the animator component
+  const animatorRef = useRef(null);
+  
   // Define the desired size for the display area. The canvas will match this.
   // Using larger dimensions for children with Down syndrome to improve accessibility
   const displayWidth = 500;
@@ -63,21 +70,58 @@ function Step2Strokes() {
         className="relative"
         style={{ width: `${displayWidth}px`, height: `${displayHeight}px`, marginBottom: '50px' }}
       >
-        {/* LetterDisplay will show the SVG *underneath* the canvas */}
-        <LetterDisplay SvgComponent={currentStroke.svg} />
+        {/* Show either LetterAnimator or LetterDisplay based on mode */}
+        {showAnimation ? (
+          <LetterAnimator 
+            ref={animatorRef}
+            SvgComponent={currentStroke.svg} 
+            tracerColor="#FF5733"
+            tracerSize={10}
+            duration={3}
+            onAnimationComplete={() => {
+              // Switch back to tracing mode after animation completes
+              setTimeout(() => {
+                setShowAnimation(false);
+              }, 500);
+            }}
+          />
+        ) : (
+          <>
+            {/* LetterDisplay will show the SVG *underneath* the canvas */}
+            <LetterDisplay SvgComponent={currentStroke.svg} />
 
-        {/* TracingCanvas is where the child draws, it's *on top* and transparent */}
-        <TracingCanvas
-          width={displayWidth}
-          height={displayHeight}
-          traceColor="#22C55E" /* A nice green for tracing (Tailwind green-500) */
-        />
+            {/* TracingCanvas is where the child draws, it's *on top* and transparent */}
+            <TracingCanvas
+              width={displayWidth}
+              height={displayHeight}
+              traceColor="#22C55E" /* A nice green for tracing (Tailwind green-500) */
+            />
+          </>
+        )}
       </div>
+      
+      {/* Animation control button */}
+      <button
+        onClick={() => {
+          setShowAnimation(true);
+          // Give a small delay before playing to ensure the component is mounted
+          setTimeout(() => {
+            if (animatorRef.current) {
+              animatorRef.current.play();
+            }
+          }, 100);
+        }}
+        className="mb-4 bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-6 rounded-lg flex items-center justify-center gap-2 transition-colors"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+        </svg>
+        Show me how to write
+      </button>
         {/* Navigation buttons for switching between strokes */}
-      <div className="mt-20 flex flex-wrap justify-center gap-8" style={{ zIndex: 30, position: 'relative' }}>
-        <button 
+      <div className="mt-20 flex flex-wrap justify-center gap-8" style={{ zIndex: 30, position: 'relative' }}>        <button 
           onClick={() => {
-            console.log('Previous button clicked');
+            setShowAnimation(false);
             setCurrentStrokeIndex((prev) => (prev === 0 ? allStrokes.length - 1 : prev - 1));
           }}
           className="bg-button-bg text-button-text p-3 rounded-full w-14 h-14 flex items-center justify-center text-2xl hover:bg-blue-700"
@@ -90,7 +134,7 @@ function Step2Strokes() {
           {currentStrokeIndex + 1} / {allStrokes.length}
         </div>        <button 
           onClick={() => {
-            console.log('Next button clicked');
+            setShowAnimation(false);
             setCurrentStrokeIndex((prev) => (prev === allStrokes.length - 1 ? 0 : prev + 1));
           }}
           className="bg-button-bg text-button-text p-3 rounded-full w-14 h-14 flex items-center justify-center text-2xl hover:bg-blue-700"
@@ -106,7 +150,10 @@ function Step2Strokes() {
           {allStrokes.map((stroke, index) => (
             <button
               key={stroke.id}
-              onClick={() => setCurrentStrokeIndex(index)}
+              onClick={() => {
+                setShowAnimation(false);
+                setCurrentStrokeIndex(index);
+              }}
               className={`py-1 px-3 rounded-md whitespace-nowrap flex-shrink-0 transition-colors ${
                 index === currentStrokeIndex
                   ? 'bg-blue-600 text-white'
