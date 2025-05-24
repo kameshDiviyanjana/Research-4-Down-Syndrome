@@ -399,7 +399,7 @@ function SystemPage() {
             {/* Live Camera Section */}
             <div className="flex flex-col items-center bg-gradient-to-b from-blue-200 to-white p-8 rounded-3xl shadow-2xl">
               <h2 className="text-3xl font-extrabold text-blue-700 mb-6">
-                🎥 වීඩියෝ එකේ ඔයා කරපු දේ
+                 මෙතනින් පටන් ගනිමු 🎥
               </h2>
 
               {Playe && displayrecode ? (
@@ -450,12 +450,11 @@ function SystemPage() {
                       className="hidden"
                     />
                   </label>
-                  <button
-                    onClick={() => handleFileUpload(selectedFile)}
+                  <label
                     className="bg-green-500 text-white font-bold px-8 py-3 rounded-full shadow-md hover:bg-green-600 mt-4 transition-all"
                   >
-                     තෝරපු වීඩියෝ එක දාලා බලමු! 🚀
-                  </button>
+                     හෝ 
+                  </label>
                   <button
                     onClick={startrecodevedio}
                     className="mt-4 bg-blue-500 text-white px-8 py-3 rounded-full hover:bg-blue-700 transition-all"
@@ -474,7 +473,7 @@ function SystemPage() {
           {videoBlob && (
             <div className="mt-10 flex flex-col items-center">
               <h3 className="text-2xl font-bold text-purple-600 mb-4">
-                🎬 Recorded Video
+                ඔයා රෙකෝඩ් කරපු දේ 🎬 
               </h3>
               <video
                 src={URL.createObjectURL(videoBlob)}
@@ -485,7 +484,27 @@ function SystemPage() {
                 onClick={() => handleFileUpload(videoBlob)}
                 className="mt-6 bg-purple-500 text-white px-8 py-3 rounded-full shadow-md hover:bg-purple-700 transition-all"
               >
-                ⬆️ Upload Recorded Video
+                 රෙකෝඩ් කරපු වීඩියෝ එක දාමු ⬆️
+              </button>
+            </div>
+          )}
+
+ {/* Recorded Video */}
+          {selectedFile && (
+            <div className="mt-10 flex flex-col items-center">
+              <h3 className="text-2xl font-bold text-purple-600 mb-4">
+                ඔයා රෙකෝඩ් කරපු දේ 🎬 
+              </h3>
+              <video
+                src={URL.createObjectURL(selectedFile)}
+                controls
+                className="w-full max-w-md rounded-3xl shadow-md"
+              />
+              <button
+                onClick={() => handleFileUpload(selectedFile)}
+                className="mt-6 bg-purple-500 text-white px-8 py-3 rounded-full shadow-md hover:bg-purple-700 transition-all"
+              >
+                 වීඩියෝ එක දාමු ⬆️
               </button>
             </div>
           )}
@@ -520,7 +539,7 @@ function SystemPage() {
                 </tbody>
               </table>
 
-              {isModalOpen && (
+              {/* {isModalOpen && (
                 <div style={OVERLAY_STYLES}>
                   <div
                     style={MODAL_STYLES}
@@ -536,7 +555,7 @@ function SystemPage() {
                     </div>
                   </div>
                 </div>
-              )}
+              )} */}
 
               <div className="flex justify-center gap-8 mt-8">
                 <button
