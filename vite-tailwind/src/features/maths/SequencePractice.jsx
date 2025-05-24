@@ -3,7 +3,9 @@ import Swal from "sweetalert2";
 import SmileImage from '../../../src/assets/smile.jpg';
 import useProgressStore from '../maths/store/progressStore';
 import useLanguageStore from '../maths/store/languageStore';
-import { showSuccessAlert, showFailureAlert } from '../maths/ResponseModal';
+import { showSuccessAlert, showFailureAlert } from '../maths/components/ResponseModal';
+import FingerCountingFeed from './components/FingerCountingFeed';
+import { fetchFingerCount } from './services/fingerCountingService';
 import "./PracticeAnimations.css";
 import blankAnswerAudio from '../maths/sounds/SNextAnswer.m4a';
 import blankAnswerAudioEnglish from '../maths/sounds/WhatistheNextAnswer.m4a';
@@ -182,30 +184,11 @@ const SequencePractice = () => {
   };
 
   const checkResult = async (targetSequence) => {
-    try {
-      const response = await fetch("http://localhost:5000/finger_counting/count");
-      const data = await response.json();
-      const userPrediction = data.finger_count;
-      const confidence = data.confidence;
+    const result = await fetchFingerCount();
 
-      setFinalPrediction(userPrediction);
+    if (result.error) {
       setIsCapturing(false);
       setIsChecking(false);
-
-      const isAnswerCorrect = userPrediction === targetSequence.answer && confidence >= 0.8;
-      setIsCorrect(isAnswerCorrect);
-
-      addProgress("Sequence", isAnswerCorrect); // Updated to use "Sequence" as subSkill and boolean for score
-      if (isAnswerCorrect) {
-        showSuccessAlert(translations, language);
-      } else {
-        showFailureAlert(translations, language, confidence, targetSequence.answer, userPrediction);
-      }
-    } catch (error) {
-      console.error("Error fetching finger count:", error);
-      setIsCapturing(false);
-      setIsChecking(false);
-
       Swal.fire({
         title: translations[language].errorTitle,
         text: translations[language].errorText,
@@ -213,6 +196,22 @@ const SequencePractice = () => {
         showConfirmButton: false,
         timer: 2000,
       });
+      return;
+    }
+
+    const { userPrediction, confidence } = result;
+    setFinalPrediction(userPrediction);
+    setIsCapturing(false);
+    setIsChecking(false);
+
+    const isAnswerCorrect = userPrediction === targetSequence.answer && confidence >= 0.8;
+    setIsCorrect(isAnswerCorrect);
+
+    addProgress("Sequence", isAnswerCorrect);
+    if (isAnswerCorrect) {
+      showSuccessAlert(translations, language);
+    } else {
+      showFailureAlert(translations, language, confidence, targetSequence.answer, userPrediction);
     }
   };
 
@@ -303,13 +302,7 @@ const SequencePractice = () => {
           )}
         </div>
 
-        <div className="lg:w-1/2 flex justify-center mt-[100px] mr-10">
-          <img
-            src="http://localhost:5000/finger_counting/feed"
-            alt="Finger counting feed"
-            className="w-full max-w-2xl rounded-2xl shadow-xl border-4 border-indigo-200 transform transition-all hover:border-indigo-400"
-          />
-        </div>
+        <FingerCountingFeed />
       </div>
     </div>
   );

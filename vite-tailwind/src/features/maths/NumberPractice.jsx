@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import useProgressStore from '../maths/store/progressStore';
 import useLanguageStore from '../maths/store/languageStore';
-import { showSuccessAlert, showFailureAlert } from '../maths/ResponseModal'; 
+import { showSuccessAlert, showFailureAlert } from '../maths/components/ResponseModal'; 
+import FingerCountingFeed from './components/FingerCountingFeed';
 import "./PracticeAnimations.css";
 import backgroundImg from "../../../public/images/practiceBg2.jpg";
+import { fetchFingerCount } from './services/fingerCountingService';
 
 // Images
 import SmileImage from '../../../src/assets/smile.jpg';
@@ -151,32 +153,10 @@ const NumberPractice = () => {
   };
 
   const checkResult = async (targetNumber) => {
-    try {
-      const response = await fetch("http://localhost:5000/finger_counting/count");
-      const data = await response.json();
-      const userPrediction = data.finger_count;
-      const confidence = data.confidence;
+    const result = await fetchFingerCount();
 
-      setFinalPrediction(userPrediction);
-      setIsCapturing(false);
-      setIsChecking(false);
-
-      const isCorrect = userPrediction === targetNumber && confidence >= 0.8;
-      if (isCorrect) {
-        addProgress("Number", true); // Score: 1
-        showSuccessAlert(translations, language);
-        if (!isRandomMode && targetNumber === 10) {
-          setIsRandomMode(true);
-          setCurrentNumber(null);
-        } else if (!isRandomMode) {
-          setCurrentNumber((prev) => prev + 1);
-        }
-      } else {
-        addProgress("Number", false); // Score: -1
-        showFailureAlert(translations, language, confidence, targetNumber, userPrediction);
-      }
-    } catch (error) {
-      console.error("[checkResult] Error fetching finger count:", error);
+    if (result.error) {
+      console.error("[checkResult] Error fetching finger count:", result.error);
       setIsCapturing(false);
       setIsChecking(false);
       Swal.fire({
@@ -186,6 +166,27 @@ const NumberPractice = () => {
         showConfirmButton: false,
         timer: 2000,
       });
+      return;
+    }
+
+    const { userPrediction, confidence } = result;
+    setFinalPrediction(userPrediction);
+    setIsCapturing(false);
+    setIsChecking(false);
+
+    const isCorrect = userPrediction === targetNumber && confidence >= 0.8;
+    if (isCorrect) {
+      addProgress("Number", true);
+      showSuccessAlert(translations, language);
+      if (!isRandomMode && targetNumber === 10) {
+        setIsRandomMode(true);
+        setCurrentNumber(null);
+      } else if (!isRandomMode) {
+        setCurrentNumber((prev) => prev + 1);
+      }
+    } else {
+      addProgress("Number", false);
+      showFailureAlert(translations, language, confidence, targetNumber, userPrediction);
     }
   };
 
@@ -244,13 +245,7 @@ const NumberPractice = () => {
           )}
         </div>
 
-        <div className="lg:w-1/2 flex justify-center mt-[100px] mr-[70px]">
-          <img 
-            src="http://localhost:5000/finger_counting/feed" 
-            alt="Finger counting feed" 
-            className="w-full max-w-2xl rounded-2xl shadow-xl border-4 border-indigo-200 hover:border-indigo-400"
-          />
-        </div>
+        <FingerCountingFeed />
       </div>
     </div>
   );
