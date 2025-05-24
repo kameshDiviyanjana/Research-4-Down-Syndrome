@@ -1,6 +1,7 @@
 // src/steps/Step3Letters.jsx
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import LetterDisplay from '../components/LetterDisplay';
+import LetterAnimator from '../components/LetterAnimator';
 import TracingCanvas from '../components/TracingCanvas';
 
 // Import all letter SVGs
@@ -56,11 +57,17 @@ function Step3Letters() {  // Define all available letters
     { id: 'letter_52', name: 'ර', svg: letter52SVGPath },
     { id: 'letter_53', name: 'ල', svg: letter53SVGPath }
   ];
-
   // State to track the current letter
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
   const currentLetter = allLetters[currentLetterIndex];
-    // Define the desired size for the display area
+  
+  // State to control display mode
+  const [showAnimation, setShowAnimation] = useState(false);
+  
+  // Reference to the animator component
+  const animatorRef = useRef(null);
+    
+  // Define the desired size for the display area
   // Use slightly taller canvas for letters to fit better
   const displayWidth = 500;
   const displayHeight = 520;
@@ -70,26 +77,63 @@ function Step3Letters() {  // Define all available letters
       <h1 className="text-3xl font-bold text-neutral-700 mb-6">
         Trace the Letter: {currentLetter.name}
       </h1>
-      
-      <div
+        <div
         className="relative"
         style={{ width: `${displayWidth}px`, height: `${displayHeight}px`, marginBottom: '50px' }}
       >
-        {/* LetterDisplay will show the SVG *underneath* the canvas */}
-        <LetterDisplay SvgComponent={currentLetter.svg} />
+        {/* Show either LetterAnimator or LetterDisplay based on mode */}
+        {showAnimation ? (
+          <LetterAnimator 
+            ref={animatorRef}
+            SvgComponent={currentLetter.svg} 
+            tracerColor="#FF5733"
+            tracerSize={10}
+            duration={4}
+            onAnimationComplete={() => {
+              // Switch back to tracing mode after animation completes
+              setTimeout(() => {
+                setShowAnimation(false);
+              }, 500);
+            }}
+          />
+        ) : (
+          <>
+            {/* LetterDisplay will show the SVG *underneath* the canvas */}
+            <LetterDisplay SvgComponent={currentLetter.svg} />
 
-        {/* TracingCanvas is where the child draws, it's *on top* and transparent */}
-        <TracingCanvas
-          width={displayWidth}
-          height={displayHeight}
-          traceColor="#22C55E" /* A nice green for tracing (Tailwind green-500) */
-        />
+            {/* TracingCanvas is where the child draws, it's *on top* and transparent */}
+            <TracingCanvas
+              width={displayWidth}
+              height={displayHeight}
+              traceColor="#22C55E" /* A nice green for tracing (Tailwind green-500) */
+            />
+          </>
+        )}
       </div>
       
+      {/* Animation control button */}
+      <button
+        onClick={() => {
+          setShowAnimation(true);
+          // Give a small delay before playing to ensure the component is mounted
+          setTimeout(() => {
+            if (animatorRef.current) {
+              animatorRef.current.play();
+            }
+          }, 100);
+        }}
+        className="mb-4 bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-6 rounded-lg flex items-center justify-center gap-2 transition-colors"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+        </svg>
+        Show me how to write
+      </button>
+      
       {/* Navigation buttons for switching between letters */}
-      <div className="mt-20 flex flex-wrap justify-center gap-8" style={{ zIndex: 30, position: 'relative' }}>
-        <button 
+      <div className="mt-20 flex flex-wrap justify-center gap-8" style={{ zIndex: 30, position: 'relative' }}>        <button 
           onClick={() => {
+            setShowAnimation(false);
             setCurrentLetterIndex((prev) => (prev === 0 ? allLetters.length - 1 : prev - 1));
           }}
           className="bg-button-bg text-button-text p-3 rounded-full w-14 h-14 flex items-center justify-center text-2xl hover:bg-blue-700"
@@ -104,6 +148,7 @@ function Step3Letters() {  // Define all available letters
         
         <button 
           onClick={() => {
+            setShowAnimation(false);
             setCurrentLetterIndex((prev) => (prev === allLetters.length - 1 ? 0 : prev + 1));
           }}
           className="bg-button-bg text-button-text p-3 rounded-full w-14 h-14 flex items-center justify-center text-2xl hover:bg-blue-700"
@@ -119,7 +164,10 @@ function Step3Letters() {  // Define all available letters
           {allLetters.map((letter, index) => (
             <button
               key={letter.id}
-              onClick={() => setCurrentLetterIndex(index)}
+              onClick={() => {
+                setShowAnimation(false);
+                setCurrentLetterIndex(index);
+              }}
               className={`py-1 px-3 rounded-md whitespace-nowrap flex-shrink-0 transition-colors ${
                 index === currentLetterIndex
                   ? 'bg-blue-600 text-white'
