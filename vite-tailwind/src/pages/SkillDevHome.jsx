@@ -4,7 +4,7 @@ import VocabularyIntro from "../components/VocabularyIntro";
 import WritingIntro from "../components/WritingIntro";
 import bg1 from "../../public/images/langpage.jpg";
 import { motion } from "framer-motion";
-
+  
 const SkillDevHome = () => {
   return (
     <motion.div
