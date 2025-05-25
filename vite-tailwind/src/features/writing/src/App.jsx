@@ -77,7 +77,7 @@ function App() {
     }
     return null; // This case is handled by showing the card selection
   };
-  // Choose background based on whether we're on home screen or activity screen
+  // Choose background based on whether home screen or activity screen
   const backgroundStyle = {
     backgroundImage: `url(${currentStepComponent === null ? letterWritingBg : whiteboardBg})`,
     backgroundSize: 'cover',
