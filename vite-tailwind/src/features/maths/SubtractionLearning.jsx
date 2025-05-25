@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import bg1 from "../../../public/images/bg2.jpg";
-import useLanguageStore from "../maths/store/languageStore";
+import { getLanguagePreference } from "../../services/languageService";
 
 // Import number images
 import num0 from "../../assets/numbers/0.png";
@@ -43,35 +43,63 @@ import soundEN9 from "../maths/sounds/E9.m4a";
 import soundEN10 from "../maths/sounds/E10.m4a";
 
 // Import subtraction and prompt sounds
-import substractEnglish from '../maths/sounds/substract.m4a';
-import substractSinhala from '../maths/sounds/S-subtract.m4a';
-import substractFrom from '../maths/sounds/from.m4a';
-import andSinhala from '../maths/sounds/S-and.m4a';
-import whatIstheAnswerAudioEnglish from '../maths/sounds/answerIs.m4a';
+import substractEnglish from "../maths/sounds/substract.m4a";
+import substractSinhala from "../maths/sounds/S-subtract.m4a";
+import substractFrom from "../maths/sounds/from.m4a";
+import andSinhala from "../maths/sounds/S-and.m4a";
+import whatIstheAnswerAudioEnglish from "../maths/sounds/answerIs.m4a";
 
 // Number images map
 const numberImages = {
-  0: num0, 1: num1, 2: num2, 3: num3, 4: num4,
-  5: num5, 6: num6, 7: num7, 8: num8, 9: num9, 10: num10
+  0: num0,
+  1: num1,
+  2: num2,
+  3: num3,
+  4: num4,
+  5: num5,
+  6: num6,
+  7: num7,
+  8: num8,
+  9: num9,
+  10: num10,
 };
 
 // Sinhala number sounds
 const numberSoundsSinhala = {
-  0: sound0, 1: sound1, 2: sound2, 3: sound3, 4: sound4,
-  5: sound5, 6: num6, 7: sound7, 8: sound8, 9: sound9, 10: sound10
+  0: sound0,
+  1: sound1,
+  2: sound2,
+  3: sound3,
+  4: sound4,
+  5: sound5,
+  6: sound6, // Fixed: Changed from num6 (image) to sound6 (audio)
+  7: sound7,
+  8: sound8,
+  9: sound9,
+  10: sound10,
 };
 
 // English number sounds
 const numberSoundsEnglish = {
-  0: soundEN0, 1: soundEN1, 2: soundEN2, 3: soundEN3, 4: soundEN4,
-  5: soundEN5, 6: soundEN6, 7: soundEN7, 8: soundEN8, 9: soundEN9, 10: soundEN10
+  0: soundEN0,
+  1: soundEN1,
+  2: soundEN2,
+  3: soundEN3,
+  4: soundEN4,
+  5: soundEN5,
+  6: soundEN6,
+  7: soundEN7,
+  8: soundEN8,
+  9: soundEN9,
+  10: soundEN10,
 };
 
 // Translations for English and Sinhala
 const translations = {
   en: {
     title: "Learn Subtraction",
-    instructionsTitle: "Guide for Parents: Helping Your Child Learn Subtraction",
+    instructionsTitle:
+      "Guide for Parents: Helping Your Child Learn Subtraction",
     example: "Example",
     nextExample: "Next Example",
     pronunciation: "Click on the numbers to hear their pronunciation.",
@@ -93,7 +121,8 @@ const translations = {
   },
   si: {
     title: "අඩු කිරීම ඉගෙන ගන්න",
-    instructionsTitle: "දෙමවුපියන් සඳහා මාර්ගෝපදේශය: ඔබේ දරුවාට අඩු කිරීම ඉගෙන ගැනීමට උපකාර කිරීම",
+    instructionsTitle:
+      "දෙමවුපියන් සඳහා මාර්ගෝපදේශය: ඔබේ දරුවාට අඩු කිරීම ඉගෙන ගැනීමට උපකාර කිරීම",
     example: "උදාහරණය",
     nextExample: "ඊළඟ උදාහරණය",
     pronunciation: "ඉලක්කම්වල උච්චාරණය ඇසීමට ඒවා මත ක්ලික් කරන්න。",
@@ -121,7 +150,7 @@ const initialEasyExamples = [
   { minuend: 2, subtrahend: 1, difference: 1 },
   { minuend: 3, subtrahend: 2, difference: 1 },
   { minuend: 3, subtrahend: 1, difference: 2 },
-  { minuend: 4, subtrahend: 2, difference: 2 }
+  { minuend: 4, subtrahend: 2, difference: 2 },
 ];
 
 // Function to generate subtraction examples based on exampleCount
@@ -157,37 +186,79 @@ const SubtractionLearning = () => {
   const [example, setExample] = useState(generateExample(1));
   const [exampleCount, setExampleCount] = useState(1);
   const [showInstructions, setShowInstructions] = useState(false);
-  const { language } = useLanguageStore();
+  const [language, setLanguage] = useState("en");
+  const [loading, setLoading] = useState(true); // Added loading state
+  const userId = localStorage.getItem("userid");
+
+  useEffect(() => {
+    const fetchLanguage = async () => {
+      try {
+        const response = await getLanguagePreference(userId);
+        console.log("Fetched language:", response.data.data.language);
+        if (response.data.status === "success") {
+          setLanguage(response.data.data.language || "en"); // Fallback to "en" if undefined
+        }
+      } catch (err) {
+        console.error("Error fetching language:", err);
+        if (err.response?.status === 404 || err.response?.status === 500) {
+          setLanguage("en"); // Fallback to English on error
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLanguage();
+  }, [userId]);
 
   const playSound = (number, lang = language) => {
-    const numberSounds = lang === 'si' ? numberSoundsSinhala : numberSoundsEnglish;
+    if (loading) return; // Prevent sound playback during loading
+    const numberSounds =
+      lang === "si" ? numberSoundsSinhala : numberSoundsEnglish;
     const sound = numberSounds[number];
     if (sound) {
       const audio = new Audio(sound);
       audio.play().catch((error) => {
-        console.log("Audio play error:", error);
+        console.error(`Error playing ${lang} sound for ${number}:`, error);
       });
+    } else {
+      console.warn(`No sound file found for number ${number} in language ${lang}`);
     }
   };
 
   const playAudioSequence = (ex) => {
-    const numberSounds = language === 'si' ? numberSoundsSinhala : numberSoundsEnglish;
+    const numberSounds =
+      language === "si" ? numberSoundsSinhala : numberSoundsEnglish;
     const minuendAudio = new Audio(numberSounds[ex.minuend]);
     const subtrahendAudio = new Audio(numberSounds[ex.subtrahend]);
-    const subtractAudio = new Audio(language === 'si' ? substractSinhala : substractEnglish);
+    const subtractAudio = new Audio(
+      language === "si" ? substractSinhala : substractEnglish
+    );
     const differenceAudio = new Audio(numberSounds[ex.difference]);
 
-    if (language === 'si') {
+    if (language === "si") {
       const andAudio = new Audio(andSinhala);
-      minuendAudio.play().catch((error) => console.log("Minuend audio error:", error));
+      minuendAudio
+        .play()
+        .catch((error) => console.log("Minuend audio error:", error));
       minuendAudio.onended = () => {
-        andAudio.play().catch((error) => console.log("And audio error:", error));
+        andAudio
+          .play()
+          .catch((error) => console.log("And audio error:", error));
         andAudio.onended = () => {
-          subtrahendAudio.play().catch((error) => console.log("Subtrahend audio error:", error));
+          subtrahendAudio
+            .play()
+            .catch((error) => console.log("Subtrahend audio error:", error));
           subtrahendAudio.onended = () => {
-            subtractAudio.play().catch((error) => console.log("Subtract audio error:", error));
+            subtractAudio
+              .play()
+              .catch((error) => console.log("Subtract audio error:", error));
             subtractAudio.onended = () => {
-              differenceAudio.play().catch((error) => console.log("Difference audio error:", error));
+              differenceAudio
+                .play()
+                .catch((error) =>
+                  console.log("Difference audio error:", error)
+                );
             };
           };
         };
@@ -195,17 +266,33 @@ const SubtractionLearning = () => {
     } else {
       const fromAudio = new Audio(substractFrom);
       const whatIsTheAnswerAudio = new Audio(whatIstheAnswerAudioEnglish);
-      subtrahendAudio.play().catch((error) => console.log("Subtrahend audio error:", error));
+      subtrahendAudio
+        .play()
+        .catch((error) => console.log("Subtrahend audio error:", error));
       subtrahendAudio.onended = () => {
-        subtractAudio.play().catch((error) => console.log("Subtract audio error:", error));
+        subtractAudio
+          .play()
+          .catch((error) => console.log("Subtract audio error:", error));
         subtractAudio.onended = () => {
-          fromAudio.play().catch((error) => console.log("From audio error:", error));
+          fromAudio
+            .play()
+            .catch((error) => console.log("From audio error:", error));
           fromAudio.onended = () => {
-            minuendAudio.play().catch((error) => console.log("Minuend audio error:", error));
+            minuendAudio
+              .play()
+              .catch((error) => console.log("Minuend audio error:", error));
             minuendAudio.onended = () => {
-              whatIsTheAnswerAudio.play().catch((error) => console.log("What is the answer audio error:", error));
+              whatIsTheAnswerAudio
+                .play()
+                .catch((error) =>
+                  console.log("What is the answer audio error:", error)
+                );
               whatIsTheAnswerAudio.onended = () => {
-                differenceAudio.play().catch((error) => console.log("Difference audio error:", error));
+                differenceAudio
+                  .play()
+                  .catch((error) =>
+                    console.log("Difference audio error:", error)
+                  );
               };
             };
           };
@@ -222,10 +309,12 @@ const SubtractionLearning = () => {
     playAudioSequence(newExample);
   };
 
-  // Play audio sequence when the page loads
+  // Play audio sequence when the page loads, but only after language is fetched
   useEffect(() => {
-    playAudioSequence(example);
-  }, []);
+    if (!loading) {
+      playAudioSequence(example);
+    }
+  }, [example, language, loading]);
 
   return (
     <div
@@ -236,101 +325,119 @@ const SubtractionLearning = () => {
         backgroundPosition: "center",
       }}
     >
-      <div
-        className={`absolute inset-0 ${showInstructions ? "backdrop-blur-sm z-10" : "z-0"}`}
-      />
+      {loading ? (
+        <div className="text-white text-lg">Loading...</div>
+      ) : (
+        <>
+          <div
+            className={`absolute inset-0 ${
+              showInstructions ? "backdrop-blur-sm z-10" : "z-0"
+            }`}
+          />
 
-      {/* Top-left button */}
-      <div className="absolute top-4 left-4 z-20">
-        <button
-          onClick={() => setShowInstructions(!showInstructions)}
-          className="bg-blue-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-6 py-1 sm:py-3 rounded-full shadow-lg hover:bg-blue-600 active:scale-95 transition-all duration-200"
-        >
-          {translations[language].instructionsButton[showInstructions ? "hide" : "show"]}
-        </button>
-      </div>
-
-      {/* Top-right button */}
-      <div className="absolute top-4 right-4 z-20">
-        <button
-          onClick={() => navigate("/math/subtraction/practice")}
-          className="bg-indigo-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-6 py-1 sm:py-3 rounded-full shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
-        >
-          {translations[language].practiceButton}
-        </button>
-      </div>
-
-      {/* Instruction Modal */}
-      {showInstructions && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm">
-          <div className="w-full max-w-md sm:max-w-2xl bg-white rounded-lg shadow-lg p-4 sm:p-6 m-4 relative">
+          {/* Top-left button */}
+          <div className="absolute top-4 left-4 z-20">
             <button
-              onClick={() => setShowInstructions(false)}
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-xl sm:text-2xl"
+              onClick={() => setShowInstructions(!showInstructions)}
+              className="bg-blue-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-6 py-1 sm:py-3 rounded-full shadow-lg hover:bg-blue-600 active:scale-95 transition-all duration-200"
             >
-              ×
+              {
+                translations[language].instructionsButton[
+                  showInstructions ? "hide" : "show"
+                ]
+              }
             </button>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl sm:text-2xl font-bold text-indigo-600">
-                {translations[language].instructionsTitle}
-              </h3>
-            </div>
-            <ul className="list-disc list-inside text-gray-700 text-base sm:text-lg max-h-[60vh] overflow-y-auto">
-              {translations[language].content.map((item, index) => (
-                <li key={index} className="mb-2">{item}</li>
-              ))}
-            </ul>
           </div>
-        </div>
+
+          {/* Top-right button */}
+          <div className="absolute top-4 right-4 z-20">
+            <button
+              onClick={() => navigate("/math/subtraction/practice")}
+              className="bg-indigo-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-6 py-1 sm:py-3 rounded-full shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
+            >
+              {translations[language].practiceButton}
+            </button>
+          </div>
+
+          {/* Instruction Modal */}
+          {showInstructions && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm">
+              <div className="w-full max-w-md sm:max-w-2xl bg-white rounded-lg shadow-lg p-4 sm:p-6 m-4 relative">
+                <button
+                  onClick={() => setShowInstructions(false)}
+                  className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-xl sm:text-2xl"
+                >
+                  ×
+                </button>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl sm:text-2xl font-bold text-indigo-600">
+                    {translations[language].instructionsTitle}
+                  </h3>
+                </div>
+                <ul className="list-disc list-inside text-gray-700 text-base sm:text-lg max-h-[60vh] overflow-y-auto">
+                  {translations[language].content.map((item, index) => (
+                    <li key={index} className="mb-2">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {/* Header */}
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-indigo-700 drop-shadow-lg mb-4 mt-[100px] sm:mt-10 z-20">
+            ➖ {translations[language].title}
+          </h2>
+
+          {/* Example Container */}
+          <div className="w-full max-w-md sm:max-w-4xl bg-white bg-opacity-80 rounded-xl shadow-lg p-4 sm:p-6 z-20 lg:w-[800px] lg:mr-5">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-blue-800 drop-shadow-md">
+                {translations[language].example} {exampleCount}
+              </h3>
+              <button
+                className="bg-indigo-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-lg shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
+                onClick={swapExample}
+              >
+                ➡ {translations[language].nextExample}
+              </button>
+            </div>
+
+            {/* Dynamic Subtraction Example */}
+            <div className="flex flex-row justify-center items-center gap-2 sm:gap-4 my-4 sm:my-6">
+              <img
+                src={numberImages[example.minuend]}
+                alt={String(example.minuend)}
+                className="w-24 h-20 sm:w-32 sm:h-24 md:w-40 md:h-32 lg:w-48 lg:h-36 cursor-pointer hover:scale-110 transition-all duration-200"
+                onClick={() => playSound(example.minuend)}
+              />
+              <span className="text-4xl sm:text-5xl font-bold text-purple-600">
+                -
+              </span>
+              <img
+                src={numberImages[example.subtrahend]}
+                alt={String(example.subtrahend)}
+                className="w-24 h-20 sm:w-32 sm:h-24 md:w-40 md:h-32 lg:w-48 lg:h-36 cursor-pointer hover:scale-110 transition-all duration-200"
+                onClick={() => playSound(example.subtrahend)}
+              />
+              <span className="text-4xl sm:text-5xl font-bold text-purple-600">
+                =
+              </span>
+              <img
+                src={numberImages[example.difference]}
+                alt={String(example.difference)}
+                className="w-24 h-20 sm:w-32 sm:h-24 md:w-40 md:h-32 lg:w-48 lg:h-36 cursor-pointer hover:scale-110 transition-all duration-200"
+                onClick={() => playSound(example.difference)}
+              />
+            </div>
+
+            <p className="text-base sm:text-lg text-purple-600 font-semibold mt-4 drop-shadow-md">
+              {translations[language].pronunciation}
+            </p>
+          </div>
+        </>
       )}
-
-      {/* Header */}
-      <h2 className="text-3xl sm:text-5xl font-extrabold text-indigo-700 drop-shadow-lg mb-4 mt-[100px] sm:mt-10 z-20">
-        ➖ {translations[language].title}
-      </h2>
-
-      {/* Example Container */}
-      <div className="w-full max-w-md sm:max-w-4xl bg-white bg-opacity-80 rounded-xl shadow-lg p-4 sm:p-6 z-20 lg:w-[800px] lg:mr-5">
-        <div className="flex justify-between items-center mb-4 sm:mb-6">
-          <h3 className="text-lg sm:text-xl font-semibold text-blue-800 drop-shadow-md">
-            {translations[language].example} {exampleCount}
-          </h3>
-          <button
-            className="bg-indigo-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-lg shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
-            onClick={swapExample}
-          >
-            ➡ {translations[language].nextExample}
-          </button>
-        </div>
-
-        {/* Dynamic Subtraction Example */}
-        <div className="flex flex-row justify-center items-center gap-2 sm:gap-4 my-4 sm:my-6">
-          <img
-            src={numberImages[example.minuend]}
-            alt={String(example.minuend)}
-             className="w-24 h-20 sm:w-32 sm:h-24 md:w-40 md:h-32 lg:w-48 lg:h-36 cursor-pointer hover:scale-110 transition-all duration-200"
-            onClick={() => playSound(example.minuend)}
-          />
-          <span className="text-4xl sm:text-5xl font-bold text-purple-600">-</span>
-          <img
-            src={numberImages[example.subtrahend]}
-            alt={String(example.subtrahend)}
-              className="w-24 h-20 sm:w-32 sm:h-24 md:w-40 md:h-32 lg:w-48 lg:h-36 cursor-pointer hover:scale-110 transition-all duration-200"
-            onClick={() => playSound(example.subtrahend)}
-          />
-          <span className="text-4xl sm:text-5xl font-bold text-purple-600">=</span>
-          <img
-            src={numberImages[example.difference]}
-            alt={String(example.difference)}
-              className="w-24 h-20 sm:w-32 sm:h-24 md:w-40 md:h-32 lg:w-48 lg:h-36 cursor-pointer hover:scale-110 transition-all duration-200"
-            onClick={() => playSound(example.difference)}
-          />
-        </div>
-
-        <p className="text-base sm:text-lg text-purple-600 font-semibold mt-4 drop-shadow-md">
-          {translations[language].pronunciation}
-        </p>
-      </div>
     </div>
   );
 };

@@ -38,7 +38,12 @@ import ESound7 from "../maths/sounds/E7.m4a";
 import ESound8 from "../maths/sounds/E8.m4a";
 import ESound9 from "../maths/sounds/E9.m4a";
 import ESound10 from "../maths/sounds/E10.m4a";
-import useLanguageStore from "../maths/store/languageStore";
+
+import {
+  getLanguagePreference,
+  saveLanguagePreference,
+  updateLanguagePreference,
+} from "../../services/languageService";
 
 const numbers = [
   { value: 0, image: num0 },
@@ -127,10 +132,34 @@ const translations = {
 const NumberLearning = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showInstructions, setShowInstructions] = useState(false);
+  const [language, setLanguage] = useState("en");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { language } = useLanguageStore();
+  const userId = localStorage.getItem("userid");
+
+  useEffect(() => {
+    const fetchLanguage = async () => {
+      try {
+        const response = await getLanguagePreference(userId);
+        console.log("Fetched language:", response.data.data.language);
+        if (response.data.status === "success") {
+          setLanguage(response.data.data.language || "en"); // Fallback to "en" if language is undefined
+        }
+      } catch (err) {
+        console.error("Error fetching language:", err);
+        if (err.response?.status === 404 || err.response?.status === 500) {
+          setLanguage("en"); // Fallback to English on error
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLanguage();
+  }, [userId]);
 
   const playSound = (number, lang) => {
+    if (loading) return; // Prevent sound from playing until language is loaded
     const selectedSounds = lang === "si" ? sinhalaSounds : englishSounds;
     const soundToPlay = selectedSounds[number];
     if (soundToPlay) {
@@ -138,12 +167,16 @@ const NumberLearning = () => {
       audio.play().catch((err) => {
         console.error(`Error playing ${lang} sound for ${number}:`, err);
       });
+    } else {
+      console.warn(`No sound file found for number ${number} in language ${lang}`);
     }
   };
 
   useEffect(() => {
-    playSound(numbers[currentIndex].value, language);
-  }, [currentIndex, language]);
+    if (!loading) {
+      playSound(numbers[currentIndex].value, language);
+    }
+  }, [currentIndex, language, loading]);
 
   const prevNumber = () => {
     setCurrentIndex((prev) => (prev === 0 ? numbers.length - 1 : prev - 1));
@@ -166,89 +199,95 @@ const NumberLearning = () => {
         backgroundPosition: "center",
       }}
     >
-      <div
-        className={`absolute inset-0 ${
-          showInstructions ? "backdrop-blur-sm z-10" : "z-0"
-        }`}
-      />
+      {loading ? (
+        <div className="text-white text-lg">Loading...</div>
+      ) : (
+        <>
+          <div
+            className={`absolute inset-0 ${
+              showInstructions ? "backdrop-blur-sm z-10" : "z-0"
+            }`}
+          />
 
-      {/* Top-left button */}
-      <div className="absolute top-4 left-4 z-20">
-        <button
-          onClick={toggleInstructions}
-          className="bg-blue-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-6 py-1 sm:py-3 rounded-full shadow-lg hover:bg-blue-600 active:scale-95 transition-all duration-200"
-        >
-          {
-            translations[language].instructionsButton[
-              showInstructions ? "hide" : "show"
-            ]
-          }
-        </button>
-      </div>
-
-      {/* Top-right button */}
-      <div className="absolute top-4 right-4 z-20">
-        <button
-          onClick={() => navigate("/math/numbers/practice")}
-          className="bg-indigo-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-6 py-1 sm:py-3 rounded-full shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
-        >
-          {translations[language].practiceButton}
-        </button>
-      </div>
-
-      {showInstructions && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm">
-          <div className="w-full max-w-md sm:max-w-2xl bg-white rounded-lg shadow-lg p-4 sm:p-6 m-4 relative">
+          {/* Top-left button */}
+          <div className="absolute top-4 left-4 z-20">
             <button
               onClick={toggleInstructions}
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-xl sm:text-2xl"
+              className="bg-blue-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-6 py-1 sm:py-3 rounded-full shadow-lg hover:bg-blue-600 active:scale-95 transition-all duration-200"
             >
-              ×
+              {
+                translations[language]?.instructionsButton[
+                  showInstructions ? "hide" : "show"
+                ]
+              }
             </button>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl sm:text-2xl font-bold text-indigo-600">
-                {translations[language].title}
-              </h3>
-            </div>
-            <ul className="list-disc list-inside text-gray-700 text-base sm:text-lg max-h-[60vh] overflow-y-auto">
-              {translations[language].content.map((item, index) => (
-                <li key={index} className="mb-2">
-                  {item}
-                </li>
-              ))}
-            </ul>
           </div>
-        </div>
+
+          {/* Top-right button */}
+          <div className="absolute top-4 right-4 z-20">
+            <button
+              onClick={() => navigate("/math/numbers/practice")}
+              className="bg-indigo-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-6 py-1 sm:py-3 rounded-full shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
+            >
+              {translations[language]?.practiceButton}
+            </button>
+          </div>
+
+          {showInstructions && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm">
+              <div className="w-full max-w-md sm:max-w-2xl bg-white rounded-lg shadow-lg p-4 sm:p-6 m-4 relative">
+                <button
+                  onClick={toggleInstructions}
+                  className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-xl sm:text-2xl"
+                >
+                  ×
+                </button>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl sm:text-2xl font-bold text-indigo-600">
+                    {translations[language]?.title}
+                  </h3>
+                </div>
+                <ul className="list-disc list-inside text-gray-700 text-base sm:text-lg max-h-[60vh] overflow-y-auto">
+                  {translations[language]?.content.map((item, index) => (
+                    <li key={index} className="mb-2">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-indigo-700 drop-shadow-lg mb-4 mt-[100px] sm:mt-10 z-20">
+            {translations[language]?.adventure}
+          </h2>
+
+          <div className="flex items-center justify-center w-full max-w-3xl sm:max-w-4xl space-x-4 sm:space-x-8 mt-[-15px] z-20">
+            <button
+              className="bg-yellow-400 text-white text-xl sm:text-3xl font-bold p-4 sm:p-6 rounded-full shadow-2xl hover:bg-yellow-500 active:scale-90 transition-all duration-200 z-30"
+              onClick={prevNumber}
+            >
+              ⬅️
+            </button>
+            <img
+              src={numbers[currentIndex].image}
+              alt={`Number ${numbers[currentIndex].value}`}
+              className="w-64 sm:w-96 h-48 sm:h-72 object-contain cursor-pointer transform transition-all duration-300 active:scale-90 z-20"
+              onClick={() => playSound(numbers[currentIndex].value, language)}
+            />
+            <button
+              className="bg-yellow-400 text-white text-xl sm:text-3xl font-bold p-4 sm:p-6 rounded-full shadow-2xl hover:bg-yellow-500 active:scale-90 transition-all duration-200 z-30"
+              onClick={nextNumber}
+            >
+              ➡️
+            </button>
+          </div>
+
+          <p className="text-lg sm:text-xl text-purple-600 font-semibold mb-6 drop-shadow-md z-20">
+            {translations[language]?.tapInstruction}
+          </p>
+        </>
       )}
-
-      <h2 className="text-3xl sm:text-5xl font-extrabold text-indigo-700 drop-shadow-lg mb-4 mt-[100px] sm:mt-10 z-20">
-        {translations[language].adventure}
-      </h2>
-
-      <div className="flex items-center justify-center w-full max-w-3xl sm:max-w-4xl space-x-4 sm:space-x-8 mt-[-15px] z-20">
-        <button
-          className="bg-yellow-400 text-white text-xl sm:text-3xl font-bold p-4 sm:p-6 rounded-full shadow-2xl hover:bg-yellow-500 active:scale-90 transition-all duration-200 z-30"
-          onClick={prevNumber}
-        >
-          ⬅️
-        </button>
-        <img
-          src={numbers[currentIndex].image}
-          alt={`Number ${numbers[currentIndex].value}`}
-          className="w-64 sm:w-96 h-48 sm:h-72 object-contain cursor-pointer transform transition-all duration-300 active:scale-90 z-20"
-          onClick={() => playSound(numbers[currentIndex].value, language)}
-        />
-        <button
-          className="bg-yellow-400 text-white text-xl sm:text-3xl font-bold p-4 sm:p-6 rounded-full shadow-2xl hover:bg-yellow-500 active:scale-90 transition-all duration-200 z-30"
-          onClick={nextNumber}
-        >
-          ➡️
-        </button>
-      </div>
-
-      <p className="text-lg sm:text-xl text-purple-600 font-semibold mb-6 drop-shadow-md z-20">
-        {translations[language].tapInstruction}
-      </p>
     </div>
   );
 };

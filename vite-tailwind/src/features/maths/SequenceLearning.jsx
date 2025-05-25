@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import  { useState  } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineQuestionCircle } from "react-icons/ai";
 import bg1 from "../../../public/images/bg3.jpg";
-import useLanguageStore from "../maths/store/languageStore";
+import {
+  getLanguagePreference,  
+} from "../../services/languageService";
+
 
 // Import number images
 import num0 from "../../assets/numbers/0.png";
@@ -150,7 +154,32 @@ const SequenceLearning = () => {
   const [example, setExample] = useState(generateRandomExample(exampleCount));
   const [showInstructions, setShowInstructions] = useState(false);
   const navigate = useNavigate();
-  const { language } = useLanguageStore();
+
+    const [language, setLanguage] = useState("en");
+   
+     const userId = localStorage.getItem("userid");
+   
+    useEffect(() => {
+       const fetchLanguage = async () => {
+         try {
+           const response = await getLanguagePreference(userId);
+           console.log("lang",response.data.data.language)
+           if (response.data.status === "success") {
+             setLanguage(response.data.data.language)
+           }
+         } catch (err) {
+           if (err.response?.status === 404 || err.response?.status === 500) {
+             
+           } else {
+             console.error(err);
+           }
+         } finally {
+           setLoading(false);
+         }
+       };
+   
+       fetchLanguage();
+     }, [userId]);
 
   const playSound = (number) => {
     const sound = numberSounds[number];
@@ -236,57 +265,62 @@ const SequenceLearning = () => {
         {translations[language].title}
       </h2>
 
-      {/* Sequence Section */}
-      <div className="w-full max-w-md sm:max-w-4xl bg-white bg-opacity-80 rounded-xl shadow-lg p-4 sm:p-6 z-20">
-        <div className="flex justify-between items-center mb-4 sm:mb-6">
-          <h3 className="text-lg sm:text-xl font-semibold text-blue-800 drop-shadow-md">
-            {translations[language].example} {exampleCount}
-          </h3>
-          <button
-            className="bg-indigo-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-lg shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
-            onClick={swapExample}
+{/* Sequence Section */}
+<div className="w-full max-w-md sm:max-w-4xl rounded-xl shadow-lg p-4 sm:p-6 z-20">
+  <div className="flex justify-between items-center mb-4 sm:mb-6">
+    <h3 className="text-lg sm:text-xl font-semibold text-blue-800 drop-shadow-md">
+      {translations[language].example} {exampleCount}
+    </h3>
+    <button
+      className="bg-indigo-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-lg shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
+      onClick={swapExample}
+    >
+      ➡ {translations[language].nextExample}
+    </button>
+  </div>
+
+  {/* Combined Sequence and Answer Row */}
+  <div className="flex flex-row justify-center items-center gap-4 sm:gap-6 my-4 sm:my-6">
+    {/* Sequence Display */}
+    <div className="flex flex-row justify-center items-center gap-2 sm:gap-4">
+      {example.sequence.slice(0, 3).map((num, index) =>
+        num !== null ? (
+          <img
+            key={index}
+            src={numberImages[num]}
+            alt={String(num)}
+            className="w-32 sm:w-40 h-28 sm:h-32 cursor-pointer hover:scale-110 transition-all duration-200"
+            onClick={() => playSound(num)}
+          />
+        ) : (
+          <div
+            key={index}
+            className="w-32 sm:w-40 h-28 sm:h-32 flex justify-center items-center border-gray-300 rounded-full"
           >
-            ➡ {translations[language].nextExample}
-          </button>
-        </div>
+            <AiOutlineQuestionCircle className="w-16 sm:w-20 h-16 sm:h-20 text-purple-600" />
+          </div>
+        )
+      )}
+    </div>
 
-        {/* Sequence Display */}
-        <div className="flex flex-row justify-center items-center gap-2 sm:gap-4 my-4 sm:my-6">
-          {example.sequence.slice(0, 3).map((num, index) =>
-            num !== null ? (
-              <img
-                key={index}
-                src={numberImages[num]}
-                alt={String(num)}
-                className="w-24 sm:w-32 h-20 sm:h-24 cursor-pointer hover:scale-110 transition-all duration-200"
-                onClick={() => playSound(num)}
-              />
-            ) : (
-              <div
-                key={index}
-                className="w-24 sm:w-32 h-20 sm:h-24 flex justify-center items-center border-gray-300 rounded-full"
-              >
-                <AiOutlineQuestionCircle className="w-12 sm:w-16 h-12 sm:h-16 text-purple-600" />
-              </div>
-            )
-          )}
-        </div>
+    {/* Answer Section */}
+    <div className="flex flex-col justify-center items-center bg-yellow-100 bg-opacity-70 border-2 border-yellow-400 rounded-lg p-2 sm:p-3 shadow-[0_0_8px_2px_rgba(255,215,0,0.5)]">
+      <h3 className="text-base sm:text-lg font-semibold text-purple-600 drop-shadow-md mb-2">
+        {translations[language].answerIs}
+      </h3>
+      <img
+        src={numberImages[example.answer]}
+        alt={String(example.answer)}
+        className="w-32 sm:w-40 h-28 sm:h-32 cursor-pointer hover:scale-110 transition-all duration-200"
+        onClick={() => playSound(example.answer)}
+      />
+    </div>
+  </div>
 
-        {/* Answer Section */}
-        <h3 className="text-base sm:text-lg font-semibold text-purple-600 drop-shadow-md mb-2">
-          {translations[language].answerIs}
-        </h3>
-        <img
-          src={numberImages[example.answer]}
-          alt={String(example.answer)}
-          className="w-24 sm:w-32 h-20 sm:h-24 cursor-pointer hover:scale-110 transition-all duration-200 mx-auto"
-          onClick={() => playSound(example.answer)}
-        />
-
-        <p className="text-base sm:text-lg text-purple-600 font-semibold mt-4 drop-shadow-md">
-          {translations[language].pronunciation}
-        </p>
-      </div>
+  <p className="text-base sm:text-lg text-purple-600 font-semibold mt-4 drop-shadow-md">
+    {translations[language].pronunciation}
+  </p>
+</div>
     </div>
   );
 };

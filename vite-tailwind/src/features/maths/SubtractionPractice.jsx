@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import useProgressStore from '../maths/store/progressStore';
-import useLanguageStore from '../maths/store/languageStore';
-import { showSuccessAlert, showFailureAlert } from '../maths/components/ResponseModal';
-import FingerCountingFeed from './components/FingerCountingFeed';
+import useProgressStore from "../maths/store/progressStore";
+import useLanguageStore from "../maths/store/languageStore";
+import {
+  showSuccessAlert,
+  showFailureAlert,
+} from "../maths/components/ResponseModal";
+import FingerCountingFeed from "./components/FingerCountingFeed";
 import "./PracticeAnimations.css";
-import substractEnglish from '../maths/sounds/substract.m4a';
-import substractSinhala from '../maths/sounds/S-subtract.m4a';
-import whatIstheAnswerAudioSinhala from '../maths/sounds/S-SonAnswer.m4a';
-import whatIstheAnswerAudioEnglish from '../maths/sounds/answerIs.m4a';
+import substractEnglish from "../maths/sounds/substract.m4a";
+import substractSinhala from "../maths/sounds/S-subtract.m4a";
+import whatIstheAnswerAudioSinhala from "../maths/sounds/S-SonAnswer.m4a";
+import whatIstheAnswerAudioEnglish from "../maths/sounds/answerIs.m4a";
 import backgroundImg from "../../../public/images/practiceBg2.jpg";
 import { useNavigate } from "react-router-dom";
-import { fetchFingerCount } from './services/fingerCountingService';
+import { fetchFingerCount } from "./services/fingerCountingService";
+import { getLanguagePreference } from "../../services/languageService";
 
 import num0 from "../../assets/numbers/0.png";
 import num1 from "../../assets/numbers/1.png";
@@ -51,21 +55,48 @@ import soundEN8 from "../maths/sounds/E8.m4a";
 import soundEN9 from "../maths/sounds/E9.m4a";
 import soundEN10 from "../maths/sounds/E10.m4a";
 
-const numberImages = { 
-  0: num0, 1: num1, 2: num2, 3: num3, 4: num4,
-  5: num5, 6: num6, 7: num7, 8: num8, 9: num9, 10: num10
+const numberImages = {
+  0: num0,
+  1: num1,
+  2: num2,
+  3: num3,
+  4: num4,
+  5: num5,
+  6: num6,
+  7: num7,
+  8: num8,
+  9: num9,
+  10: num10,
 };
 
 // Sinhala number sounds
 const numberSoundsSinhala = {
-  0: sound0, 1: sound1, 2: sound2, 3: sound3, 4: sound4,
-  5: sound5, 6: sound6, 7: sound7, 8: sound8, 9: sound9, 10: sound10
+  0: sound0,
+  1: sound1,
+  2: sound2,
+  3: sound3,
+  4: sound4,
+  5: sound5,
+  6: sound6,
+  7: sound7,
+  8: sound8,
+  9: sound9,
+  10: sound10,
 };
 
 // English number sounds
 const numberSoundsEnglish = {
-  0: soundEN0, 1: soundEN1, 2: soundEN2, 3: soundEN3, 4: soundEN4,
-  5: soundEN5, 6: soundEN6, 7: soundEN7, 8: soundEN8, 9: soundEN9, 10: soundEN10
+  0: soundEN0,
+  1: soundEN1,
+  2: soundEN2,
+  3: soundEN3,
+  4: soundEN4,
+  5: soundEN5,
+  6: soundEN6,
+  7: soundEN7,
+  8: soundEN8,
+  9: soundEN9,
+  10: soundEN10,
 };
 
 // Translations for English and Sinhala
@@ -81,8 +112,10 @@ const translations = {
     successText: "Well Done!",
     failureTitle: "Incorrect!",
     failureText: "Try Again!",
-    failureLowConfidence: "Try Again! (Hold your hand steady for a higher confidence score)",
-    failureWrongNumber: "You showed {userPrediction}, but the correct number was {targetNumber}.",
+    failureLowConfidence:
+      "Try Again! (Hold your hand steady for a higher confidence score)",
+    failureWrongNumber:
+      "You showed {userPrediction}, but the correct number was {targetNumber}.",
     errorTitle: "Error",
     errorText: "Failed to fetch finger count. Please try again.",
   },
@@ -97,15 +130,18 @@ const translations = {
     successText: "හොඳින් කළා!",
     failureTitle: "වැරදියි!",
     failureText: "නැවත උත්සාහ කරන්න!",
-    failureLowConfidence: "නැවත උත්සාහ කරන්න! (වැඩි විශ්වාස ප්‍රමාණයක් සඳහා ඔබේ අත ස්ථිරව තබා ගන්න)",
-    failureWrongNumber: "ඔබ පෙන්වූයේ {userPrediction}, නමුත් නිවැරදි ඉලක්කම වූයේ {targetNumber}.",
+    failureLowConfidence:
+      "නැවත උත්සාහ කරන්න! (වැඩි විශ්වාස ප්‍රමාණයක් සඳහා ඔබේ අත ස්ථිරව තබා ගන්න)",
+    failureWrongNumber:
+      "ඔබ පෙන්වූයේ {userPrediction}, නමුත් නිවැරදි ඉලක්කම වූයේ {targetNumber}.",
     errorTitle: "දෝෂය",
     errorText: "ඇඟිලි ගණන ලබා ගැනීමට අපොහොසත් විය. කරුණාකර නැවත උත්සාහ කරන්න。",
   },
 };
 
 const playSound = (number, language) => {
-  const numberSounds = language === 'si' ? numberSoundsSinhala : numberSoundsEnglish;
+  const numberSounds =
+    language === "si" ? numberSoundsSinhala : numberSoundsEnglish;
   const audio = new Audio(numberSounds[number]);
   audio.play().catch((error) => console.error("Audio play error:", error));
 };
@@ -116,7 +152,7 @@ const initialEasyTasks = [
   { num1: 2, num2: 1, answer: 1 },
   { num1: 3, num2: 2, answer: 1 },
   { num1: 3, num2: 1, answer: 2 },
-  { num1: 4, num2: 2, answer: 2 }
+  { num1: 4, num2: 2, answer: 2 },
 ];
 
 // Generate a random task based on taskCount
@@ -151,7 +187,31 @@ const SubtractionPractice = () => {
   const [isChecking, setIsChecking] = useState(false);
   const [taskCount, setTaskCount] = useState(1);
   const [isCorrect, setIsCorrect] = useState(false);
-  const { language } = useLanguageStore();
+  const [language, setLanguage] = useState("en");
+
+  const userId = localStorage.getItem("userid");
+
+  useEffect(() => {
+    const fetchLanguage = async () => {
+      try {
+        const response = await getLanguagePreference(userId);
+        console.log("lang", response.data.data.language);
+        if (response.data.status === "success") {
+          setLanguage(response.data.data.language);
+        }
+      } catch (err) {
+        if (err.response?.status === 404 || err.response?.status === 500) {
+        } else {
+          console.error(err);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLanguage();
+  }, [userId]);
+
   const addProgress = useProgressStore((state) => state.addProgress);
 
   const goToDashboard = () => {
@@ -169,7 +229,9 @@ const SubtractionPractice = () => {
       setCountdown(count);
       if (count === 0) {
         clearInterval(countdownInterval);
-        console.log("[startCountdown] Countdown complete, waiting for user input");
+        console.log(
+          "[startCountdown] Countdown complete, waiting for user input"
+        );
         setTimeout(() => {
           setIsChecking(true);
         }, 3000);
@@ -178,15 +240,27 @@ const SubtractionPractice = () => {
   };
 
   const playAudioSequence = (task, callback) => {
-    const numberSounds = language === 'si' ? numberSoundsSinhala : numberSoundsEnglish;
+    const numberSounds =
+      language === "si" ? numberSoundsSinhala : numberSoundsEnglish;
     const firstNumberAudio = new Audio(numberSounds[task.num1]);
-    const minusAudioFile = new Audio(language === 'si' ? substractSinhala : substractEnglish);
+    const minusAudioFile = new Audio(
+      language === "si" ? substractSinhala : substractEnglish
+    );
     const secondNumberAudio = new Audio(numberSounds[task.num2]);
-    const whatIsTheAnswerAudioFile = new Audio(language === 'si' ? whatIstheAnswerAudioSinhala : whatIstheAnswerAudioEnglish);
+    const whatIsTheAnswerAudioFile = new Audio(
+      language === "si"
+        ? whatIstheAnswerAudioSinhala
+        : whatIstheAnswerAudioEnglish
+    );
 
     // Preload audio files to avoid delays
-    [firstNumberAudio, minusAudioFile, secondNumberAudio, whatIsTheAnswerAudioFile].forEach((audio) => {
-      audio.preload = 'auto';
+    [
+      firstNumberAudio,
+      minusAudioFile,
+      secondNumberAudio,
+      whatIsTheAnswerAudioFile,
+    ].forEach((audio) => {
+      audio.preload = "auto";
       audio.load(); // Force preload
     });
 
@@ -199,7 +273,9 @@ const SubtractionPractice = () => {
       });
       // Fallback: If onended doesn't fire within timeout, proceed to next
       const timeoutId = setTimeout(() => {
-        console.warn(`Timeout waiting for ${audio.src} to end, proceeding to next.`);
+        console.warn(
+          `Timeout waiting for ${audio.src} to end, proceeding to next.`
+        );
         next();
       }, timeout);
       audio.onended = () => {
@@ -220,7 +296,9 @@ const SubtractionPractice = () => {
 
   const startPractice = () => {
     const newTask = generateTask(taskCount);
-    console.log(`[startPractice] Generated task #${taskCount}: ${JSON.stringify(newTask)}`);
+    console.log(
+      `[startPractice] Generated task #${taskCount}: ${JSON.stringify(newTask)}`
+    );
     setCurrentTask(newTask);
     setFinalPrediction("");
     setIsCorrect(false);
@@ -230,7 +308,9 @@ const SubtractionPractice = () => {
 
   const retryPractice = () => {
     setFinalPrediction("");
-    console.log(`[retryPractice] Retrying task: ${JSON.stringify(currentTask)}`);
+    console.log(
+      `[retryPractice] Retrying task: ${JSON.stringify(currentTask)}`
+    );
 
     playAudioSequence(currentTask, startCountdown);
   };
@@ -254,22 +334,33 @@ const SubtractionPractice = () => {
     }
 
     const { userPrediction, confidence } = result;
-    console.log(`[checkResult] Fetched finger count: ${userPrediction}, Confidence: ${confidence}`);
+    console.log(
+      `[checkResult] Fetched finger count: ${userPrediction}, Confidence: ${confidence}`
+    );
     setFinalPrediction(userPrediction);
     setIsCapturing(false);
     setIsChecking(false);
 
     const targetAnswer = targetTask.answer;
-    const isAnswerCorrect = userPrediction === targetAnswer && confidence >= 0.8;
+    const isAnswerCorrect =
+      userPrediction === targetAnswer && confidence >= 0.8;
     setIsCorrect(isAnswerCorrect);
-    console.log(`[checkResult] Comparison result: ${isAnswerCorrect} (Target: ${targetAnswer}, User: ${userPrediction}, Conf: ${confidence})`);
+    console.log(
+      `[checkResult] Comparison result: ${isAnswerCorrect} (Target: ${targetAnswer}, User: ${userPrediction}, Conf: ${confidence})`
+    );
 
     addProgress("Subtraction", isAnswerCorrect);
     if (isAnswerCorrect) {
       setTaskCount(taskCount + 1);
       showSuccessAlert(translations, language);
     } else {
-      showFailureAlert(translations, language, confidence, targetAnswer, userPrediction);
+      showFailureAlert(
+        translations,
+        language,
+        confidence,
+        targetAnswer,
+        userPrediction
+      );
     }
   };
 
@@ -283,7 +374,8 @@ const SubtractionPractice = () => {
     <div
       className="relative min-h-screen bg-cover bg-center flex items-center justify-center p-4 sm:p-6"
       style={{
-        backgroundImage: window.innerWidth >= 640 ? `url(${backgroundImg})` : 'none',
+        backgroundImage:
+          window.innerWidth >= 640 ? `url(${backgroundImg})` : "none",
       }}
     >
       <button
@@ -310,7 +402,9 @@ const SubtractionPractice = () => {
               disabled={isCapturing}
               className="w-full min-w-[200px] max-w-[250px] px-8 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 z-10"
             >
-              {isCorrect ? translations[language].nextQuestionButton : translations[language].startButton}
+              {isCorrect
+                ? translations[language].nextQuestionButton
+                : translations[language].startButton}
             </button>
           ) : (
             <button
@@ -331,14 +425,18 @@ const SubtractionPractice = () => {
                   className="w-24 h-24 sm:w-32 sm:h-32 lg:w-[160px] lg:h-[150px] object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
                   onClick={() => playSound(currentTask.num1, language)}
                 />
-                <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-600">-</span>
+                <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-600">
+                  -
+                </span>
                 <img
                   src={numberImages[currentTask.num2]}
                   alt={`Number ${currentTask.num2}`}
                   className="w-24 h-24 sm:w-32 sm:h-32 lg:w-[160px] lg:h-[150px] object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
                   onClick={() => playSound(currentTask.num2, language)}
                 />
-                <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-600">= ?</span>
+                <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-600">
+                  = ?
+                </span>
               </div>
             </div>
           )}
