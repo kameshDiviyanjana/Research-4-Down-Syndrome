@@ -114,11 +114,15 @@ export const showSuccessAlert = (translations, language) => {
 
   playSuccessSound(language);
 
+  // Initial star confetti burst
   confetti({
-    particleCount: 100,
-    spread: 70,
+    particleCount: 150,
+    spread: 60,
     origin: { y: 0.6 },
-    colors: ['#FFD700', '#FF4500', '#00FF00', '#1E90FF'],
+    colors: ['#FFD700', '#FFFF99', '#FFEA00'], 
+    shapes: ['star'], 
+    scalar: 1,
+    gravity: 0.5, 
     zIndex: 9999,
   });
 
@@ -144,9 +148,12 @@ export const showSuccessAlert = (translations, language) => {
         if (Date.now() > end) return clearInterval(interval);
         confetti({
           particleCount: 50,
-          spread: 60,
+          spread: 50,
           origin: { x: Math.random(), y: Math.random() - 0.2 },
-          colors: ['#FFD700', '#FF4500', '#00FF00', '#1E90FF'],
+          colors: ['#FFD700', '#FFFF99', '#FFEA00'],
+          shapes: ['star'], 
+          scalar: 2, 
+          gravity: 0.5, 
           zIndex: 9999,
         });
       }, 500);

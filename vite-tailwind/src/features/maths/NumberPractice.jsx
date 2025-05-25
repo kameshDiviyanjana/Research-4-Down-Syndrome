@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import useProgressStore from '../maths/store/progressStore';
 import useLanguageStore from '../maths/store/languageStore';
@@ -8,6 +8,10 @@ import FingerCountingFeed from './components/FingerCountingFeed';
 import "./PracticeAnimations.css";
 import backgroundImg from "../../../public/images/practiceBg2.jpg";
 import { fetchFingerCount } from './services/fingerCountingService';
+import {
+  getLanguagePreference,  
+} from "../../services/languageService";
+
 
 // Images
 import SmileImage from '../../../src/assets/smile.jpg';
@@ -124,7 +128,32 @@ const NumberPractice = () => {
   const [isCapturing, setIsCapturing] = useState(false);
   const [finalPrediction, setFinalPrediction] = useState("");
   const [isChecking, setIsChecking] = useState(false);
-  const { language } = useLanguageStore();
+ const [language, setLanguage] = useState("en");
+
+  const userId = localStorage.getItem("userid");
+
+ useEffect(() => {
+    const fetchLanguage = async () => {
+      try {
+        const response = await getLanguagePreference(userId);
+        console.log("lang",response.data.data.language)
+        if (response.data.status === "success") {
+          setLanguage(response.data.data.language)
+        }
+      } catch (err) {
+        if (err.response?.status === 404 || err.response?.status === 500) {
+          
+        } else {
+          console.error(err);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLanguage();
+  }, [userId]);
+
   const addProgress = useProgressStore((state) => state.addProgress);
 
   const goToDashboard = () => {
