@@ -3,35 +3,68 @@ import React, { useState } from 'react';
 import Step1Shapes from './steps/Step1Shapes';   // Now implemented
 import Step2Strokes from './steps/Step2Strokes';
 import Step3Letters from './steps/Step3Letters'; // Now implemented
+import letterWritingBg from '../../../assets/letter writing background.png';
+import whiteboardBg from '../../../assets/white board.png';
 
 function App() {
-  // Later, you'll use state to switch between steps
-  // For now, we directly render Step2Strokes for testing
-  const [currentStepComponent, setCurrentStepComponent] = useState("strokes"); // 'shapes', 'strokes', 'letters'
+  // State to track selected component or home screen
+  const [currentStepComponent, setCurrentStepComponent] = useState(null); // null means show home screen with cards
 
-  // A simple navigation (you can make this a proper component later)
-  const renderNavigation = () => (
-    <nav className="bg-blue-600 p-4 text-white flex justify-center space-x-4">
-      <button
-        onClick={() => setCurrentStepComponent("shapes")}
-        className={`px-3 py-2 rounded ${currentStepComponent === 'shapes' ? 'bg-blue-700' : 'hover:bg-blue-500'}`}
-      >
-        Shapes (Step 1)
-      </button>
-      <button
-        onClick={() => setCurrentStepComponent("strokes")}
-        className={`px-3 py-2 rounded ${currentStepComponent === 'strokes' ? 'bg-blue-700' : 'hover:bg-blue-500'}`}
-      >
-        Strokes (Step 2)
-      </button>
-      <button
-        onClick={() => setCurrentStepComponent("letters")}
-        className={`px-3 py-2 rounded ${currentStepComponent === 'letters' ? 'bg-blue-700' : 'hover:bg-blue-500'}`}
-      >
-        Letters (Step 3)
-      </button>
-    </nav>
+  // Back button to return to home screen
+  const renderBackButton = () => (
+    <button 
+      onClick={() => setCurrentStepComponent(null)}
+      className="mb-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded flex items-center"
+    >
+      <span className="mr-1">←</span> Back to Activities
+    </button>
   );
+
+  // Card selection view
+  const renderCardSelection = () => (
+    <div className="p-8">
+      <h1 className="text-3xl font-bold text-center mb-8">Writing Activities</h1>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Shapes Card */}
+        <div 
+          onClick={() => setCurrentStepComponent("shapes")}
+          className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow p-6 cursor-pointer border-2 border-blue-200 hover:border-blue-500"
+        >
+          <h2 className="text-2xl font-bold text-center mb-4">Shapes</h2>
+          <div className="h-32 flex items-center justify-center">
+            <div className="w-16 h-16 border-4 border-blue-500 rounded-full"></div>
+          </div>
+          <p className="text-center mt-4">Practice basic shapes and patterns</p>
+        </div>
+
+        {/* Strokes Card */}
+        <div 
+          onClick={() => setCurrentStepComponent("strokes")}
+          className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow p-6 cursor-pointer border-2 border-blue-200 hover:border-blue-500"
+        >
+          <h2 className="text-2xl font-bold text-center mb-4">Strokes</h2>
+          <div className="h-32 flex items-center justify-center">
+            <div className="w-24 h-12 border-t-4 border-blue-500 rounded"></div>
+          </div>
+          <p className="text-center mt-4">Practice letter strokes and movements</p>
+        </div>
+
+        {/* Letters Card */}
+        <div 
+          onClick={() => setCurrentStepComponent("letters")}
+          className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow p-6 cursor-pointer border-2 border-blue-200 hover:border-blue-500"
+        >
+          <h2 className="text-2xl font-bold text-center mb-4">Letters</h2>
+          <div className="h-32 flex items-center justify-center">
+            <span className="text-4xl font-bold text-blue-500">Aa</span>
+          </div>
+          <p className="text-center mt-4">Practice writing complete letters</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Render the selected component
   const renderStep = () => {
     if (currentStepComponent === "strokes") {
       return <Step2Strokes />;
@@ -42,17 +75,27 @@ function App() {
     if (currentStepComponent === "shapes") {
       return <Step1Shapes />;
     }
-    return <div className="p-10 text-center text-xl">Select a step to begin!</div>;
+    return null; // This case is handled by showing the card selection
+  };
+  // Choose background based on whether we're on home screen or activity screen
+  const backgroundStyle = {
+    backgroundImage: `url(${currentStepComponent === null ? letterWritingBg : whiteboardBg})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat'
   };
 
-
   return (
-    <div className="App min-h-screen bg-app-bg">
-      {renderNavigation()}
-      {/* For now, we only have Step2Strokes.
-          Uncomment and implement other steps later.
-      */}
-      {renderStep()}
+    <div className="App min-h-screen bg-gray-50" style={backgroundStyle}>
+      {/* Show home page with cards or a specific activity */}
+      {currentStepComponent === null ? (
+        renderCardSelection()
+      ) : (
+        <div className="p-4">
+          {renderBackButton()}
+          {renderStep()}
+        </div>
+      )}
     </div>
   );
 }
