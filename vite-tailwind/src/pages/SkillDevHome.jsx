@@ -40,7 +40,7 @@ const translations = {
 
 const SkillDevHome = () => {
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("en");
   const [updateLanguage, setUpdateLanguage] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -220,8 +220,8 @@ const SkillDevHome = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <WritingIntro />
-          <GorssmotorIntro />
+          <WritingIntro selectedLanguage={selectedLanguage} />
+          <GorssmotorIntro selectedLanguage={selectedLanguage} />
         </motion.div>
 
         <motion.div
@@ -230,8 +230,8 @@ const SkillDevHome = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
         >
-          <VocabularyIntro />
-          <MathsIntro />
+          <VocabularyIntro selectedLanguage={selectedLanguage} />
+          <MathsIntro selectedLanguage={selectedLanguage} />
         </motion.div>
       </div>
     </motion.div>
