@@ -6,22 +6,38 @@ import CheckpointsOverlay from '../components/CheckpointsOverlay';
 
 // === IMPORTANT: Ensure these paths are correct for YOUR project structure ===
 import letter01SVGPath from '../../../../assets/letters/01-අ-min.svg';
-import letter02SVGPath from '../../../../assets/letters/02-ආ-min.svg';
-import letter03SVGPath from '../../../../assets/letters/03-ඇ-min.svg';
-import letter04SVGPath from '../../../../assets/letters/04-ඈ-min.svg';
 import letter05SVGPath from '../../../../assets/letters/05-ඉ-min.svg';
-// ... import ALL your other letter SVG paths ...
+import letter07SVGPath from '../../../../assets/letters/07-උ-min.svg';
+import letter13SVGPath from '../../../../assets/letters/13-එ-min.svg';
+import letter16SVGPath from '../../../../assets/letters/16-ඔ-min.svg';
+import letter21SVGPath from '../../../../assets/letters/21-ක-min.svg';
+import letter27SVGPath from '../../../../assets/letters/27-ච-min.svg';
+import letter33SVGPath from '../../../../assets/letters/33-ට-min.svg';
+import letter39SVGPath from '../../../../assets/letters/39-ත-min.svg';
+import letter41SVGPath from '../../../../assets/letters/41-ද-min.svg';
+import letter43SVGPath from '../../../../assets/letters/43-න-min.svg';
+import letter49SVGPath from '../../../../assets/letters/49-ම-min.svg';
+import letter51SVGPath from '../../../../assets/letters/51-ය-min.svg';
+import letter52SVGPath from '../../../../assets/letters/52-ර-min.svg';
 import letter53SVGPath from '../../../../assets/letters/53-ල-min.svg';
 
 // === Add `svgPathId: 'tracePath'` to EVERY letter object ===
 const allLetters = [
   { id: 'letter_01', name: 'අ', svg: letter01SVGPath, svgPathId: 'tracePath' },
-  { id: 'letter_02', name: 'ආ', svg: letter02SVGPath, svgPathId: 'tracePath' },
-  { id: 'letter_03', name: 'ඇ', svg: letter03SVGPath, svgPathId: 'tracePath' },
-  { id: 'letter_04', name: 'ඈ', svg: letter04SVGPath, svgPathId: 'tracePath' },
-  { id: 'letter_05', name: 'ඉ', svg: letter05SVGPath, svgPathId: 'tracePath' },
-  // ... complete this for ALL your imported letters ...
-  { id: 'letter_53', name: 'ල', svg: letter53SVGPath, svgPathId: 'tracePath' }
+  { id: 'letter_02', name: 'ඉ', svg: letter05SVGPath, svgPathId: 'tracePath' },
+  { id: 'letter_03', name: 'උ', svg: letter07SVGPath, svgPathId: 'tracePath' },
+  { id: 'letter_04', name: 'එ', svg: letter13SVGPath, svgPathId: 'tracePath' },
+  { id: 'letter_05', name: 'ඔ', svg: letter16SVGPath, svgPathId: 'tracePath' },
+  { id: 'letter_06', name: 'ක', svg: letter21SVGPath, svgPathId: 'tracePath' },
+  { id: 'letter_07', name: 'ච', svg: letter27SVGPath, svgPathId: 'tracePath' },
+  { id: 'letter_08', name: 'ට', svg: letter33SVGPath, svgPathId: 'tracePath' },
+  { id: 'letter_09', name: 'ත', svg: letter39SVGPath, svgPathId: 'tracePath' },
+  { id: 'letter_10', name: 'ද', svg: letter41SVGPath, svgPathId: 'tracePath' },
+  { id: 'letter_11', name: 'න', svg: letter43SVGPath, svgPathId: 'tracePath' },
+  { id: 'letter_12', name: 'ම', svg: letter49SVGPath, svgPathId: 'tracePath' },
+  { id: 'letter_13', name: 'ය', svg: letter51SVGPath, svgPathId: 'tracePath' },
+  { id: 'letter_14', name: 'ර', svg: letter52SVGPath, svgPathId: 'tracePath' },
+  { id: 'letter_15', name: 'ල', svg: letter53SVGPath, svgPathId: 'tracePath' }
 ];
 
 const NUMBER_OF_CHECKPOINTS_PER_ITEM = 8; // Tune this value
