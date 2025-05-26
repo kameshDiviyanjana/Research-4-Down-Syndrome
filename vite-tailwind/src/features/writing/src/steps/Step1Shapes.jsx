@@ -1,8 +1,9 @@
 // src/steps/Step1Shapes.jsx
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import ShapeDisplay from '../components/ShapeDisplay';
 import ShapeAnimator from '../components/ShapeAnimator';
 import TracingCanvas from '../components/TracingCanvas';
+import CheckpointsOverlay from '../components/CheckpointsOverlay';
 
 // Import all SVG shapes
 import circleLargeDonutSVGPath from '../../../../assets/shapes/circle-large-donut.svg';
@@ -15,91 +16,170 @@ import rectangleQuarterLongSVGPath from '../../../../assets/shapes/rectangle-qua
 import rectangleThirdPlusSVGPath from '../../../../assets/shapes/rectangle-third-plus-shape.svg';
 import squareLargeSVGPath from '../../../../assets/shapes/square-large.svg';
 
-function Step1Shapes() {
-  // Define all available shapes
+function Step1Shapes() {  // Define all available shapes
   const allShapes = [
-    { id: 'circle_large_donut', name: 'Circle Donut', svg: circleLargeDonutSVGPath },
-    { id: 'flower_circle_4_filled', name: 'Flower Circle', svg: flowerCircle4FilledSVGPath },
-    { id: 'flower_circle_8_octogon', name: 'Flower Octagon', svg: flowerCircle8OctogonSVGPath },
-    { id: 'flower_oval_4_plus_x', name: 'Oval Plus X', svg: flowerOval4PlusXSVGPath },
-    { id: 'mix_circle_quarter_donut', name: 'Mixed Circles', svg: mixCircleQuarterDonutSVGPath },
-    { id: 'mix_rectangles_circle', name: 'Mixed Shapes', svg: mixRectanglesCircleSVGPath },
-    { id: 'rectangle_quarter_long', name: 'Rectangle Long', svg: rectangleQuarterLongSVGPath },
-    { id: 'rectangle_third_plus', name: 'Rectangle Plus', svg: rectangleThirdPlusSVGPath },
-    { id: 'square_large', name: 'Square', svg: squareLargeSVGPath }
-  ];
+    { id: 'circle_large_donut', name: 'Circle Donut', svg: circleLargeDonutSVGPath, svgPathId: 'tracePath' },
+    { id: 'flower_circle_4_filled', name: 'Flower Circle', svg: flowerCircle4FilledSVGPath, svgPathId: 'tracePath' },
+    { id: 'flower_circle_8_octogon', name: 'Flower Octagon', svg: flowerCircle8OctogonSVGPath, svgPathId: 'tracePath' },
+    { id: 'flower_oval_4_plus_x', name: 'Oval Plus X', svg: flowerOval4PlusXSVGPath, svgPathId: 'tracePath' },
+    { id: 'mix_circle_quarter_donut', name: 'Mixed Circles', svg: mixCircleQuarterDonutSVGPath, svgPathId: 'tracePath' },
+    { id: 'mix_rectangles_circle', name: 'Mixed Shapes', svg: mixRectanglesCircleSVGPath, svgPathId: 'tracePath' },
+    { id: 'rectangle_quarter_long', name: 'Rectangle Long', svg: rectangleQuarterLongSVGPath, svgPathId: 'tracePath' },
+    { id: 'rectangle_third_plus', name: 'Rectangle Plus', svg: rectangleThirdPlusSVGPath, svgPathId: 'tracePath' },
+    { id: 'square_large', name: 'Square', svg: squareLargeSVGPath, svgPathId: 'tracePath' }
+  ];  const NUMBER_OF_CHECKPOINTS_PER_ITEM = 8; // Tune this value
+
   // State to track the current shape
   const [currentShapeIndex, setCurrentShapeIndex] = useState(0);
-  const currentShape = allShapes[currentShapeIndex];
-  
-  // State to control display mode
   const [showAnimation, setShowAnimation] = useState(false);
-  
-  // Reference to the animator component
   const animatorRef = useRef(null);
+  
+  const [checkpoints, setCheckpoints] = useState([]);
+  const [isLoadingCheckpoints, setIsLoadingCheckpoints] = useState(true);
+  const [userFeedback, setUserFeedback] = useState("Let's trace!");
+  
+  const currentShape = allShapes[currentShapeIndex];
   
   // Define the desired size for the display area
   const displayWidth = 500;
   const displayHeight = 500;
-
+  const interactiveAreaMarginBottom = 70; // For "Clear Trace" button
+  
+  useEffect(() => {
+    setIsLoadingCheckpoints(true);
+    setUserFeedback("Preparing trace guide...");
+    setCheckpoints([]); // Clear to trigger ShapeDisplay calculation
+  }, [currentShapeIndex]);
+  
+  const handleCheckpointsCalculated = useCallback((calculatedCpList) => {
+    setIsLoadingCheckpoints(false);
+    if (calculatedCpList && calculatedCpList.length > 0) {
+      setCheckpoints(calculatedCpList.map(cp => ({ ...cp, isHit: false })));
+      setUserFeedback(`Ready to trace: ${currentShape?.name || 'the shape'}`);
+    } else {
+      setCheckpoints([]);
+      setUserFeedback(`Error preparing "${currentShape?.name || 'the shape'}". Try another.`);
+    }
+  }, [currentShape]);
+  
+  const handleCheckpointHit = useCallback((hitOrder) => {
+    setCheckpoints(prevCheckpoints => {
+      const updated = prevCheckpoints.map(cp => {
+        if (cp.order === hitOrder) {
+          return { ...cp, isHit: true };
+        }
+        return cp;
+      });
+      const allHit = updated.every(cp => cp.isHit);
+      if (allHit) {
+        setUserFeedback(`Great! You traced "${currentShape?.name}"!`);
+      } else {
+        setUserFeedback(`Checkpoint ${hitOrder + 1} hit! Keep going!`);
+      }
+      return updated;
+    });
+  }, [currentShape]);
+  
+  const handleClearTrace = useCallback(() => {
+    setCheckpoints(prev => prev.map(cp => ({ ...cp, isHit: false })));
+    setUserFeedback(`Trace cleared for ${currentShape?.name}. Try again!`);
+  }, [currentShape]);
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] p-4">
       <h1 className="text-3xl font-bold text-neutral-700 mb-6">
-        Trace the Shape: {currentShape.name}
+        Trace the Shape: {currentShape?.name || "Loading..."}
       </h1>
-        <div
-        className="relative"
-        style={{ width: `${displayWidth}px`, height: `${displayHeight}px`, marginBottom: '50px' }}
-      >
-        {/* Show either ShapeAnimator or ShapeDisplay based on mode */}
-        {showAnimation ? (
-          <ShapeAnimator 
-            ref={animatorRef}
-            SvgComponent={currentShape.svg} 
-            tracerColor="#FF5733"
-            tracerSize={10}
-            duration={3}
-            onAnimationComplete={() => {
-              // Switch back to tracing mode after animation completes
-              setTimeout(() => {
-                setShowAnimation(false);
-              }, 500);
-            }}
-          />
-        ) : (
-          <>
-            {/* ShapeDisplay will show the SVG *underneath* the canvas */}
-            <ShapeDisplay SvgComponent={currentShape.svg} />
 
-            {/* TracingCanvas is where the child draws, it's *on top* and transparent */}
+      <div
+        className="relative bg-gray-100 p-1 rounded-lg shadow-inner border border-gray-300"
+        style={{ width: `${displayWidth}px`, height: `${displayHeight}px`, marginBottom: `${interactiveAreaMarginBottom}px` }}
+      >
+        {isLoadingCheckpoints && (
+          <div className="absolute inset-0 flex justify-center items-center bg-gray-500 bg-opacity-30 z-40 rounded-lg">
+            <p className="text-lg font-semibold text-white bg-black/50 px-4 py-2 rounded">Preparing trace guide...</p>
+          </div>
+        )}
+
+        {currentShape && (
+          <ShapeDisplay
+            key={`sd-${currentShape.id}`}
+            SvgComponent={currentShape.svg}
+            pathIdInSvg={currentShape.svgPathId}
+            numberOfCheckpoints={NUMBER_OF_CHECKPOINTS_PER_ITEM}
+            onCheckpointsCalculated={handleCheckpointsCalculated}
+            guideColor="stroke-gray-400"
+          />
+        )}
+
+        {!isLoadingCheckpoints && checkpoints.length > 0 && !showAnimation && (
+          <>
+            <CheckpointsOverlay
+              key={`co-${currentShape.id}`}
+              checkpoints={checkpoints}
+            />
             <TracingCanvas
-              key={`tc-${currentShape.id}`} // MODIFIED KEY: Only depends on the currentShape.id
+              key={`tc-${currentShape.id}`}
               width={displayWidth}
               height={displayHeight}
-              traceColor="#22C55E" /* A nice green for tracing (Tailwind green-500) */
+              targetCheckpoints={checkpoints}
+              onCheckpointHit={handleCheckpointHit}
+              onClearTraceRequest={handleClearTrace}
+              traceColor="#22C55E"
             />
           </>
         )}
+
+        {showAnimation && currentShape && (
+          <ShapeAnimator
+            key={`sa-${currentShape.id}`}
+            ref={animatorRef}
+            SvgComponent={currentShape.svg}
+            tracerColor="#FF5733"
+            tracerSize={10}
+            duration={3}
+            onAnimationComplete={() => setTimeout(() => setShowAnimation(false), 500)}
+          />
+        )}
+         {!isLoadingCheckpoints && checkpoints.length === 0 && currentShape && (
+            <div className="absolute inset-0 flex justify-center items-center text-red-700 p-3 bg-red-100 rounded-md z-30">
+                <p className="text-center">Could not initialize tracing guide for &quot;{currentShape.name}&quot;.<br/> Please check SVG configuration or try another item.</p>
+            </div>
+        )}
       </div>
-      
-      {/* Animation control button */}
-      <button
-        onClick={() => {
-          setShowAnimation(true);
-          // Give a small delay before playing to ensure the component is mounted
-          setTimeout(() => {
-            if (animatorRef.current) {
-              animatorRef.current.play();
+
+      {userFeedback && (
+        <div className="my-2 text-center text-xl font-semibold text-indigo-700 min-h-[3rem] px-4 py-2 bg-indigo-50 rounded-md shadow">
+          {userFeedback}
+        </div>
+      )}
+      {!isLoadingCheckpoints && checkpoints.length > 0 && (
+          <div className="text-sm text-gray-700 mt-1 mb-3">
+              Progress: {checkpoints.filter(cp => cp.isHit).length} of {checkpoints.length} points.
+          </div>
+      )}
+
+      <div className="flex space-x-4 mb-6">
+        <button
+          onClick={() => {
+            if (currentShape) {
+                setShowAnimation(true);
+                setTimeout(() => animatorRef.current?.play(), 100);
             }
-          }, 100);
-        }}
-        className="mb-4 bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-6 rounded-lg flex items-center justify-center gap-2 transition-colors"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-        </svg>
-        Show me how to draw
-      </button>
+          }}
+          className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md flex items-center gap-2 transition-transform hover:scale-105"
+          disabled={isLoadingCheckpoints || showAnimation || !currentShape}
+        >
+           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" /></svg>
+          Show Animation
+        </button>
+         <button
+            onClick={handleClearTrace}
+            className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-transform hover:scale-105"
+            disabled={isLoadingCheckpoints || showAnimation || !currentShape || checkpoints.length === 0 }
+          >
+            Reset Trace
+          </button>
+      </div>
       
       {/* Navigation buttons for switching between shapes */}
       <div className="mt-20 flex flex-wrap justify-center gap-8" style={{ zIndex: 30, position: 'relative' }}>        <button 
