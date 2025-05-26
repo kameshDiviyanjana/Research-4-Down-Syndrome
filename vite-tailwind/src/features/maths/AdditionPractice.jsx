@@ -12,6 +12,10 @@ import whatIstheAnswerAudioEnglish from '../maths/sounds/answerIs.m4a';
 import backgroundImg from "../../../public/images/practiceBg2.jpg";
 import { useNavigate } from "react-router-dom";
 import { fetchFingerCount } from './services/fingerCountingService';
+import {
+  getLanguagePreference,  
+} from "../../services/languageService";
+
 
 import num0 from "../../assets/numbers/0.png";
 import num1 from "../../assets/numbers/1.png";
@@ -145,7 +149,32 @@ const AdditionPractice = () => {
   const [isChecking, setIsChecking] = useState(false);
   const [taskCount, setTaskCount] = useState(1);
   const [isCorrect, setIsCorrect] = useState(false);
-  const { language } = useLanguageStore();
+  const [language, setLanguage] = useState("en");
+ 
+   const userId = localStorage.getItem("userid");
+ 
+  useEffect(() => {
+     const fetchLanguage = async () => {
+       try {
+         const response = await getLanguagePreference(userId);
+         console.log("lang",response.data.data.language)
+         if (response.data.status === "success") {
+           setLanguage(response.data.data.language)
+         }
+       } catch (err) {
+         if (err.response?.status === 404 || err.response?.status === 500) {
+           
+         } else {
+           console.error(err);
+         }
+       } finally {
+         setLoading(false);
+       }
+     };
+ 
+     fetchLanguage();
+   }, [userId]);
+ 
   const addProgress = useProgressStore((state) => state.addProgress);
 
   const goToDashboard = () => {

@@ -88,9 +88,15 @@ function SystemPage() {
 
   const handleFileUpload = async (file) => {
     if (!file) {
+      const clapSound = new Audio("/sounds/sad.mp3");
+      clapSound.play();
       Swal.fire({
         title: "අවවාදයයි!",
         text: "පළමුව වීඩියෝවක් තෝරන්න හෝ වාර්තා කරන්න!",
+        imageUrl: "../characters/error.gif",
+        imageWidth: 200,
+        imageHeight: 200,
+        imageAlt: "Sad Rabbit",
         icon: "error",
         confirmButtonText: "OK",
 
@@ -101,9 +107,15 @@ function SystemPage() {
     }
 
     if (!randomCategory) {
+      const clapSound = new Audio("/sounds/sad.mp3");
+      clapSound.play();
       Swal.fire({
         title: "අවවාදයයි!",
         text: "පළමුව අහඹු ක්‍රියාවක් තෝරන්න!",
+        imageUrl: "../characters/error.gif",
+        imageWidth: 200,
+        imageHeight: 200,
+        imageAlt: "Sad Rabbit",
         icon: "error",
         confirmButtonText: "OK",
       }
@@ -164,22 +176,36 @@ function SystemPage() {
       } else {
      
          if (randomCategory != predicted_action) {
+          const clapSound = new Audio("/sounds/sad.mp3");
+          clapSound.play();
           Swal.fire({
             icon: "error",
             title: "අයියෝ!...",
             text: `ඔයා කළ දේ, අපි බලාපොරොත්තු වූ දේට වෙනස් වගේ! බලාපොරොත්තු වූ දේ  ${randomCategory} 
           ඔයා කරපු දේ තමයි...  ${predicted_action}`,
-            footer: "අපි තව වරක් උත්සාහ කරමු!",
-          });
+            imageUrl: "../characters/sad.gif",
+            imageWidth: 200,
+            imageHeight: 200,
+            imageAlt: "Sad Rabbit",
+            confirmButtonText: "අපි තව වරක් උත්සාහ කරමු!",
+          },
+          
+        );
 
          } else {
+          const clapSound = new Audio("/sounds/clap.mp3");
+          clapSound.play();
            Swal.fire({
-             title: `ප්‍රතිඵල!`,
+             title: `ඔයා නියමෙට කලා !`,
+             imageUrl: "../characters/happy.gif",
+             imageWidth: 200,
+             imageHeight: 200,
+             imageAlt: "Happy Rabbit",
              html: `<b>Match Percentage:</b> ${percentage}% <br>
           <b>අපි බලාපොරොත්තු වූ දේ :</b> ${randomCategory} <br>
           <b>ඔයා කරපු දේ තමයි :</b> ${predicted_action} <br>
           <b>දැන් අපි ඔයාට දෙන ඊළඟ මට්ටම තමයි!:</b> <span style="margin: 10px 0; font-size: 1.8rem; color: ${levelColor}">${levelIcon} ${level}</span>
-          <br><b>Message:</b> ${message}`,
+          <br>`,
              icon: "success",
              confirmButtonText: "OK",
              confirmButtonColor: levelColor,
@@ -231,6 +257,13 @@ function SystemPage() {
       return;
     }
 
+    const countdownEmojis = ["😲", "😯", "😮", "😃", "🥳"];
+    const countdownSounds = [
+      new Audio("/sounds/beep1.mp3"),
+      new Audio("/sounds/beep2.mp3"),
+      new Audio("/sounds/beep3.mp3"),
+      new Audio("/sounds/beep4.mp3"),
+    ];
     setCountdown(5);
     setUploadStatus(`වීඩියෝ එක තත්පර 5න් පටන් ගනී...`);
 
@@ -238,7 +271,9 @@ function SystemPage() {
       setCountdown((prev) => {
         const newCount = prev - 1;
         if (newCount > 0) {
-          setUploadStatus(`වීඩියෝ පටන් ගන්නේ තත්පර ${newCount}...`);
+          const emoji = countdownEmojis[5 - newCount - 1] || "🎬";
+          countdownSounds[5 - newCount - 1]?.play();
+          setUploadStatus(`වීඩියෝ පටන් ගන්නේ තත්පර ${newCount}... ${emoji}`);
           return newCount;
         } else {
           clearInterval(countdownInterval);
@@ -269,7 +304,7 @@ function SystemPage() {
       mediaRecorderRef.current.onstop = () => {
         const blob = new Blob(recordedChunks, { type: "video/webm" });
         setVideoBlob(blob);
-        setSelectedFile(blob);
+        setSelectedFile(selectedFile);
         setUploadStatus("රෙකෝඩ් වීම අවසන්! සැකසීමට යවමු.");
       };
 
@@ -359,7 +394,7 @@ function SystemPage() {
       {radamselect && (
         <>
           <div className=" pt-40">
-            <h1 className="text-7xl text-white font-extrabold font-fontstle2 mb-8 text-center mt-24 animate-bounce drop-shadow-lg">
+            <h1 className="text-7xl text-black font-extrabold font-fontstle2 mb-8 text-center mt-24 animate-bounce drop-shadow-lg">
               🎮 තරගය පටන් ගනිමු 🎉
             </h1>
             <div className="flex justify-center">

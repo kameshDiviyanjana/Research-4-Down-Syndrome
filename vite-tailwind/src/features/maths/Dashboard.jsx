@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from "react";
+import React, { Suspense, useEffect,useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Canvas } from "@react-three/fiber";
 import backgroundImage from "../../assets/dashboard-bg.jpg";
@@ -7,6 +7,7 @@ import FishModel from "../maths/models/FishModel";
 import ClownfishModel from "./models/ClownfishModel";
 import TropicalFishSchoolModel from "./models/TropicalFishSchoolModel";
 import useLanguageStore from "../maths/store/languageStore";
+import { getLanguagePreference } from "../../services/languageService";
 
 const Dashboard = () => {
   useEffect(() => {
@@ -15,7 +16,32 @@ const Dashboard = () => {
   }, []);
 
   const navigate = useNavigate();
-  const { language, toggleLanguage } = useLanguageStore();
+
+  const [language, setLanguage] = useState("en");
+     
+       const userId = localStorage.getItem("userid");
+     
+      useEffect(() => {
+         const fetchLanguage = async () => {
+           try {
+             const response = await getLanguagePreference(userId);
+             console.log("lang",response.data.data.language)
+             if (response.data.status === "success") {
+               setLanguage(response.data.data.language)
+             }
+           } catch (err) {
+             if (err.response?.status === 404 || err.response?.status === 500) {
+               
+             } else {
+               console.error(err);
+             }
+           } finally {
+             setLoading(false);
+           }
+         };
+     
+         fetchLanguage();
+       }, [userId]);
 
   const translations = {
     en: {
@@ -51,14 +77,14 @@ const Dashboard = () => {
 
       <div className="absolute inset-0 bg-black/10"></div>
 
-      <div className="absolute top-4 right-5 z-20">
+      {/* <div className="absolute top-4 right-5 z-20">
         <button
           onClick={toggleLanguage}
           className="px-3 py-1 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
         >
           {language === "en" ? "සිංහල" : "English"}
         </button>
-      </div>
+      </div> */}
 
       {/* Main Card */}
       <div className="relative z-10 mt-4 sm:mt-[-150px] rounded-2xl max-w-lg w-full p-6 sm:p-8 bg-white/90 md:bg-white/10 backdrop-blur-sm shadow-xl animate-fade-in">

@@ -1,6 +1,6 @@
 export const fetchFingerCount = async () => {
   try {
-    const response = await fetch("http://localhost:5000/finger_counting/count");
+    const response = await fetch("http://localhost:5002/finger_counting/count");
     const data = await response.json();
     return {
       userPrediction: data.finger_count,

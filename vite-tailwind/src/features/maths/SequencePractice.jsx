@@ -11,6 +11,10 @@ import blankAnswerAudio from '../maths/sounds/SNextAnswer.m4a';
 import blankAnswerAudioEnglish from '../maths/sounds/WhatistheNextAnswer.m4a';
 import backgroundImg from "../../../public/images/practiceBg2.jpg";
 import { useNavigate } from "react-router-dom";
+import { AiOutlineQuestionCircle } from "react-icons/ai";
+import {
+  getLanguagePreference,  
+} from "../../services/languageService";
 
 import num0 from "../../assets/numbers/0.png";
 import num1 from "../../assets/numbers/1.png";
@@ -124,7 +128,34 @@ const SequencePractice = () => {
   const [isChecking, setIsChecking] = useState(false);
   const [exampleCount, setExampleCount] = useState(1);
   const [isCorrect, setIsCorrect] = useState(false);
-  const { language } = useLanguageStore();
+  
+      const [language, setLanguage] = useState("en");
+     
+       const userId = localStorage.getItem("userid");
+     
+      useEffect(() => {
+         const fetchLanguage = async () => {
+           try {
+             const response = await getLanguagePreference(userId);
+             console.log("lang",response.data.data.language)
+             if (response.data.status === "success") {
+               setLanguage(response.data.data.language)
+             }
+           } catch (err) {
+             if (err.response?.status === 404 || err.response?.status === 500) {
+               
+             } else {
+               console.error(err);
+             }
+           } finally {
+             setLoading(false);
+           }
+         };
+     
+         fetchLanguage();
+       }, [userId]);
+  
+       
   const addProgress = useProgressStore((state) => state.addProgress);
 
   const goToDashboard = () => {
@@ -235,7 +266,7 @@ const SequencePractice = () => {
         Back to Dashboard
       </button>
 
-      <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-4 lg:gap-10">
+      <div className="flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-4 lg:gap-10 lg:mt-4">
         <div className="flex flex-col items-center w-full lg:w-1/2 rounded-2xl p-6 sm:p-8">
           <div className="text-center mb-4 animate-fade-in">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-indigo-700 drop-shadow-md">
@@ -264,31 +295,30 @@ const SequencePractice = () => {
             </button>
           )}
 
-          {selectedSequence && (
-            <div className="mt-4 animate-bounce-in w-full flex justify-center">
-              <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8">
-                {selectedSequence.sequence.map((num, index) =>
-                  num === "?" ? (
-                    <div
-                      key={index}
-                      className="w-20 h-20 sm:w-24 sm:h-24 lg:w-36 lg:h-36 flex items-center justify-center bg-gradient-to-r from-red-300 to-orange-400 rounded-lg text-3xl sm:text-4xl lg:text-6xl font-extrabold text-white shadow-lg"
-                    >
-                      ?
-                    </div>
-                  ) : (
-                    <img
-                      key={index}
-                      src={numberImages[num]}
-                      alt={`Number ${num}`}
-                      className="w-20 h-20 sm:w-24 sm:h-24 lg:w-36 lg:h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
-                      onClick={() => playSound(num)}
-                    />
-                  )
-                )}
-              </div>
-            </div>
-          )}
-
+        {selectedSequence && (
+  <div className="mt-4 animate-bounce-in w-full flex justify-center">
+    <div className="flex flex-row justify-center items-center gap-4 sm:gap-8">
+      {selectedSequence.sequence.map((num, index) =>
+        num === "?" ? (
+          <div
+            key={index}
+            className="w-20 h-20 sm:w-24 sm:h-24 lg:w-36 lg:h-36 flex items-center justify-center border-2 border-gray-300 rounded-full"
+          >
+            <AiOutlineQuestionCircle className="w-10 sm:w-12 lg:w-16 h-10 sm:h-12 lg:h-16 text-purple-600" />
+          </div>
+        ) : (
+          <img
+            key={index}
+            src={numberImages[num]}
+            alt={`Number ${num}`}
+            className="w-20 h-20 sm:w-24 sm:h-24 lg:w-36 lg:h-36 object-contain cursor-pointer hover:scale-110 transition-transform duration-200"
+            onClick={() => playSound(num)}
+          />
+        )
+      )}
+    </div>
+  </div>
+)}
           {countdown !== null && countdown > 0 && (
             <div className="mt-4 text-lg sm:text-xl font-semibold text-indigo-600 animate-pulse">
               {translations[language].countdown.replace("{count}", countdown)}

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import bg1 from "../../../public/images/bg2.jpg";
-import useLanguageStore from "../maths/store/languageStore";
+import {
+  getLanguagePreference
+} from "../../services/languageService";
 
 // Import number images
 import num0 from "../../assets/numbers/0.png";
@@ -56,7 +58,7 @@ const numberImages = {
 
 // Sinhala number sounds
 const numberSoundsSinhala = {
-  0: sound0, 1: sound1, 2: sound2, 3: sound3, 4: sound4,
+  0: sound0, 1: sound1,  2: sound2, 3: sound3, 4: sound4,
   5: sound5, 6: sound6, 7: sound7, 8: sound8, 9: sound9, 10: sound10
 };
 
@@ -156,16 +158,42 @@ const LearningComponent = () => {
   const [example, setExample] = useState(generateExample(1));
   const [exampleCount, setExampleCount] = useState(1);
   const [showInstructions, setShowInstructions] = useState(false);
-  const { language } = useLanguageStore();
+  const [language, setLanguage] = useState("en");
+  const [loading, setLoading] = useState(true); 
+  const userId = localStorage.getItem("userid");
+
+  useEffect(() => {
+    const fetchLanguage = async () => {
+      try {
+        const response = await getLanguagePreference(userId);
+        // console.log("Fetched language:", response.data.data.language);
+        if (response.data.status === "success") {
+          setLanguage(response.data.data.language || "en"); 
+        }
+      } catch (err) {
+        console.error("Error fetching language:", err);
+        if (err.response?.status === 404 || err.response?.status === 500) {
+          setLanguage("en"); 
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLanguage();
+  }, [userId]);
 
   const playSound = (number, lang = language) => {
+    if (loading) return; 
     const numberSounds = lang === 'si' ? numberSoundsSinhala : numberSoundsEnglish;
     const sound = numberSounds[number];
     if (sound) {
       const audio = new Audio(sound);
       audio.play().catch((error) => {
-        console.log("Audio play error:", error);
+        console.error(`Error playing ${lang} sound for ${number}:`, error);
       });
+    } else {
+      console.warn(`No sound file found for number ${number} in language ${lang}`);
     }
   };
 
@@ -217,10 +245,12 @@ const LearningComponent = () => {
     playAudioSequence(newExample);
   };
 
-  // Play audio sequence when the page loads
+  // Play audio sequence when the page loads, but only after language is fetched
   useEffect(() => {
-    playAudioSequence(example);
-  }, []);
+    if (!loading) {
+      playAudioSequence(example);
+    }
+  }, [example, language, loading]);
 
   return (
     <div
@@ -231,102 +261,107 @@ const LearningComponent = () => {
         backgroundPosition: "center",
       }}
     >
-      <div
-        className={`absolute inset-0 ${showInstructions ? "backdrop-blur-sm z-10" : "z-0"}`}
-      />
+      {loading ? (
+        <div className="text-white text-lg">Loading...</div>
+      ) : (
+        <>
+          <div
+            className={`absolute inset-0 ${showInstructions ? "backdrop-blur-sm z-10" : "z-0"}`}
+          />
 
-      {/* Top-left button */}
-      <div className="absolute top-4 left-4 z-20">
-        <button
-          onClick={() => setShowInstructions(!showInstructions)}
-          className="bg-blue-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-6 py-1 sm:py-3 rounded-full shadow-lg hover:bg-blue-600 active:scale-95 transition-all duration-200"
-        >
-          {translations[language].instructionsButton[showInstructions ? "hide" : "show"]}
-        </button>
-      </div>
-
-      {/* Top-right button */}
-      <div className="absolute top-4 right-4 z-20">
-        <button
-          onClick={() => navigate("/math/addition/practice")}
-          className="bg-indigo-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-6 py-1 sm:py-3 rounded-full shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
-        >
-          {translations[language].practiceButton}
-        </button>
-      </div>
-
-      {/* Instruction Modal */}
-      {showInstructions && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm">
-          <div className="w-full max-w-md sm:max-w-2xl bg-white rounded-lg shadow-lg p-4 sm:p-6 m-4 relative">
+          {/* Top-left button */}
+          <div className="absolute top-4 left-4 z-20">
             <button
-              onClick={() => setShowInstructions(false)}
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-xl sm:text-2xl"
+              onClick={() => setShowInstructions(!showInstructions)}
+              className="bg-blue-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-6 py-1 sm:py-3 rounded-full shadow-lg hover:bg-blue-600 active:scale-95 transition-all duration-200"
             >
-              ×
+              {translations[language].instructionsButton[showInstructions ? "hide" : "show"]}
             </button>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl sm:text-2xl font-bold text-indigo-600">
-                {translations[language].instructionsTitle}
-              </h3>
-            </div>
-            <ul className="list-disc list-inside text-gray-700 text-base sm:text-lg max-h-[60vh] overflow-y-auto">
-              {translations[language].content.map((item, index) => (
-                <li key={index} className="mb-2">{item}</li>
-              ))}
-            </ul>
           </div>
-        </div>
+
+          {/* Top-right button */}
+          <div className="absolute top-4 right-4 z-20">
+            <button
+              onClick={() => navigate("/math/addition/practice")}
+              className="bg-indigo-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-6 py-1 sm:py-3 rounded-full shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
+            >
+              {translations[language].practiceButton}
+            </button>
+          </div>
+
+          {/* Instruction Modal */}
+          {showInstructions && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm">
+              <div className="w-full max-w-md sm:max-w-2xl bg-white rounded-lg shadow-lg p-4 sm:p-6 m-4 relative">
+                <button
+                  onClick={() => setShowInstructions(false)}
+                  className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-xl sm:text-2xl"
+                >
+                  ×
+                </button>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl sm:text-2xl font-bold text-indigo-600">
+                    {translations[language].instructionsTitle}
+                  </h3>
+                </div>
+                <ul className="list-disc list-inside text-gray-700 text-base sm:text-lg max-h-[60vh] overflow-y-auto">
+                  {translations[language].content.map((item, index) => (
+                    <li key={index} className="mb-2">{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {/* Header */}
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-indigo-700 drop-shadow-lg mb-4 mt-[100px] sm:mt-10 z-20">
+            ➕ {translations[language].title}
+          </h2>
+
+          {/* Example Container */}
+          <div className="w-full max-w-md sm:max-w-4xl bg-white bg-opacity-80 rounded-xl shadow-lg p-4 sm:p-6 z-20 lg:mr-5 lg:w-[800px]">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-blue-800 drop-shadow-md">
+                {translations[language].example} {exampleCount}
+              </h3>
+              <button
+                className="bg-indigo-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-lg shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
+                onClick={swapExample}
+              >
+                ➡ {translations[language].nextExample}
+              </button>
+            </div>
+
+            {/* Dynamic Addition Example */}
+            <div className="flex flex-row justify-center items-center gap-2 sm:gap-4 my-4 sm:my-6">
+              <img
+                src={numberImages[example.num1]}
+                alt={String(example.num1)}
+                className="w-24 h-20 sm:w-32 sm:h-24 md:w-40 md:h-32 lg:w-48 lg:h-36 cursor-pointer hover:scale-110 transition-all duration-200"
+                onClick={() => playSound(example.num1)}
+              />
+              <span className="text-4xl sm:text-5xl font-bold text-purple-600">+</span>
+              <img
+                src={numberImages[example.num2]}
+                alt={String(example.num2)}
+                className="w-24 h-20 sm:w-32 sm:h-24 md:w-40 md:h-32 lg:w-48 lg:h-36 cursor-pointer hover:scale-110 transition-all duration-200"
+                onClick={() => playSound(example.num2)}
+              />
+              <span className="text-4xl sm:text-5xl font-bold text-purple-600">=</span>
+              <img
+                src={numberImages[example.sum]}
+                alt={String(example.sum)}
+                className="w-24 h-20 sm:w-32 sm:h-24 md:w-40 md:h-32 lg:w-48 lg:h-36 cursor-pointer hover:scale-110 transition-all duration-200"
+                onClick={() => playSound(example.sum)}
+              />
+            </div>
+
+            <p className="text-base sm:text-lg text-purple-600 font-semibold mt-4 drop-shadow-md">
+              {translations[language].pronunciation}
+            </p>
+          </div>
+        </>
       )}
-
-      {/* Header */}
-      <h2 className="text-3xl sm:text-5xl font-extrabold text-indigo-700 drop-shadow-lg mb-4 mt-[100px] sm:mt-10 z-20">
-        ➕ {translations[language].title}
-      </h2>
-
-      {/* Example Container */}
-      <div className="w-full max-w-md sm:max-w-4xl bg-white bg-opacity-80 rounded-xl shadow-lg p-4 sm:p-6 z-20 lg:mr-5 lg:w-[800px]">
-        <div className="flex justify-between items-center mb-4 sm:mb-6">
-          <h3 className="text-lg sm:text-xl font-semibold text-blue-800 drop-shadow-md">
-            {translations[language].example} {exampleCount}
-          </h3>
-          <button
-            className="bg-indigo-500 text-white text-sm sm:text-lg font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-lg shadow-lg hover:bg-indigo-600 active:scale-95 transition-all duration-200"
-            onClick={swapExample}
-          >
-            ➡ {translations[language].nextExample}
-          </button>
-        </div>
-
-        {/* Dynamic Addition Example */}
-        <div className="flex flex-row justify-center items-center gap-2 sm:gap-4 my-4 sm:my-6">
-        <img
-  src={numberImages[example.num1]}
-  alt={String(example.num1)}
-  className="w-24 h-20 sm:w-32 sm:h-24 md:w-40 md:h-32 lg:w-48 lg:h-36 cursor-pointer hover:scale-110 transition-all duration-200"
-  onClick={() => playSound(example.num1)}
-/>
-
-          <span className="text-4xl sm:text-5xl font-bold text-purple-600">+</span>
-          <img
-            src={numberImages[example.num2]}
-            alt={String(example.num2)}
-            className="w-24 h-20 sm:w-32 sm:h-24 md:w-40 md:h-32 lg:w-48 lg:h-36 cursor-pointer hover:scale-110 transition-all duration-200"
-            onClick={() => playSound(example.num2)}
-          />
-          <span className="text-4xl sm:text-5xl font-bold text-purple-600">=</span>
-          <img
-            src={numberImages[example.sum]}
-            alt={String(example.sum)}
-            className="w-24 h-20 sm:w-32 sm:h-24 md:w-40 md:h-32 lg:w-48 lg:h-36 cursor-pointer hover:scale-110 transition-all duration-200"
-            onClick={() => playSound(example.sum)}
-          />
-        </div>
-
-        <p className="text-base sm:text-lg text-purple-600 font-semibold mt-4 drop-shadow-md">
-          {translations[language].pronunciation}
-        </p>
-      </div>
     </div>
   );
 };

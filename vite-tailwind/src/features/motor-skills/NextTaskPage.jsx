@@ -89,9 +89,15 @@ function NextTaskPage() {
     }
 
     if (!randomCategory) {
+      const clapSound = new Audio("/sounds/sad.mp3");
+      clapSound.play();
       Swal.fire({
         title: "අවවාදයයි!",
         text: "පළමුව අහඹු ක්‍රියාවක් තෝරන්න!",
+        imageUrl: "../characters/error.gif",
+        imageWidth: 200,
+        imageHeight: 200,
+        imageAlt: "Sad Rabbit",
         icon: "error",
         confirmButtonText: "OK",
       }
@@ -139,23 +145,35 @@ function NextTaskPage() {
           icon: "error",
           showDenyButton: true,
           denyButtonText: "අපි තව වරක් උත්සාහ කරමු!",
-          confirmButtonText: "OK",
+          confirmButtonText: "අපි තව වරක් උත්සාහ කරමු!",
           confirmButtonColor: "#3085d6",
           timerProgressBar: true,
         });
       } else {
 
          if (randomCategory != predicted_action) {
+          const clapSound = new Audio("/sounds/sad.mp3");
+          clapSound.play();
           Swal.fire({
             icon: "error",
             title: "අයියෝ!...",
             text: `ඔයා කළ දේ, අපි බලාපොරොත්තු වූ දේට වෙනස් වගේ!`,
-            footer: "අපි තව වරක් උත්සාහ කරමු!",
+            imageUrl: "../characters/sad.gif",
+            imageWidth: 200,
+            imageHeight: 200,
+            imageAlt: "Sad Rabbit",
+            confirmButtonText: "අපි තව වරක් උත්සාහ කරමු!",
              });
           
           } else {
+            const clapSound = new Audio("/sounds/clap.mp3");
+            clapSound.play();
             Swal.fire({
-              title: `ප්‍ර‍තිඵල!`,
+              title: `ඔයා නියමෙට කලා !`,
+              imageUrl: "../characters/happy.gif",
+              imageWidth: 200,
+              imageHeight: 200,
+              imageAlt: "Happy Rabbit",
               icon: "success",
               confirmButtonText: "OK",
               confirmButtonColor: levelColor,
