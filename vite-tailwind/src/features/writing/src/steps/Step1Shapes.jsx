@@ -73,6 +73,7 @@ function Step1Shapes() {
 
             {/* TracingCanvas is where the child draws, it's *on top* and transparent */}
             <TracingCanvas
+              key={`tc-${currentShape.id}`} // MODIFIED KEY: Only depends on the currentShape.id
               width={displayWidth}
               height={displayHeight}
               traceColor="#22C55E" /* A nice green for tracing (Tailwind green-500) */

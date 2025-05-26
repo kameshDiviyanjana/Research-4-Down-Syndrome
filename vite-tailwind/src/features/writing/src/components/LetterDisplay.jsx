@@ -1,119 +1,133 @@
-// src/components/LetterDisplay.jsx
+import { useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
 
-// We need to import 'React' if we are using Vite with the ?react suffix for SVGs in some setups,
-// or if this component might have its own logic/state later.
-// For just passing through an SVG component as a prop, it might not be strictly necessary
-// for the component's own functionality, but it's good practice.
-import React, { useEffect, useRef } from 'react';
+const DEFAULT_ID_MULTI_PREFIX = "tracePath-";
 
-function LetterDisplay({ SvgComponent, guideColor = "stroke-guide-stroke" }) {
+function LetterDisplay({
+  SvgComponent,
+  guideColor = "stroke-gray-400", // Explicitly set a visible Tailwind stroke class
+  pathIdInSvg,
+  numberOfCheckpoints = 10,
+  onCheckpointsCalculated
+}) {
   const svgContainerRef = useRef(null);
-  
+  const prevSvgComponent = useRef(null);
+  const prevPathId = useRef(null);
+
   useEffect(() => {
-    // This will run when the component mounts or when SvgComponent changes
-    if (svgContainerRef.current && typeof SvgComponent === 'string') {
-      // Create a new XMLHttpRequest to fetch the SVG content
+    if (!svgContainerRef.current || typeof SvgComponent !== 'string') {
+      if (onCheckpointsCalculated) onCheckpointsCalculated([]);
+      return;
+    }
+
+    // Only reload SVG if SvgComponent or critical pathIdInSvg changed
+    if (SvgComponent !== prevSvgComponent.current || pathIdInSvg !== prevPathId.current) {
+      svgContainerRef.current.innerHTML = '';
+      prevSvgComponent.current = SvgComponent;
+      prevPathId.current = pathIdInSvg;
+
+      if (!pathIdInSvg || typeof numberOfCheckpoints !== 'number' || !onCheckpointsCalculated) {
+        console.warn(`LetterDisplay for ${SvgComponent}: Checkpoint props missing.`);
+        if (onCheckpointsCalculated) onCheckpointsCalculated([]);
+        return;
+      }
+
       const xhr = new XMLHttpRequest();
       xhr.open('GET', SvgComponent, true);
-      
       xhr.onload = function() {
+        if (!svgContainerRef.current) return;
         if (xhr.status === 200) {
-          // Get the SVG content
           const container = svgContainerRef.current;
           container.innerHTML = xhr.responseText;
-          
-          // Get the SVG element we just added
           const svgElement = container.querySelector('svg');
-          if (svgElement) {            // Apply styling to make it much larger
+
+          if (svgElement) {
             svgElement.style.width = '100%';
-            svgElement.style.height = '70%';
-            
-            // Use a more balanced aspect ratio preservation
+            svgElement.style.height = '100%';
             svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-              // Determine which file we have and apply appropriate transforms
-            const fileName = SvgComponent.split('/').pop();            // Check if this is a letter or a stroke
-            if (fileName.match(/^\d+-.-min\.svg$/)) {
-              // This is a letter SVG file (e.g. "01-අ-min.svg")
-              
-              // Extract the letter number to give special treatment to certain letters
-              const letterNumber = parseInt(fileName.split('-')[0]);
-              
-              if (letterNumber > 20) {
-                // Consonants (ක, ච, etc.) might need different scaling
-                svgElement.style.transform = 'scale(0.7) translateY(-35px)';
-              } else if (letterNumber >= 9 && letterNumber <= 11) {
-                // Letters like ඍ, ඎ, and ඏ are typically taller
-                svgElement.style.transform = 'scale(0.65) translateY(-45px)';
-              } else {
-                // Default for vowels
-                svgElement.style.transform = 'scale(0.75) translateY(-40px)';
-              }
-              
-              // Make sure letters have consistent stroke width
-              const paths = svgElement.querySelectorAll('path');
-              paths.forEach(path => {
-                path.setAttribute('stroke-width', '3'); // Slightly thinner for letters
-              });
-            }
-            // Special handling for specific strokes
-            else if (fileName.includes('ispilla')) {
-              // Ispillas need special handling to center them in the viewport
-              svgElement.style.transform = 'scale(0.9) translateY(20px)';
-            } else if (fileName.includes('kombu')) {
-              // Kombuwa series might need different handling
-              svgElement.style.transform = 'scale(0.9)';
-            } else {
-              // Default vertical stretch for most strokes
-              svgElement.style.transform = 'scaleY(1.2)';
-            }
-              
-            // Adjust stroke thickness to be more appropriate
-            const paths = svgElement.querySelectorAll('path');
-            paths.forEach(path => {
-              path.setAttribute('stroke-width', '4'); // Consistent thickness
-              path.setAttribute('stroke', 'currentColor');
+
+            const allPathsForStyle = svgElement.querySelectorAll('path');
+            allPathsForStyle.forEach(p => {
+              p.setAttribute('stroke', 'currentColor');
+              const fileName = SvgComponent.split('/').pop();
+              const isLetterFile = fileName.match(/^\d+-.-min\.svg$/);
+              p.setAttribute('stroke-width', isLetterFile ? '3' : '4');
+              p.setAttribute('fill', 'none');
             });
-          }
+
+            let pathElement = svgElement.querySelector(`#${pathIdInSvg}`);
+            if (!pathElement) pathElement = svgElement.querySelector(`#${DEFAULT_ID_MULTI_PREFIX}0`);
+
+            if (pathElement) {
+              const calculatedCheckpoints = [];
+              const viewBox = svgElement.viewBox?.baseVal;
+
+              if (numberOfCheckpoints > 0 && viewBox && container.clientWidth > 0 && container.clientHeight > 0) {
+                try {
+                  const totalLength = pathElement.getTotalLength();
+                  if (totalLength === 0) {
+                    console.warn(`Path for checkpoints in ${SvgComponent} has zero length.`);
+                  } else {
+                    const scaleToFit = Math.min(container.clientWidth / viewBox.width, container.clientHeight / viewBox.height);
+                    const finalViewBoxRenderedWidth = viewBox.width * scaleToFit;
+                    const finalViewBoxRenderedHeight = viewBox.height * scaleToFit;
+                    const offsetX = (container.clientWidth - finalViewBoxRenderedWidth) / 2;
+                    const offsetY = (container.clientHeight - finalViewBoxRenderedHeight) / 2;
+
+                    for (let i = 0; i < numberOfCheckpoints; i++) {
+                      const pointLength = numberOfCheckpoints === 1 ? 0 : (i / (numberOfCheckpoints - 1)) * totalLength;
+                      const rawSvgPoint = pathElement.getPointAtLength(pointLength);
+
+                      const finalX = (rawSvgPoint.x - viewBox.x) * scaleToFit + offsetX;
+                      const finalY = (rawSvgPoint.y - viewBox.y) * scaleToFit + offsetY;
+
+                      calculatedCheckpoints.push({
+                        id: `cp-${pathIdInSvg.replace(/[^\w-]/g, '')}-${i}`,
+                        x: finalX,
+                        y: finalY,
+                        order: i,
+                        isHit: false,
+                      });
+                    }
+                  }
+                } catch (error) {
+                  console.error(`Error generating checkpoints for ${SvgComponent} (path: ${pathIdInSvg})`, error);
+                }
+              } else if (numberOfCheckpoints > 0) {
+                console.warn(`Cannot calculate checkpoints for ${SvgComponent}: viewBox or container dimensions invalid.`);
+              }
+              onCheckpointsCalculated(calculatedCheckpoints);
+            } else {
+              console.warn(`No traceable path element for checkpoints in ${SvgComponent}.`);
+              onCheckpointsCalculated([]);
+            }
+          } else { if (onCheckpointsCalculated) onCheckpointsCalculated([]); }
+        } else {
+          console.error(`Failed to load SVG ${SvgComponent}. Status: ${xhr.status}`);
+          if (onCheckpointsCalculated) onCheckpointsCalculated([]);
         }
       };
-      
+      xhr.onerror = function() { if (onCheckpointsCalculated) onCheckpointsCalculated([]); };
       xhr.send();
     }
-  }, [SvgComponent]);
+  }, [SvgComponent, guideColor, pathIdInSvg, numberOfCheckpoints, onCheckpointsCalculated]);
 
-  if (!SvgComponent) {
-    return <div>No letter to display</div>;
-  }
-
-  // Check if the SVG is a string path or a React component
-  if (typeof SvgComponent === 'string') {    // If it's a string (URL/path), we'll manually load and scale the SVG
-    // Check if this is a letter SVG (has pattern like 01-අ-min.svg)
-    const isLetter = SvgComponent.split('/').pop().match(/^\d+-.-min\.svg$/);
-    
-    return (
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        {/* Container that will hold our dynamically loaded SVG */}        <div 
-          ref={svgContainerRef}
-          className={`w-[400px] h-[450px] md:w-[450px] md:h-[500px] flex items-center justify-center text-black ${guideColor}`}
-          style={{ 
-            maxWidth: '95%', 
-            maxHeight: '95%',
-            transform: isLetter 
-              ? 'scale(0.9)' // Less scaling for letters
-              : 'scale(1.2) scaleY(1.2)' // Original scaling for strokes
-          }}
-        ></div>
-      </div>
-    );
-  }
-  // If it's a component, use it directly with enhanced styling
   return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-      {/* The SVG itself will be styled to act as the guide */}      <div className="w-[400px] h-[450px] md:w-[450px] md:h-[500px]" style={{ transform: 'scale(1.2) scaleY(1.2)' }}>
-        <SvgComponent className={`w-full h-full ${guideColor} fill-none [&_path]:stroke-[4]`} />
-      </div>
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-50" style={{zIndex: 1}}>
+      <div
+        ref={svgContainerRef}
+        className={`w-full h-full flex items-center justify-center text-black ${guideColor}`}
+      ></div>
     </div>
   );
 }
+
+LetterDisplay.propTypes = {
+  SvgComponent: PropTypes.oneOfType([PropTypes.string, PropTypes.func]).isRequired,
+  guideColor: PropTypes.string,
+  pathIdInSvg: PropTypes.string.isRequired,
+  numberOfCheckpoints: PropTypes.number,
+  onCheckpointsCalculated: PropTypes.func.isRequired,
+};
 
 export default LetterDisplay;
