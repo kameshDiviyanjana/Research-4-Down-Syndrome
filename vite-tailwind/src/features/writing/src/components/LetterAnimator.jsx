@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 const LetterAnimator = forwardRef(({ 
   SvgComponent, 
   animationDelay = 0.5, 
-  duration = 3,
+  duration = 8,
   tracerColor = "#FF5733",
   tracerSize = 8,
   onAnimationComplete,

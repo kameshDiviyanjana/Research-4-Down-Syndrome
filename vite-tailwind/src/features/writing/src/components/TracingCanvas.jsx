@@ -179,7 +179,7 @@ function TracingCanvas({
           onClick={handleClearButtonClick}
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-colors"
         >
-          Clear Trace
+          අකුර මකා දමන්න
         </button>
       </div>
     </div>
