@@ -7,48 +7,21 @@ import CheckpointsOverlay from '../components/CheckpointsOverlay';
 
 // Import all SVGs
 import alapillaSVGPath from '../../../../assets/strokes/alapilla.svg';
-import anusvaraSVGPath from '../../../../assets/strokes/anusvara.svg';
 import ketiAdayaSVGPath from '../../../../assets/strokes/keti_adaya.svg';
 import deergaAdayaSVGPath from '../../../../assets/strokes/deerga_adaya.svg';
 import ketiIspillaSVGPath from '../../../../assets/strokes/keti_ispilla.svg';
-import deergaIspillaSVGPath from '../../../../assets/strokes/deerga_ispilla.svg';
-import ketiPapillaSVGPath from '../../../../assets/strokes/keti_papilla.svg';
-import deergaPapillaSVGPath from '../../../../assets/strokes/deerga_papilla.svg';
-import gaetayaSahithaAlapillaSVGPath from '../../../../assets/strokes/gaetaya_sahitha_alapilla.svg';
-import gaetayaSahithaAlapilliDekaSVGPath from '../../../../assets/strokes/gaetaya_sahitha_alapilli_deka.svg';
 import kombuwaSVGPath from '../../../../assets/strokes/kombuwa.svg';
-import kombuwaSahaHalSVGPath from '../../../../assets/strokes/kombuwa_saha_hal.svg';
-import kombuDekaSVGPath from '../../../../assets/strokes/kombu_deka.svg';
-import kombuwaSahaAlapillaSVGPath from '../../../../assets/strokes/kombuwa_saha_alapilla.svg';
-import kombuwaAlapillaSahaHalSVGPath from '../../../../assets/strokes/kombuwa_alapilla_saha_hal.svg';
-import kombuwaSahaGayanukitthaSVGPath from '../../../../assets/strokes/kombuwa_saha_gayanukiththa.svg';
-import visargayaSVGPath from '../../../../assets/strokes/visargaya.svg';
 import yanshayaSVGPath from '../../../../assets/strokes/yanshaya.svg';
-import rakaranshayaSVGPath from '../../../../assets/strokes/rakaranshaya.svg';
-import halLakunaSVGPath from '../../../../assets/strokes/hal_lakuna.svg';
+
 
 function Step2Strokes() {  // Define all available strokes
   const allStrokes = [
     { id: 'alapilla', name: 'ඇලපිල්ල', svg: alapillaSVGPath, svgPathId: 'tracePath' },
-    { id: 'anusvara', name: 'අනුස්වාරය', svg: anusvaraSVGPath, svgPathId: 'tracePath' },
     { id: 'keti_adaya', name: 'කෙටි ඇදය', svg: ketiAdayaSVGPath, svgPathId: 'tracePath' },
     { id: 'deerga_adaya', name: 'දීර්ඝ ඇදය', svg: deergaAdayaSVGPath, svgPathId: 'tracePath' },
     { id: 'keti_ispilla', name: 'කෙටි ඉස්පිල්ල', svg: ketiIspillaSVGPath, svgPathId: 'tracePath' },
-    { id: 'deerga_ispilla', name: 'දීර්ඝ ඉස්පිල්ල', svg: deergaIspillaSVGPath, svgPathId: 'tracePath' },
-    { id: 'keti_papilla', name: 'කෙටි පාපිල්ල', svg: ketiPapillaSVGPath, svgPathId: 'tracePath' },
-    { id: 'deerga_papilla', name: 'දීර්ඝ පාපිල්ල', svg: deergaPapillaSVGPath, svgPathId: 'tracePath' },
-    { id: 'gaetaya_sahitha_alapilla', name: 'ගැටය සහිත ඇලපිල්ල', svg: gaetayaSahithaAlapillaSVGPath, svgPathId: 'tracePath' },
-    { id: 'gaetaya_sahitha_alapilli_deka', name: 'ගැටය සහිත ඇලපිලි දෙක', svg: gaetayaSahithaAlapilliDekaSVGPath, svgPathId: 'tracePath' },
     { id: 'kombuwa', name: 'කොම්බුව', svg: kombuwaSVGPath, svgPathId: 'tracePath' },
-    { id: 'kombuwa_saha_hal', name: 'කොම්බුව සහ හල් ලකුණ', svg: kombuwaSahaHalSVGPath, svgPathId: 'tracePath' },
-    { id: 'kombu_deka', name: 'කොම්බු දෙක', svg: kombuDekaSVGPath, svgPathId: 'tracePath' },
-    { id: 'kombuwa_saha_alapilla', name: 'කොම්බුව සහ ඇලපිල්ල', svg: kombuwaSahaAlapillaSVGPath, svgPathId: 'tracePath' },
-    { id: 'kombuwa_alapilla_saha_hal', name: 'කොම්බුව, ඇලපිල්ල සහ හල් ලකුණ', svg: kombuwaAlapillaSahaHalSVGPath, svgPathId: 'tracePath' },
-    { id: 'kombuwa_saha_gayanukiththa', name: 'කොම්බුව සහ ගයනුකිත්ත', svg: kombuwaSahaGayanukitthaSVGPath, svgPathId: 'tracePath' },
-    { id: 'visargaya', name: 'විසර්ගය', svg: visargayaSVGPath, svgPathId: 'tracePath' },
     { id: 'yanshaya', name: 'යංශය', svg: yanshayaSVGPath, svgPathId: 'tracePath' },
-    { id: 'rakaranshaya', name: 'රකාරාංශය', svg: rakaranshayaSVGPath, svgPathId: 'tracePath' },
-    { id: 'hal_lakuna', name: 'හල් ලකුණ', svg: halLakunaSVGPath, svgPathId: 'tracePath' }
   ];  const NUMBER_OF_CHECKPOINTS_PER_ITEM = 8; // Tune this value
 
   // State to track the current stroke
@@ -77,7 +50,7 @@ function Step2Strokes() {  // Define all available strokes
     setIsLoadingCheckpoints(false);
     if (calculatedCpList && calculatedCpList.length > 0) {
       setCheckpoints(calculatedCpList.map(cp => ({ ...cp, isHit: false })));
-      setUserFeedback(`Ready to trace: ${currentStroke?.name || 'the stroke'}`);
+      setUserFeedback(`චලනය අදින්න ලැස්ති වෙන්න : ${currentStroke?.name || 'the stroke'}`);
     } else {
       setCheckpoints([]);
       setUserFeedback(`Error preparing "${currentStroke?.name || 'the stroke'}". Try another.`);
@@ -109,7 +82,7 @@ function Step2Strokes() {  // Define all available strokes
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] p-4">
       <h1 className="text-3xl font-bold text-neutral-700 mb-6">
-        Trace the Stroke: {currentStroke?.name || "Loading..."}
+        මෙම චලනය තිරය මත අදින්න: {currentStroke?.name || "Loading..."}
       </h1>
 
       <div
@@ -176,7 +149,7 @@ function Step2Strokes() {  // Define all available strokes
       )}
       {!isLoadingCheckpoints && checkpoints.length > 0 && (
           <div className="text-sm text-gray-700 mt-1 mb-3">
-              Progress: {checkpoints.filter(cp => cp.isHit).length} of {checkpoints.length} points.
+              මම දැනට පොයින්ට්ස් : {checkpoints.filter(cp => cp.isHit).length} of {checkpoints.length} ලබා ගෙන තියෙනව.
           </div>
       )}
 
@@ -192,14 +165,14 @@ function Step2Strokes() {  // Define all available strokes
           disabled={isLoadingCheckpoints || showAnimation || !currentStroke}
         >
            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" /></svg>
-          Show Animation
+         ලියන විදිහ බලමු.
         </button>
          <button
             onClick={handleClearTrace}
             className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-transform hover:scale-105"
             disabled={isLoadingCheckpoints || showAnimation || !currentStroke || checkpoints.length === 0 }
           >
-            Reset Trace
+            මුලට යමු
           </button>
       </div>
         {/* Navigation buttons for switching between strokes */}

@@ -64,7 +64,7 @@ function Step3Letters() {
     setIsLoadingCheckpoints(false);
     if (calculatedCpList && calculatedCpList.length > 0) {
       setCheckpoints(calculatedCpList.map(cp => ({ ...cp, isHit: false })));
-      setUserFeedback(`Ready to trace: ${currentLetter?.name || 'the item'}`);
+      setUserFeedback(`අකුර ලියන්න ලැස්ති වෙමු: ${currentLetter?.name || 'the item'}`);
     } else {
       setCheckpoints([]);
       setUserFeedback(`Error preparing "${currentLetter?.name || 'the item'}". Try another.`);
@@ -118,7 +118,7 @@ function Step3Letters() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] p-4"> {/* Adjust min-h if needed */}
       <h1 className="text-3xl font-bold text-neutral-700 mb-6">
-        Trace the Letter: {currentLetter?.name || "Loading..."}
+        මෙම අකුර තිරය මත අදින්න: {currentLetter?.name || "Loading..."}
       </h1>
 
       <div
@@ -182,7 +182,7 @@ function Step3Letters() {
       )}
       {!isLoadingCheckpoints && checkpoints.length > 0 && (
           <div className="text-sm text-gray-700 mt-1 mb-3">
-              Progress: {checkpoints.filter(cp => cp.isHit).length} of {checkpoints.length} points.
+              මම දැනට පොයින්ට්ස් : {checkpoints.filter(cp => cp.isHit).length} of {checkpoints.length}  ලබා ගෙන තියෙනව.
           </div>
       )}
 
@@ -199,14 +199,14 @@ function Step3Letters() {
           disabled={isLoadingCheckpoints || showAnimation || !currentLetter}
         >
            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" /></svg>
-          Show Animation
+          ලියන විදිහ බලමු.
         </button>
          <button
             onClick={handleClearTrace}
             className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-transform hover:scale-105"
             disabled={isLoadingCheckpoints || showAnimation || !currentLetter || checkpoints.length === 0 }
           >
-            Reset Trace
+          මුලට යමු
           </button>
       </div>
 

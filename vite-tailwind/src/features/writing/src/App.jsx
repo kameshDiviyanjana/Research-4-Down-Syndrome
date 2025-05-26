@@ -16,25 +16,25 @@ function App() {
       onClick={() => setCurrentStepComponent(null)}
       className="mb-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded flex items-center"
     >
-      <span className="mr-1">←</span> Back to Activities
+      <span className="mr-1">←</span> පෙර මෙනුව වෙත යන්න
     </button>
   );
 
   // Card selection view
   const renderCardSelection = () => (
     <div className="p-8">
-      <h1 className="text-3xl font-bold text-center mb-8">Writing Activities</h1>
+      <h1 className="text-3xl font-bold text-center mb-8">ලියන ක්‍රියාකාරකම්</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Shapes Card */}
         <div 
           onClick={() => setCurrentStepComponent("shapes")}
           className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow p-6 cursor-pointer border-2 border-blue-200 hover:border-blue-500"
         >
-          <h2 className="text-2xl font-bold text-center mb-4">Shapes</h2>
+          <h2 className="text-2xl font-bold text-center mb-4">හැඩතල</h2>
           <div className="h-32 flex items-center justify-center">
             <div className="w-16 h-16 border-4 border-blue-500 rounded-full"></div>
           </div>
-          <p className="text-center mt-4">Practice basic shapes and patterns</p>
+          <p className="text-center mt-4">මූලික හැඩතල අදිමු</p>
         </div>
 
         {/* Strokes Card */}
@@ -42,11 +42,11 @@ function App() {
           onClick={() => setCurrentStepComponent("strokes")}
           className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow p-6 cursor-pointer border-2 border-blue-200 hover:border-blue-500"
         >
-          <h2 className="text-2xl font-bold text-center mb-4">Strokes</h2>
+          <h2 className="text-2xl font-bold text-center mb-4">චලන</h2>
           <div className="h-32 flex items-center justify-center">
             <div className="w-24 h-12 border-t-4 border-blue-500 rounded"></div>
           </div>
-          <p className="text-center mt-4">Practice letter strokes and movements</p>
+          <p className="text-center mt-4">චලන අදිමු</p>
         </div>
 
         {/* Letters Card */}
@@ -54,11 +54,11 @@ function App() {
           onClick={() => setCurrentStepComponent("letters")}
           className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow p-6 cursor-pointer border-2 border-blue-200 hover:border-blue-500"
         >
-          <h2 className="text-2xl font-bold text-center mb-4">Letters</h2>
+          <h2 className="text-2xl font-bold text-center mb-4">අකුරු</h2>
           <div className="h-32 flex items-center justify-center">
-            <span className="text-4xl font-bold text-blue-500">Aa</span>
+            <span className="text-4xl font-bold text-blue-500">අ</span>
           </div>
-          <p className="text-center mt-4">Practice writing complete letters</p>
+          <p className="text-center mt-4">අකුරු ලියන්න පුරුදු වෙමු</p>
         </div>
       </div>
     </div>
