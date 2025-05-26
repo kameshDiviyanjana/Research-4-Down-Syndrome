@@ -20,7 +20,7 @@ import React from 'react';
  */
 function CheckpointsOverlay({
   checkpoints,
-  checkpointSize = 12, // Slightly larger for visibility
+  checkpointSize = 20, // Slightly larger for visibility
   nextTargetColor = 'gold',
   hitColor = 'rgba(74, 222, 128, 0.7)', // Tailwind green-400 with alpha
   defaultColor = 'rgba(150, 150, 150, 0.5)'
