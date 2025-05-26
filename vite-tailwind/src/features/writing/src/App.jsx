@@ -91,7 +91,7 @@ function App() {
       {currentStepComponent === null ? (
         renderCardSelection()
       ) : (
-        <div className="p-4">
+        <div className="p-4"> 
           {renderBackButton()}
           {renderStep()}
         </div>
