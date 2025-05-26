@@ -166,7 +166,7 @@ const LearningComponent = () => {
     const fetchLanguage = async () => {
       try {
         const response = await getLanguagePreference(userId);
-        console.log("Fetched language:", response.data.data.language);
+        // console.log("Fetched language:", response.data.data.language);
         if (response.data.status === "success") {
           setLanguage(response.data.data.language || "en"); 
         }

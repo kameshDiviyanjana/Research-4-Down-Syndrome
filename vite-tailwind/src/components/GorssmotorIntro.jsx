@@ -1,7 +1,21 @@
 import grossSkill from "../assets/grossmotor.png";
 import { useNavigate } from "react-router-dom";
 
-const GorssmotorIntro = () => {
+const translations = {
+  en: {
+    title: "💪 Gross Motor Fun!",
+    description: "Move, play, and grow! Tracing and tapping help kids build coordination and motor skills.",
+    button: "🧠 Let's Start!",
+  },
+  si: {
+    title: "💪 රළු මෝටර් විනෝදය!",
+    description:
+      "චලනය, සෙල්ලම සහ වර්ධනය! ලුහුබැඳීම සහ තට්ටු කිරීම තුළින් දරුවන්ගේ සම්බන්ධීකරණය සහ මෝටර් කුසලතා ගොඩනැගේ.",
+    button: "🧠 අපි ආරම්භ කරමු!",
+  },
+};
+
+const GorssmotorIntro = ({ selectedLanguage = "en" }) => {
   const navigate = useNavigate();
 
   const handleNavigate = () => {
@@ -22,16 +36,16 @@ const GorssmotorIntro = () => {
       {/* Right Section: Text Content */}
       <div className="max-w-md text-center md:text-left">
         <h1 className="text-2xl md:text-3xl font-bold text-yellow-500 mb-2 drop-shadow-md">
-          💪 Gross Motor Fun!
+          {translations[selectedLanguage]?.title || translations.en.title}
         </h1>
         <p className="text-base text-gray-700 mb-4 leading-snug">
-          Move, play, and grow! Tracing and tapping help kids build coordination and motor skills.
+          {translations[selectedLanguage]?.description || translations.en.description}
         </p>
         <button
           className="bg-yellow-400 hover:bg-yellow-500 text-white text-sm font-semibold py-2 px-4 rounded-full shadow transition duration-300"
           onClick={handleNavigate}
         >
-          🧠 Let's Start!
+          {translations[selectedLanguage]?.button || translations.en.button}
         </button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { fetchProgressData } from './services/progressService';
+import { fetchProgressData } from "./services/progressService";
+import { getLanguagePreference } from "../../services/languageService"; // Import language service
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -16,18 +17,55 @@ import { Line, Bar } from "react-chartjs-2";
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
 
+// Translations for English and Sinhala
+const translations = {
+  en: {
+    title: "Maths Progress Dashboard",
+    subtitle: "Track your progress and master your Maths skills!",
+    errorMessage: "Error: User not authenticated. Please log in.",
+    loadingMessage: "Loading progress...",
+    noProgressMessage: "No Maths progress recorded yet! Start practicing to see your progress.",
+    noSubSkillMessage: "No activity-specific progress recorded yet!",
+    lineChartTitle: "Maths Progress Over Time",
+    lineChartYLabel: "Cumulative Score",
+    lineChartXLabel: "Date",
+    barChartTitle: "Skill Breakdown",
+    barChartYLabel: "Completion (%)",
+    barChartXLabel: "Sub-Skill",
+    lineChartTooltipLabel: "Score",
+    barChartTooltipLabel: "Completion",
+  },
+  si: {
+    title: "දරුවාගේ ගණිත ප්‍රගතිය",
+    subtitle: "ඔබේ ප්‍රගතිය ලුහුබඳින්න සහ ඔබේ ගණිත කුසලතා ප්‍රගුණ කරන්!",
+    errorMessage: "දෝෂය: පරිශීලකයා සත්‍යාපනය වී නැත. කරුණාකර ලොග් වන්න.",
+    loadingMessage: "ප්‍රගතිය පූරණය වෙමින්...",
+    noProgressMessage: "තවම ගණිත ප්‍රගතිය වාර්තා වී නැත! ඔබේ ප්‍රගතිය බැලීමට පුහුණුවීම ආරම්භ කරන්න.",
+    noSubSkillMessage: "තවම ක්‍රියාකාරකම්-විශේෂිත ප්‍රගතිය වාර්තා වී නැත!",
+    lineChartTitle: "කාලයත් සමඟ ගණිත ප්‍රගතිය",
+    lineChartYLabel: "සමුච්චිත ලකුණු",
+    lineChartXLabel: "දිනය",
+    barChartTitle: "කුසලතා ප්‍රදර්ශනය",
+    barChartYLabel: "සම්පූර්ණත්වය (%)",
+    barChartXLabel: "උප-කුසලතා",
+    lineChartTooltipLabel: "ලකුණු",
+    barChartTooltipLabel: "සම්පූර්ණත්වය",
+  },
+};
+
 const ProgressBar = () => {
   const [progress, setProgress] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); 
   const [error, setError] = useState(null);
+  const [language, setLanguage] = useState("en"); 
 
-  // Memoized fetch function
+  // Memoized fetch function for progress data
   const fetchProgress = useCallback(async () => {
     const userId = localStorage.getItem("userid");
     const token = localStorage.getItem("token");
 
     if (!userId || !token) {
-      setError("User not authenticated. Please log in.");
+      setError(translations[language].errorMessage);
       setLoading(false);
       return;
     }
@@ -47,11 +85,31 @@ const ProgressBar = () => {
       setProgress(data);
       setLoading(false);
     }
-  }, []);
+  }, [language]);
 
+  // Fetch language preference and progress data
   useEffect(() => {
-    fetchProgress();
-  }, [fetchProgress]);
+    const fetchLanguageAndProgress = async () => {
+      const userId = localStorage.getItem("userid");
+      try {
+        const response = await getLanguagePreference(userId);
+        console.log("Fetched language:", response.data.data.language);
+        if (response.data.status === "success") {
+          setLanguage(response.data.data.language || "en");
+        }
+      } catch (err) {
+        console.error("Error fetching language:", err);
+        if (err.response?.status === 404 || err.response?.status === 500) {
+          setLanguage("en");
+        }
+      } finally {
+        // Fetch progress after language is set
+        fetchProgress();
+      }
+    };
+
+    fetchLanguageAndProgress();
+  }, [fetchProgress]); 
 
   // Filter progress for skillType: "Maths"
   const mathProgress = progress.filter((entry) => entry.skillType === "Maths");
@@ -69,13 +127,12 @@ const ProgressBar = () => {
 
     // Extract labels (dates), cumulative scores, and formatted dates
     const labels = sortedProgress.map((entry) =>
-      new Date(entry.updatedAt).toISOString().split('T')[0]
+      new Date(entry.updatedAt).toISOString().split("T")[0]
     );
-    // Calculate cumulative score
     let cumulativeScore = 0;
     const scores = sortedProgress.map((entry) => {
       cumulativeScore += entry.score; // Add score (1 or -1)
-      return Math.min(100, Math.max(0, cumulativeScore)); // Clamp to 0–100
+      return Math.min(100, Math.max(0, cumulativeScore));
     });
     const dates = labels; // Same as labels for tooltips
 
@@ -85,7 +142,7 @@ const ProgressBar = () => {
     return { labels, scores, dates };
   };
 
-  // Function to calculate per-subSkill progress
+  // Calculate per-subSkill progress
   const calculateProgress = () => {
     const progressData = {};
     const MAX_ATTEMPTS = 100;
@@ -116,9 +173,9 @@ const ProgressBar = () => {
     labels,
     datasets: [
       {
-        label: "Cumulative Maths Score",
+        label: translations[language].lineChartTitle,
         data: scores,
-        borderColor: "rgba(59, 130, 246, 1)", // Tailwind blue-500
+        borderColor: "rgba(59, 130, 246, 1)",
         backgroundColor: "rgba(59, 130, 246, 0.2)",
         fill: false,
         tension: 0.4,
@@ -129,7 +186,7 @@ const ProgressBar = () => {
     ],
   };
 
-  // Line chart options
+  // Line chart options with translated labels
   const lineChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -138,27 +195,26 @@ const ProgressBar = () => {
         position: "top",
         labels: {
           font: { size: 14, family: "'Inter', sans-serif" },
-          color: "#1f2937", // Tailwind gray-800
+          color: "#1f2937", 
         },
       },
       title: {
         display: true,
-        text: "Maths Progress Over Time",
+        text: translations[language].lineChartTitle,
         font: { size: 18, family: "'Inter', sans-serif", weight: "bold" },
-        color: "#1f2937", // Tailwind gray-800
+        color: "#1f2937",
       },
       tooltip: {
-        backgroundColor: "#1f2937", // Tailwind gray-800
+        backgroundColor: "#1f2937",
         titleFont: { family: "'Inter', sans-serif" },
         bodyFont: { family: "'Inter', sans-serif" },
         callbacks: {
-          label: (context) => `Score: ${context.raw}`,
+          label: (context) => `${translations[language].lineChartTooltipLabel}: ${context.raw}`,
           title: (tooltipItems) => {
-            console.log("TooltipItems:", tooltipItems);
             if (tooltipItems.length > 0 && dates[tooltipItems[0].dataIndex]) {
-              return `Date: ${dates[tooltipItems[0].dataIndex]}`;
+              return `${translations[language].lineChartXLabel}: ${dates[tooltipItems[0].dataIndex]}`;
             }
-            return "Date: N/A";
+            return `${translations[language].lineChartXLabel}: N/A`;
           },
         },
       },
@@ -169,76 +225,68 @@ const ProgressBar = () => {
         max: 100,
         title: {
           display: true,
-          text: "Cumulative Score",
+          text: translations[language].lineChartYLabel,
           font: { size: 14, family: "'Inter', sans-serif" },
-          color: "#1f2937", // Tailwind gray-800
+          color: "#1f2937",
         },
-        grid: { color: "#e5e7eb" }, // Tailwind gray-200
+        grid: { color: "#e5e7eb" },
       },
       x: {
         title: {
           display: true,
-          text: "Date",
+          text: translations[language].lineChartXLabel,
           font: { size: 14, family: "'Inter', sans-serif" },
-          color: "#1f2937", // Tailwind gray-800
+          color: "#1f2937",
         },
         ticks: {
           maxRotation: 45,
           minRotation: 45,
           maxTicksLimit: 10,
           font: { size: 12, family: "'Inter', sans-serif" },
-          color: "#4b5563", // Tailwind gray-600
+          color: "#4b5563",
         },
         grid: { display: false },
       },
     },
   };
 
-  // Define four colors for sub-skills
-  const subSkillColors = [
-    {
-      background: "rgba(59, 130, 246, 0.8)", // Tailwind blue-500
-      border: "rgba(59, 130, 246, 1)",
-      hoverBackground: "rgba(37, 99, 235, 0.8)", // Tailwind blue-600
-      hoverBorder: "rgba(37, 99, 235, 1)",
-    },
-    {
-      background: "rgba(20, 184, 166, 0.8)", // Tailwind teal-500
-      border: "rgba(20, 184, 166, 1)",
-      hoverBackground: "rgba(13, 148, 136, 0.8)", // Tailwind teal-600
-      hoverBorder: "rgba(13, 148, 136, 1)",
-    },
-    {
-      background: "rgba(139, 92, 246, 0.8)", // Tailwind purple-500
-      border: "rgba(139, 92, 246, 1)",
-      hoverBackground: "rgba(124, 58, 237, 0.8)", // Tailwind purple-600
-      hoverBorder: "rgba(124, 58, 237, 1)",
-    },
-    {
-      background: "rgba(249, 115, 22, 0.8)", // Tailwind orange-500
-      border: "rgba(249, 115, 22, 1)",
-      hoverBackground: "rgba(234, 88, 12, 0.8)", // Tailwind orange-600
-      hoverBorder: "rgba(234, 88, 12, 1)",
-    },
-  ];
-
   // Bar chart data for Skill Breakdown
   const barChartData = {
     labels: Object.keys(progressData),
     datasets: [
       {
-        label: "Sub-Skill Completion",
+        label: translations[language].barChartTitle,
         data: Object.values(progressData).map((data) => data.completion),
-        backgroundColor: Object.keys(progressData).map((_, index) => subSkillColors[index % 4].background),
-        borderColor: Object.keys(progressData).map((_, index) => subSkillColors[index % 4].border),
+        backgroundColor: Object.keys(progressData).map((_, index) => [
+          "rgba(59, 130, 246, 0.8)", // blue-500
+          "rgba(20, 184, 166, 0.8)", // teal-500
+          "rgba(139, 92, 246, 0.8)", // purple-500
+          "rgba(249, 115, 22, 0.8)", // orange-500
+        ][index % 4]),
+        borderColor: Object.keys(progressData).map((_, index) => [
+          "rgba(59, 130, 246, 1)",
+          "rgba(20, 184, 166, 1)",
+          "rgba(139, 92, 246, 1)",
+          "rgba(249, 115, 22, 1)",
+        ][index % 4]),
         borderWidth: 1,
-        hoverBackgroundColor: Object.keys(progressData).map((_, index) => subSkillColors[index % 4].hoverBackground),
-        hoverBorderColor: Object.keys(progressData).map((_, index) => subSkillColors[index % 4].hoverBorder),
+        hoverBackgroundColor: Object.keys(progressData).map((_, index) => [
+          "rgba(37, 99, 235, 0.8)", // blue-600
+          "rgba(13, 148, 136, 0.8)", // teal-600
+          "rgba(124, 58, 237, 0.8)", // purple-600
+          "rgba(234, 88, 12, 0.8)", // orange-600
+        ][index % 4]),
+        hoverBorderColor: Object.keys(progressData).map((_, index) => [
+          "rgba(37, 99, 235, 1)",
+          "rgba(13, 148, 136, 1)",
+          "rgba(124, 58, 237, 1)",
+          "rgba(234, 88, 12, 1)",
+        ][index % 4]),
       },
     ],
   };
 
-  // Bar chart options
+  // Bar chart options with translated labels
   const barChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -247,27 +295,26 @@ const ProgressBar = () => {
         position: "top",
         labels: {
           font: { size: 14, family: "'Inter', sans-serif" },
-          color: "#1f2937", // Tailwind gray-800
+          color: "#1f2937",
         },
       },
       title: {
         display: true,
-        text: "Skill Breakdown",
+        text: translations[language].barChartTitle,
         font: { size: 18, family: "'Inter', sans-serif", weight: "bold" },
-        color: "#1f2937", // Tailwind gray-800
+        color: "#1f2937",
       },
       tooltip: {
-        backgroundColor: "#1f2937", // Tailwind gray-800
+        backgroundColor: "#1f2937",
         titleFont: { family: "'Inter', sans-serif" },
         bodyFont: { family: "'Inter', sans-serif" },
         callbacks: {
-          label: (context) => `Completion: ${context.raw}%`,
+          label: (context) => `${translations[language].barChartTooltipLabel}: ${context.raw}%`,
           title: (context) => {
-            console.log("Bar TooltipItems:", context);
             if (context.length > 0) {
-              return `Sub-Skill: ${context[0].label}`;
+              return `${translations[language].barChartXLabel}: ${context[0].label}`;
             }
-            return "Sub-Skill: N/A";
+            return `${translations[language].barChartXLabel}: N/A`;
           },
         },
       },
@@ -278,24 +325,24 @@ const ProgressBar = () => {
         max: 100,
         title: {
           display: true,
-          text: "Completion (%)",
+          text: translations[language].barChartYLabel,
           font: { size: 14, family: "'Inter', sans-serif" },
-          color: "#1f2937", // Tailwind gray-800
+          color: "#1f2937",
         },
-        grid: { color: "#e5e7eb" }, // Tailwind gray-200
+        grid: { color: "#e5e7eb" },
       },
       x: {
         title: {
           display: true,
-          text: "Sub-Skill",
+          text: translations[language].barChartXLabel,
           font: { size: 14, family: "'Inter', sans-serif" },
-          color: "#1f2937", // Tailwind gray-800
+          color: "#1f2937",
         },
         ticks: {
           maxRotation: 45,
           minRotation: 45,
           font: { size: 12, family: "'Inter', sans-serif" },
-          color: "#4b5563", // Tailwind gray-600
+          color: "#4b5563",
         },
         grid: { display: false },
       },
@@ -309,12 +356,10 @@ const ProgressBar = () => {
         <div className="text-center mb-10">
           <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-500">
-              Maths Progress Dashboard
+              {translations[language].title}
             </span>
           </h1>
-          <p className="mt-3 text-lg text-gray-600 font-medium">
-            Track your progress and master your Maths skills!
-          </p>
+         
         </div>
 
         {/* Main Card */}
@@ -322,26 +367,26 @@ const ProgressBar = () => {
           {/* Error or Loading State */}
           {error && (
             <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg text-center animate-fade-in">
-              Error: {error}. Please check your authentication and try again.
+              {translations[language].errorMessage}
             </div>
           )}
           {loading && (
             <div className="mb-6 p-4 bg-blue-100 text-blue-700 rounded-lg text-center animate-pulse">
-              Loading progress...
+              {translations[language].loadingMessage}
             </div>
           )}
 
           {/* Line Chart Section */}
           <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
             <svg className="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            Progress Over Time
+            {translations[language].lineChartTitle}
           </h2>
           <div className="h-96 bg-gray-50 rounded-lg p-4 mb-12 transition-all duration-300 hover:bg-gray-100">
             {!loading && mathProgress.length === 0 && !error ? (
               <p className="text-gray-600 text-center text-lg font-medium">
-                No Maths progress recorded yet! Start practicing to see your progress.
+                {translations[language].noProgressMessage}
               </p>
             ) : (
               <Line data={lineChartData} options={lineChartOptions} />
@@ -353,12 +398,12 @@ const ProgressBar = () => {
             <svg className="w-6 h-6 mr-2 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
             </svg>
-            Skill Breakdown
+            {translations[language].barChartTitle}
           </h2>
           <div className="h-96 bg-gray-50 rounded-lg p-4 transition-all duration-300 hover:bg-gray-100 animate-fade-in">
             {!loading && Object.keys(progressData).length === 0 && !error ? (
               <p className="text-gray-600 text-center text-lg font-medium">
-                No activity-specific progress recorded yet!
+                {translations[language].noSubSkillMessage}
               </p>
             ) : (
               <Bar data={barChartData} options={barChartOptions} />
