@@ -133,7 +133,7 @@ function SystemPage() {
       setUploadStatus("උඩුගත කරමින් සහ සැකසමින්...");
 
       const response = await axios.post(
-        "http://127.0.0.1:5000/video/action/predict",
+        "http://127.0.0.1:5002/video/action/predict",
         formData
       );
 
@@ -181,8 +181,7 @@ function SystemPage() {
           Swal.fire({
             icon: "error",
             title: "අයියෝ!...",
-            text: `ඔයා කළ දේ, අපි බලාපොරොත්තු වූ දේට වෙනස් වගේ! බලාපොරොත්තු වූ දේ  ${randomCategory} 
-          ඔයා කරපු දේ තමයි...  ${predicted_action}`,
+            text: `ඔයා කළ දේ, අපි බලාපොරොත්තු වූ දේට වෙනස් වගේ!`,
             imageUrl: "../characters/sad.gif",
             imageWidth: 200,
             imageHeight: 200,

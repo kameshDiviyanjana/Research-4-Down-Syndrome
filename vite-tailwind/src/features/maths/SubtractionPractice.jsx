@@ -188,6 +188,7 @@ const SubtractionPractice = () => {
   const [taskCount, setTaskCount] = useState(1);
   const [isCorrect, setIsCorrect] = useState(false);
   const [language, setLanguage] = useState("en");
+const [loading, setLoading] = useState(true);
 
   const userId = localStorage.getItem("userid");
 

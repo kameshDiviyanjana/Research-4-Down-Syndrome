@@ -129,6 +129,7 @@ const NumberPractice = () => {
   const [finalPrediction, setFinalPrediction] = useState("");
   const [isChecking, setIsChecking] = useState(false);
  const [language, setLanguage] = useState("en");
+const [loading, setLoading] = useState(true);
 
   const userId = localStorage.getItem("userid");
 

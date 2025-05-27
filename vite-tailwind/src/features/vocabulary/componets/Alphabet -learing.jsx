@@ -302,7 +302,17 @@ useEffect(() => {
        Swal.fire({
          title: "Results Processed!",
          html: `
-        <b>Cluster:</b> ${response?.data?.cluster ?? "N/A"} <br>
+        <b>Cluster:</b> ${
+          response?.data?.cluster == 4
+            ? "Higt"
+            : response?.data?.cluster == 1
+            ? "Low"
+            : response?.data?.cluster == 2
+            ? "Mediem"
+            : response?.data?.cluster == 3
+            ? "Medile"
+            : "Low" ?? "N/A"
+        } <br>
         <b>Confidence:</b> ${response?.data?.confidence ?? "N/A"}% <br>
       `,
          icon: "success",

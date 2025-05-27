@@ -26,7 +26,7 @@ export const predictGesture = async (imageFile) => {
   try {
     console.log("📤 Sending image to backend...");
     const response = await axios.post(
-      "http://127.0.0.1:5000/image/predict-math",
+      "http://127.0.0.1:5002/image/predict-math",
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },

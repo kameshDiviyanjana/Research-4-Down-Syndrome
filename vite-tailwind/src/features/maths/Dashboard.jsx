@@ -10,6 +10,7 @@ import useLanguageStore from "../maths/store/languageStore";
 import { getLanguagePreference } from "../../services/languageService";
 
 const Dashboard = () => {
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const userId = localStorage.getItem("userid");
     console.log("User ID from localStorage:", userId);

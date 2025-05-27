@@ -128,7 +128,7 @@ const SequencePractice = () => {
   const [isChecking, setIsChecking] = useState(false);
   const [exampleCount, setExampleCount] = useState(1);
   const [isCorrect, setIsCorrect] = useState(false);
-  
+  const [loading, setLoading] = useState(true);
       const [language, setLanguage] = useState("en");
      
        const userId = localStorage.getItem("userid");

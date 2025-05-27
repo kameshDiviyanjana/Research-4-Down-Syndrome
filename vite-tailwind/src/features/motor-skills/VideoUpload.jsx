@@ -56,7 +56,7 @@ function VideoUpload() {
     formData.append("file", selectedVideo);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/video/upload", {
+      const response = await fetch("http://127.0.0.1:5002/video/upload", {
         method: "POST",
         body: formData,
       });

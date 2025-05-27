@@ -21,7 +21,7 @@ function MainPage() {
     try {
       setUploadStatus("Uploading and processing...");
       const response = await axios.post(
-        "http://127.0.0.1:5000/video/upload",
+        "http://127.0.0.1:5002/video/upload",
         formData
       );
 

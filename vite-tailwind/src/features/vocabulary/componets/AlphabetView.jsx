@@ -137,7 +137,7 @@ navigate("/vocabulary/stage-two");
 setclarifyResults(false)
     try {
       const response = await axios.post(
-        "http://127.0.0.1:5000/audio/predict",
+        "http://127.0.0.1:5002/audio/predict",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

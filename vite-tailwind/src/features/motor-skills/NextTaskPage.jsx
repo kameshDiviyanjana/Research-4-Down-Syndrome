@@ -112,7 +112,7 @@ function NextTaskPage() {
     try {
       setUploadStatus("උඩුගත කරමින් සහ සැකසමින්...");
       const response = await axios.post(
-        "http://127.0.0.1:5000/video/action/predict",
+        "http://127.0.0.1:5002/video/action/predict",
         formData
       );
 
@@ -460,11 +460,11 @@ function NextTaskPage() {
                 <h3 className="text-2xl font-semibold text-blue-600">
                   ඔයා රෙකෝඩ් කරපු දේ 🎬
                 </h3>
-                <video
+                {/* <video
                   src={URL.createObjectURL(videoBlob)}
                   controls
                   className="w-full rounded-xl shadow-md mt-3"
-                />
+                /> */}
                 <button
                   onClick={() => handleFileUpload(videoBlob)}
                   className="mt-4 bg-purple-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-purple-700 transition-all"
